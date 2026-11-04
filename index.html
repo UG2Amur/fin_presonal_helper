@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="format-detection" content="telephone=no">
 <title>Финансовый журнал</title>
+<meta name="theme-color" content="#0B0B0D">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <script src="https://telegram.org/js/telegram-web-app.js"></script>
 <style>
 :root{
@@ -334,20 +338,262 @@ details.faq p{margin:0 0 13px;color:var(--hint);font-size:14.5px;line-height:1.4
 .lock-in .inp{margin-top:14px;text-align:center}
 .lock-err{color:var(--danger);font-size:13.5px;min-height:18px;margin-top:8px}
 body.locked #screen,body.locked #tabs{visibility:hidden}
+
+/* ===== v0.4 · «Табло» + пиксельная графика ===== */
+:root{
+  --bg:#0B0B0D;--bg2:#0B0B0D;--sec:#17171A;--sec2:#222226;--sec3:#34343B;--line:#2E2E34;--sep:#2A2A30;
+  --text:#FFFFFF;--hint:#A1A1AA;--link:#D4FF3A;--btn:#D4FF3A;--btnt:#0B0B0D;--accent:#D4FF3A;--acc-bg:#D4FF3A24;
+  --danger:#FF6B5A;--inc:#D4FF3A;--amber:#FFB547;--warn:#FF8A5B;--game:#B79CFF;--game-bg:#B79CFF26;
+  --fu:'Unbounded',system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --fo:'Onest',-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color-scheme:dark;
+}
+html,body{background:var(--bg);font-family:var(--fo)}
+#screen{padding:14px 16px calc(92px + env(safe-area-inset-bottom))}
+.px{display:block;flex:none}
+.pxi{display:inline-flex;vertical-align:-2px}
+.pxi .px{display:inline-block}
+.emo{font-size:inherit;line-height:1}
+.smi{shape-rendering:crispEdges}
+
+/* типографика */
+.h1{font-family:var(--fu);font-weight:700;font-size:24px;letter-spacing:0;margin:6px 2px 14px}
+.big{font-family:var(--fu);font-weight:700;font-size:32px;letter-spacing:-1px;line-height:1.05;margin:4px 0 6px}
+.big .cur{font-size:.55em;color:var(--hint);letter-spacing:0}
+.big.xl{font-size:42px;letter-spacing:-1.5px}
+.big.md{font-size:24px;letter-spacing:-.5px;margin:0}
+.amtbig{font-family:var(--fu);font-weight:700;letter-spacing:-1px}
+.cap{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--hint);margin:22px 4px 10px;text-transform:uppercase}
+.kick{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--hint)}
+.kick.game,.game{color:var(--game)}
+.sub{color:var(--hint)}
+.acc{color:var(--accent)}
+
+/* карточки и строки */
+.card{background:var(--sec);border-radius:20px;padding:14px 16px;margin-bottom:12px}
+.card.list{padding:2px 16px}
+.row+.row,.rrow+.rrow,.step+.step,.ch-row+.ch-row{border-top:1px solid var(--sep)}
+.ic{width:40px;height:40px;border-radius:13px;background:var(--sec2);font-size:19px}
+.ic.sm{width:32px;height:32px;border-radius:10px;font-size:15px}
+.rtop .ic{width:40px;height:40px}
+.chev{color:var(--hint)}
+
+/* кнопки */
+.btn{border-radius:16px;font-weight:700;padding:14px 10px}
+.btn.alt,.btn.ghost{background:var(--sec);color:var(--text)}
+.btn.sm{border-radius:12px;padding:9px 14px}
+.btn.sm.ghost{background:var(--sec2)}
+.btn.danger{background:var(--danger);color:#fff}
+.linkbtn{color:var(--accent)}
+.linkbtn.danger{color:var(--danger)}
+
+/* нижняя панель */
+#tabs{background:var(--bg);border-top:1px solid var(--line);padding:0 4px env(safe-area-inset-bottom)}
+#tabs button{position:relative;color:var(--hint);font-size:11px;font-weight:500;padding:12px 0 8px;gap:5px}
+#tabs button .px{width:22px;height:22px}
+#tabs button.on{color:var(--accent);font-weight:600}
+#tabs button.on::before{content:'';position:absolute;top:0;left:50%;width:14px;height:4px;margin-left:-7px;background:var(--accent)}
+
+/* пиксельная полоса */
+.pxbar{display:flex;gap:3px;margin-top:10px}
+.pxbar i{flex:1;height:12px;background:var(--line)}
+.pxbar i.on{background:var(--accent)}
+.pxbar.game i.on{background:var(--game)}
+.pxbar.amber i.on{background:var(--amber)}
+.pxbar.red i.on{background:var(--danger)}
+.pxbar.cv i.on{background:var(--pc)}
+.pxbar.sm{gap:2px;margin-top:8px}
+.pxbar.sm i{height:8px}
+
+/* поля, листы, переключатели */
+.sheet{background:#111114}
+.sheet .card{background:var(--sec)}
+.inp,.sel,.card .inp{background:var(--sec2);color:var(--text);border-radius:12px}
+.seg{background:var(--sec);border-radius:14px;padding:4px;gap:4px}
+.seg button{border-radius:10px;color:var(--hint)}
+.seg button.on{background:var(--sec3);color:var(--text);font-weight:600}
+.mnav{background:var(--sec);border-radius:14px}
+.mnav button{color:var(--text)}
+.fchip{background:var(--sec);border-radius:999px;color:var(--text)}
+.fchip.on{background:var(--accent);color:var(--btnt);font-weight:600}
+.chip{background:var(--sec);border-radius:999px}
+.chip.on,.chip.icb{color:var(--accent)}
+.cat{background:var(--sec);border-radius:14px}
+.cat .ce{display:flex;align-items:center;justify-content:center;height:26px}
+.cat.sel{box-shadow:inset 0 0 0 2px var(--accent)}
+.kp button{background:var(--sec);border-radius:14px}
+.kp .ok{background:var(--accent);color:var(--btnt);font-weight:700}
+.amtbig{font-size:36px}
+.emos button{background:var(--sec2);display:inline-flex;align-items:center;justify-content:center}
+.sw{background:var(--sec3)}
+.sw.on{background:var(--accent)}
+.sw.on::after{background:#0B0B0D}
+.warn{background:#FF8A5B22;border-radius:14px}
+#toast{background:#26262B;border-radius:14px}
+#toast button{color:var(--accent)}
+.spin{border-color:var(--line);border-top-color:var(--accent)}
+details.faq{background:var(--sec);border-radius:16px}
+.kind-tag{background:var(--sec2)}
+.eve{border:0}
+.tm-logo{background:var(--sec);border-radius:28px}
+
+/* ===== Главная ===== */
+.hhead{display:flex;align-items:center;gap:12px;margin:2px 0 18px}
+.hmas{width:44px;height:44px;border:0;border-radius:14px;background:var(--sec);display:flex;align-items:center;justify-content:center;flex:none;padding:0}
+.hname{font-weight:700;font-size:16px}
+.hlv{font-size:12px;font-weight:600;color:var(--game);cursor:pointer;margin-top:2px}
+.spill{display:flex;align-items:center;gap:6px;height:34px;padding:0 12px;border:0;border-radius:999px;background:var(--game-bg);color:var(--game);font-family:var(--fu);font-weight:600;font-size:13px;flex:none}
+.stories{display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 18px;padding:0 16px}
+.stories::-webkit-scrollbar{display:none}
+.story{flex:none;width:76px;border:0;background:none;padding:0;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text);font-size:12px;font-weight:500}
+.story .ring{width:76px;height:76px;border-radius:22px;border:2px solid var(--line);padding:3px;display:flex}
+.story.new .ring{border-color:var(--accent)}
+.story .face{flex:1;border-radius:17px;background:var(--sec);display:flex;align-items:center;justify-content:center}
+.story .face.game{background:var(--game-bg);color:var(--game)}
+.story .face.acc{color:var(--accent)}
+.hero2{margin:0 2px 12px}
+.hero2 .hl{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.hero2 .sync{margin:0;font-size:12px}
+.wchips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 14px;padding:0 16px}
+.wchips::-webkit-scrollbar{display:none}
+.wchip{flex:none;min-width:128px;max-width:170px;border:0;border-radius:16px;background:var(--sec);color:var(--text);padding:10px 12px;display:grid;grid-template-columns:auto 1fr;grid-template-rows:auto auto;column-gap:10px;row-gap:2px;align-items:center;text-align:left}
+.wchip .ic{grid-row:span 2}
+.wc-n{font-size:12px;color:var(--hint);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.wc-a{font-family:var(--fu);font-weight:600;font-size:13px;white-space:nowrap}
+.qa4{display:grid;gap:10px;margin-bottom:12px}
+.qbtn{height:72px;border:0;border-radius:18px;background:var(--sec);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;font-size:13px;font-weight:600;padding:0}
+.qbtn.pri{background:var(--accent);color:var(--btnt)}
+.qbtn:active,.story:active,.wchip:active,.quest:active{opacity:.7}
+.quest{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:18px;background:var(--game-bg);margin-bottom:12px;cursor:pointer}
+.quest .qi{width:36px;height:36px;border-radius:12px;background:var(--game);color:var(--bg);display:flex;align-items:center;justify-content:center;flex:none}
+.quest .qt{font-size:14px;font-weight:500;margin-top:2px}
+.quest .qx{font-family:var(--fu);font-weight:700;font-size:15px;color:var(--game);white-space:nowrap}
+.quest.done{background:var(--sec)}
+.quest.done .qi{background:var(--game-bg);color:var(--game)}
+.goalc .gh{display:flex;align-items:center;gap:10px}
+.goalc .gp{font-family:var(--fu);font-weight:700;font-size:24px;color:var(--accent);margin-left:auto}
+.gtrack{display:flex;align-items:center;gap:8px;margin-top:12px}
+.gtrack .pxbar{flex:1;margin:0}
+.gtrack .gflag{color:var(--accent);display:flex}
+.gfoot{display:flex;justify-content:space-between;gap:8px;font-size:13px;color:var(--hint);margin-top:10px}
+.gfoot b{color:var(--text);font-weight:600}
+.spend .sp-amt{display:flex;align-items:baseline;flex-wrap:wrap;gap:4px 8px;margin:2px 0 12px}
+.comp{display:flex;gap:2px}
+.comp i{flex:1;height:14px}
+.legend2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 16px;margin-top:12px;font-size:12px}
+.legend2 span{display:flex;align-items:center;gap:6px;min-width:0}
+.legend2 i{width:10px;height:10px;flex:none}
+.legend2 em{font-style:normal;color:var(--hint);flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.legend2 b{font-weight:600}
+.budl{border:0;background:none;padding:0;color:var(--hint);font-size:13px;text-align:left;margin-top:10px;display:block}
+
+/* ===== Отчёт ===== */
+.dchart{position:relative;display:flex;align-items:flex-end;gap:3px;margin-top:12px}
+.dchart .dc{flex:1;display:flex;flex-direction:column-reverse;gap:2px;min-width:0}
+.dchart .dc i{height:6px;background:var(--accent)}
+.dchart .dc.over i{background:var(--warn)}
+.dchart .dc.zero i{background:none;box-shadow:inset 0 0 0 1.5px var(--accent)}
+.dchart .dc.cap i:last-child{background:#fff}
+.dchart .lim{position:absolute;left:0;right:0;border-top:1px dashed var(--hint);pointer-events:none}
+.dlabels{position:relative;height:16px;margin-top:6px}
+.dlabels span{position:absolute;transform:translateX(-50%);font-size:11px;color:var(--hint)}
+.dleg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:11px;color:var(--hint)}
+.dleg span{display:flex;align-items:center;gap:4px}
+.dleg i{width:8px;height:8px;background:var(--accent)}
+.dleg i.o{background:var(--warn)}
+.dleg i.z{background:none;box-shadow:inset 0 0 0 1.5px var(--accent)}
+.rrow .amt{font-family:var(--fu);font-weight:600;font-size:14px}
+.pct{font-family:var(--fo)}
+.chart .bars i{border-radius:0;background:var(--warn)}
+.chart .bars i.in{background:var(--accent)}
+.legend i{border-radius:0}
+
+/* ===== Прогресс ===== */
+.lvl-top{display:flex;align-items:center;gap:14px}
+.lvl-mas{width:64px;height:64px;border-radius:18px;background:var(--game-bg);display:flex;align-items:center;justify-content:center;flex:none}
+.lvl-top .big{font-size:30px;margin:2px 0 4px}
+.sepl{height:1px;background:var(--sep);margin:14px 0}
+.streak-row{display:flex;align-items:center;gap:12px}
+.streak-row .sk{font-family:var(--fu);font-weight:600;font-size:16px}
+.week{display:flex;gap:4px}
+.week span{display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11px;color:var(--hint)}
+.week i{width:16px;height:16px;background:var(--line)}
+.week .on i{background:var(--game)}
+.week .today i{background:none;box-shadow:inset 0 0 0 2px var(--game)}
+.week .fut i{background:var(--sec2)}
+.stairs{display:block;width:100%;height:auto;margin-top:6px}
+.curstep{background:var(--sec2);border-radius:14px;padding:12px;margin-top:12px}
+.curstep .ch{margin-bottom:0}
+.curstep .pp{font-family:var(--fu);font-weight:700;font-size:14px;color:var(--accent)}
+details.steps{margin-top:10px}
+details.steps summary{list-style:none;cursor:pointer;color:var(--accent);font-size:14px;font-weight:600;padding:6px 0}
+details.steps summary::-webkit-details-marker{display:none}
+.step .num{border-radius:10px;background:var(--sec2)}
+.step.done .num{background:var(--accent);color:var(--btnt)}
+.step.cur .num{background:var(--acc-bg);color:var(--accent);box-shadow:inset 0 0 0 1.5px var(--accent)}
+.gtile{color:var(--game)!important;background:var(--game-bg)!important}
+.bdg{background:var(--sec2);border-radius:14px;color:var(--text);font-size:11px;gap:6px;padding:10px 2px 8px}
+.bdg .e{color:var(--game);display:flex;height:26px;align-items:center}
+.bdg.off{opacity:.4;filter:none}
+.bdg.off .e{color:var(--hint)}
+.chx{display:flex;align-items:center;gap:12px}
+.chx .xp{font-family:var(--fu);font-weight:700;font-size:15px;color:var(--game);white-space:nowrap}
+
+/* ===== Итоги месяца ===== */
+.sum2{text-align:center;margin-bottom:12px}
+.sum-hero{position:relative;height:172px;border-radius:24px;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-bottom:14px}
+.sum-hero::before{content:'';position:absolute;inset:0;background:var(--gc);opacity:.16}
+.sum-hero>*{position:relative}
+.sum-hero .cf{position:absolute}
+.sum2 .sum-m{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--hint)}
+.sum2 .sum-t{font-family:var(--fu);font-weight:700;font-size:24px;margin:8px 0 6px;letter-spacing:0}
+.sum2 .sum-d{font-size:15px;color:var(--hint);line-height:1.4}
+.sum-sc{display:flex;align-items:baseline;justify-content:center;gap:6px;margin-top:14px}
+.sum-n{font-family:var(--fu);font-weight:800;font-size:52px;line-height:1}
+.sum2 .pxbar{margin-top:12px}
+.mk{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex:none}
+.mk.ok{background:var(--acc-bg);color:var(--accent)}
+.mk.half{background:#FFB5472E;color:var(--amber)}
+.mk.no{background:#FF6B5A2E;color:var(--danger)}
+
+/* чат вечернего вопроса и прочее */
+.bub-av{background:var(--sec);border-radius:10px}
+.bub{background:var(--sec)}
+.bub-act button{background:var(--sec2);color:var(--accent)}
+.bub-act button.pri{background:var(--accent);color:var(--btnt)}
+.bub-me{background:var(--accent);color:var(--btnt)}
+.lock-ic{color:var(--accent);display:flex;justify-content:center}
+.ob-logo{display:flex;justify-content:center}
+.tipc{text-align:center;padding:8px 6px 4px}
+.tipc .tipt{font-family:var(--fu);font-weight:700;font-size:20px;margin:14px 0 8px}
+.tipc p{font-size:15.5px;line-height:1.5;color:var(--hint);margin:0}
+.newsv{font-size:12px;font-weight:700;letter-spacing:.14em;color:var(--hint);margin:6px 4px 8px;text-transform:uppercase}
+.sync{display:flex;align-items:center;gap:6px}
+.sync i{width:6px;height:6px;background:var(--hint);flex:none}
+.sync.s-ok i{background:var(--accent)}
+.sync.s-error i{background:var(--danger)}
+.sync.s-saving i,.sync.s-loading i{background:var(--amber)}
+.iconb{width:40px;height:40px;border:0;border-radius:12px;background:var(--sec);color:var(--text);display:flex;align-items:center;justify-content:center;flex:none;padding:0}
+.stairs{shape-rendering:crispEdges}
+.stairs rect.on{fill:var(--accent)}
+.stairs rect.cur{fill:var(--acc-bg);stroke:var(--accent);stroke-width:1.5}
+.stairs rect.off{fill:var(--sec2)}
+.stairs text{font-family:var(--fu);font-weight:700;font-size:11px}
+.stairs .lon{fill:var(--btnt)}.stairs .lcur{fill:var(--accent)}.stairs .loff{fill:var(--hint)}
 </style>
 </head>
 <body>
 <main id="screen"></main>
 <nav id="tabs">
-  <button data-tab="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9v11h13V9"/><path d="M10 20v-5.5h4V20"/></svg>Главная</button>
-  <button data-tab="journal"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.5" cy="6.5" r="1.1" fill="currentColor"/><circle cx="4.5" cy="12" r="1.1" fill="currentColor"/><circle cx="4.5" cy="17.5" r="1.1" fill="currentColor"/></svg>Журнал</button>
-  <button data-tab="report"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M11 4a8.5 8.5 0 1 0 9 9h-9z"/><path d="M14.5 3.2a8 8 0 0 1 6.3 6.3h-6.3z"/></svg>Отчёт</button>
-  <button data-tab="plans"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>Планы</button>
-  <button data-tab="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5v1a3 3 0 0 0 3 3M16 6h3v1a3 3 0 0 1-3 3"/><path d="M12 13v4M8.5 20.5h7M10 17h4v3.5h-4z"/></svg>Прогресс</button>
-  <button data-tab="more"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>Ещё</button>
+  <button data-tab="home"><i data-px="home"></i>Главная</button>
+  <button data-tab="journal"><i data-px="list"></i>Журнал</button>
+  <button data-tab="report"><i data-px="chart"></i>Отчёт</button>
+  <button data-tab="plans"><i data-px="target"></i>Планы</button>
+  <button data-tab="progress"><i data-px="trophy"></i>Прогресс</button>
+  <button data-tab="more"><i data-px="dots"></i>Ещё</button>
 </nav>
 <div id="lock" hidden><div class="lock-in">
-  <div class="lock-ic">🔒</div>
+  <div class="lock-ic"><i data-px="lock" data-size="56"></i></div>
   <div class="h1 c" id="lockTitle">Журнал закрыт</div>
   <div class="sub c" id="lockMsg"></div>
   <input class="inp" id="lockPw" type="password" autocomplete="current-password" placeholder="Пароль" hidden>
@@ -362,8 +608,8 @@ body.locked #screen,body.locked #tabs{visibility:hidden}
 'use strict';
 /* ====== Настройки ====== */
 const APP_NAME = 'Финансовый журнал';
-const VERSION = '0.3';
-const TUT_VER = 2;      // версия обучения: 2 = с шагом про планы и прогресс
+const VERSION = '0.4';
+const TUT_VER = 3;      // 2 = v0.3 (планы и прогресс), 3 = v0.4 (новый вид). Показ «Что нового» тем, кто видел меньше
 const PART = 2000;      // длина одного куска в облаке Telegram (лимит 4096)
 const META_KEYS = new Set(['xenc']);
 
@@ -469,7 +715,9 @@ const LS = {
   del(k) { try { localStorage.removeItem(k); } catch (e) {} },
 };
 const USER_ID = (IN_TG && TG.initDataUnsafe && TG.initDataUnsafe.user) ? TG.initDataUnsafe.user.id : 'local';
-const LKEY = 'fj1_' + USER_ID;
+// Тестовый бот открывает тот же сайт с ?env=test — его локальная копия хранится отдельно от рабочей.
+const ENV = (() => { try { return (new URLSearchParams(location.search).get('env') || '').replace(/[^a-z0-9]/gi, '').slice(0, 12).toLowerCase(); } catch (e) { return ''; } })();
+const LKEY = 'fj1_' + (ENV ? ENV + '_' : '') + USER_ID;
 
 /* ====== Состояние ====== */
 let S = { cfg: null, months: {}, g: null };   // months: { '202610': [tx, ...] }
@@ -828,8 +1076,8 @@ async function syncFromCloud() {
   }
 }
 function syncBadge() {
-  const m = { ok: '☁️ Сохранено', saving: '⏳ Сохраняю…', loading: '⏳ Загрузка…', error: '⚠️ Нет связи', local: '📱 В браузере' }[syncState] || '';
-  return `<div class="sync" id="syncBadge">${m}</div>`;
+  const m = { ok: 'Сохранено', saving: 'Сохраняю…', loading: 'Загрузка…', error: 'Нет связи', local: 'В браузере' }[syncState] || '';
+  return `<div class="sync s-${syncState}" id="syncBadge">${m ? '<i></i>' + m : ''}</div>`;
 }
 function syncText() {
   return {
@@ -845,6 +1093,124 @@ function setSync(s) {
   const b = document.getElementById('syncBadge'); if (b) b.outerHTML = syncBadge();
   const i = document.getElementById('syncInfo'); if (i) i.textContent = syncText();
   if ((prev === 'error') !== (s === 'error') && tab === 'home' && phase === 'ready' && S.cfg) render();
+}
+
+/* ====== Пиксельные иконки 9×9 (общие для семейства ботов) ====== */
+const PXG = {
+  home: ['....#....', '...#.#...', '..#...#..', '.#.....#.', '#########', '.#.....#.', '.#.##..#.', '.#.##..#.', '.#######.'],
+  list: ['#.#######', '.........', '#.#######', '.........', '#.#######', '.........', '#.#######', '.........', '.........'],
+  chart: ['.......##', '.......##', '....##.##', '....##.##', '.##.##.##', '.##.##.##', '.##.##.##', '#########', '.........'],
+  target: ['..#####..', '.#.....#.', '#..###..#', '#.#...#.#', '#.#.#.#.#', '#.#...#.#', '#..###..#', '.#.....#.', '..#####..'],
+  trophy: ['#########', '##.....##', '.#.....#.', '.#.....#.', '..#...#..', '...###...', '....#....', '...###...', '..#####..'],
+  dots: ['.........', '.........', '.........', '##.##.##.', '##.##.##.', '.........', '.........', '.........', '.........'],
+  cal: ['.#.....#.', '#########', '#.......#', '#########', '#.#.#.#.#', '#.......#', '#.#.#.#.#', '#.......#', '#########'],
+  coin: ['..#####..', '.#.....#.', '#..###..#', '#..#....#', '#..###..#', '#....#..#', '#..###..#', '.#.....#.', '..#####..'],
+  moon: ['...###...', '..##.....', '.##......', '.##......', '.##......', '.##......', '..##.....', '...###...', '.........'],
+  flag: ['#........', '#######..', '#######..', '#######..', '#........', '#........', '#........', '#........', '#........'],
+  cart: ['##.......', '.#.......', '.########', '.#......#', '.#......#', '.########', '.#.......', '..##..##.', '..##..##.'],
+  cup: ['..#.#.#..', '..#.#.#..', '.........', '#######..', '#.....###', '#.....#.#', '#.....###', '.#...#...', '..###....'],
+  burger: ['..#####..', '.##.#.##.', '#########', '.........', '#########', '#.#.#.#.#', '.........', '#########', '.#######.'],
+  mug: ['.#####...', '#######..', '#.#.#.###', '#.#.#.#.#', '#.#.#.#.#', '#.#.#.###', '#.#.#.#..', '#######..', '.........'],
+  bus: ['.#######.', '#.......#', '#.##.##.#', '#.##.##.#', '#.......#', '#########', '#.#####.#', '#########', '.#.....#.'],
+  car: ['.........', '.........', '..#####..', '.#.#.#.#.', '#########', '#.#####.#', '#########', '.##...##.', '.........'],
+  taxi: ['.........', '...###...', '..#####..', '.#.#.#.#.', '#########', '#.#####.#', '#########', '.##...##.', '.........'],
+  bulb: ['..#####..', '.#.....#.', '#.......#', '#...#...#', '#..#.#..#', '.#.....#.', '..#####..', '..#####..', '...###...'],
+  phone: ['..#####..', '..#...#..', '..#...#..', '..#...#..', '..#...#..', '..#####..', '..##.##..', '..#####..', '.........'],
+  med: ['.........', '...###...', '...#.#...', '####.####', '#.......#', '####.####', '...#.#...', '...###...', '.........'],
+  shirt: ['##.....##', '###...###', '####.####', '.#######.', '..#####..', '..#####..', '..#####..', '..#####..', '.........'],
+  basket: ['...###...', '..#...#..', '.#.....#.', '#########', '#.#.#.#.#', '.#.#.#.#.', '.#.#.#.#.', '..#####..', '.........'],
+  clap: ['#.#.#.#.#', '#########', '.........', '#########', '#.......#', '#.......#', '#.......#', '#########', '.........'],
+  pad: ['.........', '.#######.', '#########', '##.###.##', '#...#.#.#', '##.####.#', '#########', '##.....##', '.........'],
+  gift: ['..#...#..', '...#.#...', '#########', '#...#...#', '#########', '.#..#..#.', '.#..#..#.', '.#######.', '.........'],
+  teddy: ['##.....##', '#########', '.#.###.#.', '.#######.', '.##.#.##.', '..#####..', '.#######.', '##.....##', '.........'],
+  fuel: ['#####....', '#...#....', '#...#.#..', '#####..#.', '#####..#.', '#####..#.', '#####.##.', '#####....', '######...'],
+  scis: ['#.......#', '.#.....#.', '..#...#..', '...#.#...', '....#....', '...#.#...', '.##...##.', '#..#.#..#', '.##...##.'],
+  books: ['.........', '#.##.###.', '#.##.###.', '#.##.#.#.', '#.##.###.', '#.##.###.', '#.##.###.', '#########', '.........'],
+  repeat: ['......#..', '########.', '#.....#..', '#........', '#.......#', '........#', '..#.....#', '.########', '..#......'],
+  bank: ['....#....', '...###...', '..#####..', '#########', '.#.#.#.#.', '.#.#.#.#.', '.#.#.#.#.', '#########', '#########'],
+  dog: ['##.....##', '##.###.##', '#########', '.#.#.#.#.', '.#######.', '..##.##..', '..#####..', '...###...', '.........'],
+  plane: ['....#....', '...###...', '...###...', '.#######.', '#########', '...###...', '...###...', '..#####..', '.........'],
+  gym: ['.........', '.........', '##.....##', '##.....##', '#########', '##.....##', '##.....##', '.........', '.........'],
+  wrench: ['......#.#', '......###', '.....###.', '....###..', '...###...', '..###....', '.###.....', '###......', '##.......'],
+  case: ['.........', '...###...', '...#.#...', '#########', '#.......#', '#########', '#.......#', '#########', '.........'],
+  note: ['.........', '.........', '#########', '#.......#', '#..###..#', '#..###..#', '#.......#', '#########', '.........'],
+  up: ['......###', '.......##', '#.....#.#', '#....#...', '#.#.#....', '#..#.....', '#........', '#########', '.........'],
+  ret: ['..#......', '.##......', '#######..', '.##....#.', '..#.....#', '........#', '.......#.', '..#####..', '.........'],
+  bag: ['...###...', '....#....', '..#####..', '.###.###.', '####..###', '###.#####', '####..###', '.###.###.', '..#####..'],
+  box: ['.........', '#########', '#.......#', '#########', '.#.....#.', '.#.###.#.', '.#.....#.', '.#######.', '.........'],
+  heart: ['.........', '.##...##.', '####.####', '#########', '#########', '.#######.', '..#####..', '...###...', '....#....'],
+  star: ['....#....', '....#....', '...###...', '#########', '.#######.', '..#####..', '..##.##..', '.##...##.', '.#.....#.'],
+  grad: ['.........', '....#....', '..#####..', '#########', '..#####..', '..#####.#', '..#####.#', '.......#.', '.........'],
+  card: ['.........', '#########', '#.......#', '#########', '#########', '#.......#', '#.##....#', '#########', '.........'],
+  pig: ['##.....##', '#########', '#########', '##.###.##', '#########', '##.....##', '##.#.#.##', '##.....##', '.#######.'],
+  receipt: ['#########', '#.......#', '#.#####.#', '#.......#', '#.###...#', '#.......#', '#.####..#', '#.......#', '#.#.#.#.#'],
+  beach: ['..#####..', '.#######.', '#########', '....#....', '....#....', '....#....', '....#....', '#########', '.........'],
+  buoy: ['..#####..', '.#######.', '###...###', '##.....##', '##.....##', '##.....##', '###...###', '.#######.', '..#####..'],
+  ring: ['...###...', '..#.#.#..', '...###...', '..#...#..', '.#.....#.', '.#.....#.', '.#.....#.', '..#...#..', '...###...'],
+  pencil: ['.......##', '......###', '.....###.', '....###..', '...###...', '..###....', '.###.....', '##.......', '#........'],
+  scales: ['....#....', '.#######.', '.#..#..#.', '#.#.#.#.#', '#.#.#.#.#', '###.#.###', '....#....', '..#####..', '.........'],
+  camera: ['.........', '...###...', '#########', '#..###..#', '#.#...#.#', '#.#...#.#', '#..###..#', '#########', '.........'],
+  cent: ['.........', '#.###.###', '#.#.#.#.#', '#.#.#.#.#', '#.#.#.#.#', '#.###.###', '.........', '#########', '.........'],
+  inbox: ['....#....', '....#....', '..#.#.#..', '...###...', '....#....', '#.......#', '#.......#', '#########', '.........'],
+  cloud: ['.........', '...###...', '..#####..', '.#######.', '#########', '#########', '.#######.', '.........', '.........'],
+  disk: ['########.', '#.####.##', '#.####..#', '#.......#', '#.#####.#', '#.#...#.#', '#.#...#.#', '#########', '.........'],
+  laptop: ['.#######.', '.#.....#.', '.#.....#.', '.#.....#.', '.#######.', '#########', '#########', '.........', '.........'],
+  spark: ['....#....', '....#....', '...###...', '#########', '...###...', '....#....', '....#....', '.#.......', '###......'],
+  minus: ['.........', '.........', '.........', '.........', '#########', '.........', '.........', '.........', '.........'],
+  plus: ['....#....', '....#....', '....#....', '....#....', '#########', '....#....', '....#....', '....#....', '....#....'],
+  xfer: ['.........', '.......#.', '#########', '.......#.', '.........', '.#.......', '#########', '.#.......', '.........'],
+  qr: ['###.#.###', '#.#...#.#', '###.#.###', '....#....', '#.###.#.#', '....#.#..', '###..#.##', '#.#.#..#.', '###.##.##'],
+  bolt: ['.....##..', '....##...', '...##....', '..######.', '.....##..', '....##...', '...##....', '..##.....', '..#......'],
+  fire: ['....#....', '...##....', '...###...', '..####.#.', '..######.', '.#######.', '.###.###.', '.##...##.', '..#####..'],
+  snow: ['....#....', '.#..#..#.', '..#.#.#..', '...###...', '#########', '...###...', '..#.#.#..', '.#..#..#.', '....#....'],
+  book: ['.........', '####.####', '#...#...#', '#.#.#.#.#', '#...#...#', '#.#.#.#.#', '#...#...#', '#########', '.........'],
+  lock: ['..#####..', '.#.....#.', '.#.....#.', '#########', '#.......#', '#...#...#', '#...#...#', '#.......#', '#########'],
+  check: ['.........', '........#', '.......##', '#.....##.', '##...##..', '.##.##...', '..###....', '...#.....', '.........'],
+  dash: ['.........', '.........', '.........', '.........', '.#######.', '.#######.', '.........', '.........', '.........'],
+  cross: ['#.......#', '.#.....#.', '..#...#..', '...#.#...', '....#....', '...#.#...', '..#...#..', '.#.....#.', '#.......#'],
+  help: ['..#####..', '.#.....#.', '.......#.', '......#..', '....##...', '....#....', '.........', '....#....', '.........'],
+  hand: ['.........', '##.....##', '###...###', '#.##.##.#', '#..###..#', '##..#..##', '.##...##.', '..#####..', '.........'],
+};
+const PXC = { O: '#FF9F43', P: '#FF6B9A', Y: '#FFD43B', B: '#5AA9FF', C: '#22D3EE', G: '#4ADE80', L: '#D4FF3A', R: '#FF7A6B', N: '#A1A1AA', W: '#F2F2F5', V: '#B79CFF', K: '#FF8FB1' };
+// эмодзи → [иконка, цвет]. Эмодзи без пары показываются как есть.
+const PXE = {};
+[['🛒', 'cart', 'O'], ['☕', 'cup', 'P'], ['🍔', 'burger', 'O'], ['🍺', 'mug', 'P'], ['🚌', 'bus', 'Y'], ['🚕', 'taxi', 'Y'], ['🚗', 'car', 'Y'], ['⛽', 'fuel', 'Y'],
+ ['✈', 'plane', 'C'], ['🏠', 'home', 'B'], ['💡', 'bulb', 'Y'], ['📱', 'phone', 'C'], ['💊', 'med', 'G'], ['👕', 'shirt', 'P'], ['🧺', 'basket', 'B'], ['🎬', 'clap', 'P'],
+ ['🎮', 'pad', 'P'], ['🎁', 'gift', 'R'], ['🧸', 'teddy', 'O'], ['💈', 'scis', 'P'], ['📚', 'books', 'C'], ['🔁', 'repeat', 'B'], ['🏦', 'bank', 'R'], ['🐶', 'dog', 'O'],
+ ['🏋', 'gym', 'G'], ['🛠', 'wrench', 'B'], ['🔧', 'wrench', 'L'], ['💼', 'case', 'L'], ['💵', 'note', 'L'], ['📈', 'up', 'L'], ['↩', 'ret', 'L'], ['💰', 'bag', 'L'],
+ ['📦', 'box', 'N'], ['❤', 'heart', 'R'], ['⭐', 'star', 'Y'], ['🎓', 'grad', 'C'], ['💳', 'card', 'B'], ['🪙', 'coin', 'Y'], ['🐷', 'pig', 'K'], ['🎯', 'target', 'R'],
+ ['🧾', 'receipt', 'N'], ['🏖', 'beach', 'Y'], ['🛟', 'buoy', 'O'], ['💍', 'ring', 'C'], ['📅', 'cal', 'B'], ['🌙', 'moon', 'V'], ['⚖', 'scales', 'W'], ['⇄', 'xfer', 'W'],
+ ['🔐', 'lock', 'W'], ['🔒', 'lock', 'W'], ['📊', 'chart', 'W'], ['♻', 'repeat', 'W'], ['❓', 'help', 'W'], ['✨', 'spark', 'V'], ['＋', 'plus', 'L'], ['📥', 'inbox', 'W'],
+ ['💾', 'disk', 'W'], ['📒', 'book', 'W'], ['☁', 'cloud', 'W'], ['💻', 'laptop', 'W'], ['📷', 'camera', 'W'], ['✏', 'pencil', 'W'], ['🏆', 'trophy', 'Y'], ['🤝', 'hand', 'W'],
+ ['⚡', 'bolt', 'V'], ['💯', 'cent', 'W'], ['🔥', 'fire', 'V'], ['🎉', 'spark', 'V'], ['🍕', 'burger', 'O'], ['🚇', 'bus', 'Y'], ['🛍', 'gift', 'P'], ['🏥', 'med', 'G']]
+  .forEach(([e, g, c]) => { PXE[e] = [g, PXC[c]]; });
+const pxKey = e => String(e == null ? '' : e).replace(/[️‍]/g, '').trim();
+const pxOf = ic => PXE[pxKey(ic)] || null;
+const pxPaths = {};
+function pxPath(name) {
+  if (pxPaths[name]) return pxPaths[name];
+  const g = PXG[name] || PXG.box; let d = '';
+  g.forEach((row, y) => { let x = 0; while (x < 9) { if (row[x] === '#') { let l = 1; while (row[x + l] === '#') l++; d += `M${x} ${y}h${l}v1h-${l}z`; x += l; } else x++; } });
+  return (pxPaths[name] = d);
+}
+// одна пиксельная иконка
+function pxSvg(name, size) { size = size || 20; return `<svg class="px" viewBox="0 0 9 9" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="${pxPath(name)}"/></svg>`; }
+// иконка по эмодзи: в строке текста
+function icn(ic, size) {
+  const m = pxOf(ic);
+  return m ? `<span class="pxi" style="color:${m[1]}">${pxSvg(m[0], size || 16)}</span>` : `<span class="emo">${esc(ic)}</span>`;
+}
+// иконка по эмодзи: цветная плитка .ic
+function ict(ic, cls) {
+  const m = pxOf(ic), c = m ? m[1] : PXC.N;
+  return `<div class="ic${cls ? ' ' + cls : ''}" style="color:${c};background:${c}24">${m ? pxSvg(m[0], cls === 'sm' ? 16 : 20) : `<span class="emo">${esc(ic)}</span>`}</div>`;
+}
+// пиксельная полоса прогресса из клеток
+function pxBar(p, cls, n, color) {
+  n = n || 20; p = Math.max(0, Math.min(1, p || 0));
+  const f = p > 0 && p < 1 ? Math.min(n - 1, Math.max(1, Math.round(p * n))) : Math.round(p * n);
+  let h = ''; for (let i = 0; i < n; i++) h += i < f ? '<i class="on"></i>' : '<i></i>';
+  return `<div class="pxbar ${cls || ''}"${color ? ` style="--pc:${color}"` : ''} role="img" aria-label="${Math.round(p * 100)}%">${h}</div>`;
 }
 
 /* ====== Биометрия и экран блокировки ====== */
@@ -1048,10 +1414,10 @@ function openEntry(tx, kind, preset) {
     const note = `<button class="chip${st.n ? ' on' : ''}" data-s="note">✎ <span class="cl">${st.n ? esc(st.n) : 'Заметка'}</span></button>`;
     const qr = (!edit && CAN_QR && st.k !== 't') ? `<button class="chip" data-s="qr">📷 <span class="cl">Чек</span></button>` : '';
     const a = wal(st.w);
-    let h = `<button class="chip" data-s="wal" data-which="from">${esc(a.ic)} <span class="cl">${esc(a.n)}</span></button>`;
+    let h = `<button class="chip" data-s="wal" data-which="from">${icn(a.ic)} <span class="cl">${esc(a.n)}</span></button>`;
     if (st.k === 't') {
       const b = st.w2 ? wal(st.w2) : null;
-      h += `<button class="chip icb" data-s="swap" aria-label="Поменять местами">→</button><button class="chip" data-s="wal" data-which="to">${b ? esc(b.ic) + ' <span class="cl">' + esc(b.n) + '</span>' : 'Куда?'}</button>`;
+      h += `<button class="chip icb" data-s="swap" aria-label="Поменять местами">→</button><button class="chip" data-s="wal" data-which="to">${b ? icn(b.ic) + ' <span class="cl">' + esc(b.n) + '</span>' : 'Куда?'}</button>`;
     }
     sh.ref('chips').innerHTML = h + date + note + qr;
   };
@@ -1066,7 +1432,7 @@ function openEntry(tx, kind, preset) {
     el.className = 'cats';
     let list = catsOf(st.k).filter(c => !c.hid || c.id === st.c);
     if (!edit) list = sortByFreq(list);
-    el.innerHTML = list.map(c => `<button class="cat${c.id === st.c ? ' sel' : ''}" data-s="cat" data-id="${esc(c.id)}"><span class="ce">${esc(c.ic)}</span><span class="cn">${esc(c.n)}</span></button>`).join('')
+    el.innerHTML = list.map(c => `<button class="cat${c.id === st.c ? ' sel' : ''}" data-s="cat" data-id="${esc(c.id)}"><span class="ce">${icn(c.ic, 24)}</span><span class="cn">${esc(c.n)}</span></button>`).join('')
       + `<button class="cat add" data-s="newcat"><span class="ce">＋</span><span class="cn">Своя</span></button>`;
   };
   const markSel = () => sh.el.querySelectorAll('.cat[data-id]').forEach(b => b.classList.toggle('sel', b.dataset.id === st.c));
@@ -1141,7 +1507,7 @@ function openEntry(tx, kind, preset) {
 }
 function pickWallet(cur, cb) {
   const b = balances();
-  const row = w => `<div class="row" data-s="pick" data-id="${esc(w.id)}"><div class="ic">${esc(w.ic)}</div><div class="grow t">${esc(w.n)}${w.id === cur ? ' ✓' : ''}</div><div class="amt">${money(b[w.id])}</div></div>`;
+  const row = w => `<div class="row" data-s="pick" data-id="${esc(w.id)}">${ict(w.ic)}<div class="grow t">${esc(w.n)}${w.id === cur ? ' ✓' : ''}</div><div class="amt">${money(b[w.id])}</div></div>`;
   const gs = goalWallets();
   const sh = openSheet({
     title: 'Кошелёк',
@@ -1182,7 +1548,7 @@ function openAdjust(wid) {
   const w = wal(wid), cur = balances()[wid] || 0;
   openAmount({
     title: 'Сверка остатка',
-    sub: `${esc(w.ic)} ${esc(w.n)} · по журналу ${money(cur)}<br>Сколько там на самом деле?`,
+    sub: `${icn(w.ic)} ${esc(w.n)} · по журналу ${money(cur)}<br>Сколько там на самом деле?`,
     allowZero: true,
     onSave: a => {
       const diff = a - cur, tk = todayKey(), g = G();
@@ -1198,7 +1564,7 @@ function openAdjView(tx) {
   const w = wal(tx.w);
   const sh = openSheet({
     title: 'Корректировка',
-    html: `<div class="card c"><div class="sub">${esc(w.ic)} ${esc(w.n)} · ${dayLabel(tx.m, tx.d)}</div><div class="big ${tx.a > 0 ? 'inc' : ''}">${money(tx.a, true)}</div><div class="sub small">${tx.x && tx.x[0] === 'd' ? 'Связано с долгом.' : 'Появляется при сверке остатка с фактом.'} В доходы и расходы не входит.</div></div><button class="btn wide ghost danger-t" data-s="del">Удалить корректировку</button>`,
+    html: `<div class="card c"><div class="sub">${icn(w.ic)} ${esc(w.n)} · ${dayLabel(tx.m, tx.d)}</div><div class="big ${tx.a > 0 ? 'inc' : ''}">${money(tx.a, true)}</div><div class="sub small">${tx.x && tx.x[0] === 'd' ? 'Связано с долгом.' : 'Появляется при сверке остатка с фактом.'} В доходы и расходы не входит.</div></div><button class="btn wide ghost danger-t" data-s="del">Удалить корректировку</button>`,
     on: { del: () => { removeTx(tx); sh.close(); render(); toast('Удалено', 'Вернуть', () => { addTx(tx); render(); }); } },
   });
 }
@@ -1238,7 +1604,7 @@ function scanReceipt(cb) {
 }
 
 /* ====== Кошельки, категории ====== */
-function emoRow(list) { return `<div class="emos">${list.map(e => `<button data-s="emo" data-e="${e}">${e}</button>`).join('')}</div>`; }
+function emoRow(list) { return `<div class="emos">${list.map(e => `<button data-s="emo" data-e="${e}" aria-label="${e}">${icn(e, 20)}</button>`).join('')}</div>`; }
 function openWallet(id) {
   const w0 = id ? S.cfg.wallets.find(x => x.id === id) : null;
   if (w0 && w0.g) return openGoal(id);
@@ -1280,7 +1646,7 @@ function openWallet(id) {
   });
 }
 function openCats(kind) {
-  const body = () => `<div class="card list">${catsOf(kind).map(c => `<div class="row" data-s="edit" data-id="${esc(c.id)}"><div class="ic">${esc(c.ic)}</div><div class="grow"><div class="t">${esc(c.n)}</div>${c.hid ? '<div class="sub">скрыта</div>' : ''}</div><div class="chev">›</div></div>`).join('')}</div><button class="btn wide" data-s="add">+ Новая категория</button>`;
+  const body = () => `<div class="card list">${catsOf(kind).map(c => `<div class="row" data-s="edit" data-id="${esc(c.id)}">${ict(c.ic)}<div class="grow"><div class="t">${esc(c.n)}</div>${c.hid ? '<div class="sub">скрыта</div>' : ''}</div><div class="chev">›</div></div>`).join('')}</div><button class="btn wide" data-s="add">+ Новая категория</button>`;
   const sh = openSheet({
     title: kind === 'e' ? 'Категории расходов' : 'Категории доходов', html: body(),
     on: { edit: ds => openCatEdit(kind, ds.id, () => sh.set(body())), add: () => openCatEdit(kind, null, () => sh.set(body())) },
@@ -1319,7 +1685,7 @@ function openGoal(id) {
   const w = S.cfg.wallets.find(x => x.id === id); if (!w) return;
   const bal = balances()[w.id] || 0, gi = goalInfo(w, bal);
   const hist = sortTx(allTx().filter(t => t.k === 't' && (t.w2 === w.id || t.w === w.id))).slice(0, 6);
-  const html = `<div class="card c"><div style="font-size:40px">${esc(w.ic)}</div><div class="sub">${GOAL_KIND[w.g.kind] || 'Цель'}</div><div class="big">${money(bal)}</div>
+  const html = `<div class="card c"><div style="display:flex;justify-content:center;margin:4px 0 6px">${ict(w.ic)}</div><div class="sub">${GOAL_KIND[w.g.kind] || 'Цель'}</div><div class="big">${money(bal)}</div>
       ${gi.t ? `${barHTMLp(gi.p)}<div class="sub mt">${gi.done ? '🏆 Цель достигнута!' : `${Math.round(gi.p * 100)}% из ${money(gi.t)} · осталось ${money(gi.t - bal)}`}</div>
       ${gi.perMonth != null ? `<div class="sub">Чтобы успеть к ${monthDat(w.g.dl)}, откладывайте по ${money(gi.perMonth)} в месяц</div>` : ''}` : '<div class="sub">Сумма цели не задана</div>'}</div>
     <div class="row2"><button class="btn" data-s="put">Отложить</button><button class="btn ghost" data-s="take">Взять</button></div>
@@ -1511,17 +1877,17 @@ function openCheckin(mode) {
     const sum = td.reduce((s, t) => s + t.a, 0);
     const pend = pendingRec();
     const closed = G().cd.includes(tk);
-    const bot = (txt, extra) => `<div class="bub-row"><div class="bub-av">📒</div><div class="bub">${txt}${extra || ''}</div></div>`;
+    const bot = (txt, extra) => `<div class="bub-row"><div class="bub-av">${mascotSVG(22)}</div><div class="bub">${txt}${extra || ''}</div></div>`;
     let h = '<div class="chat">';
     if (mode === 'evening') {
       const hr = new Date().getHours();
-      h += bot(`${hr >= 23 || hr < 5 ? 'Доброй ночи' : 'Добрый вечер'}! ${td.length ? `Сегодня записано ${td.length} ${plural(td.length, 'трата', 'траты', 'трат')} на ${money(sum)}.` : 'Сегодня трат пока не записано.'}`);
+      h += bot(`${hr >= 23 || hr < 5 ? 'Доброй ночи' : hr < 12 ? 'Доброе утро' : hr < 17 ? 'Добрый день' : 'Добрый вечер'}! ${td.length ? `Сегодня записано ${td.length} ${plural(td.length, 'трата', 'траты', 'трат')} на ${money(sum)}.` : 'Сегодня трат пока не записано.'}`);
     }
     if (pend.length) {
       h += bot(mode === 'evening' ? 'По плану были платежи:' : 'Платежи по плану:');
       for (const p of pend) {
         const r = p.r, inc = r.k === 'i';
-        h += bot(`${esc(cat(r.c).ic)} <b>${esc(recName(r))}</b> — ${money(r.a)}<div class="sub">${p.k < tk ? 'должен был быть ' + keyLabelL(p.k) : 'сегодня'}${p.n > 1 ? ` · и ещё ${p.n - 1}` : ''}</div>`,
+        h += bot(`${icn(cat(r.c).ic)} <b>${esc(recName(r))}</b> — ${money(r.a)}<div class="sub">${p.k < tk ? 'должен был быть ' + keyLabelL(p.k) : 'сегодня'}${p.n > 1 ? ` · и ещё ${p.n - 1}` : ''}</div>`,
           `<div class="bub-act"><button class="pri" data-s="rpay" data-id="${r.id}" data-k="${p.k}">✓ ${inc ? 'Пришёл' : 'Оплачено'}</button><button data-s="rother" data-id="${r.id}" data-k="${p.k}">Другая сумма</button><button data-s="rlater" data-id="${r.id}">Завтра</button><button data-s="rskip" data-id="${r.id}" data-k="${p.k}">Не было</button></div>`);
       }
     }
@@ -1616,7 +1982,7 @@ function computeGame(tk) {
   return { xp, lv, active, txDays, closed, recon, saveDays, streak, thisWeek, maxRun, txCount: txs.filter(t => t.k !== 'a').length };
 }
 function ladder(gm) {
-  const g = G(), b = balances(), avg = avgMonthlyExp();
+  const g = G(), b = balances(), avg = Math.round(avgMonthlyExp() / 100) * 100;
   const hasAch = p => Object.keys(g.ach).some(k => k.startsWith(p));
   const cush = S.cfg.wallets.filter(w => w.g && w.g.kind === 'cushion').reduce((s, w) => s + Math.max(0, b[w.id] || 0), 0);
   const hasCush = S.cfg.wallets.some(w => w.g && w.g.kind === 'cushion');
@@ -1740,11 +2106,19 @@ function smileyGrid(grade) {
   for (const [r, c, ch] of FEAT[grade]) g[r][c] = ch || 'E';
   return g;
 }
-function smileySVG(grade, size) {
-  const g = smileyGrid(grade), face = GRADES[grade - 1].c;
+function smileyRects(grade, face) {
+  const g = smileyGrid(grade); face = face || GRADES[grade - 1].c;
   let rects = '';
   for (let r = 0; r < 12; r++) for (let c = 0; c < 12; c++) { const ch = g[r][c]; if (ch === '.') continue; rects += `<rect x="${c}" y="${r}" width="1.02" height="1.02" fill="${ch === 'Y' ? face : PIX[ch]}"/>`; }
-  return `<svg class="smi" viewBox="0 0 12 12" width="${size}" height="${size}" shape-rendering="crispEdges" role="img" aria-label="${GRADES[grade - 1].t}">${rects}</svg>`;
+  return rects;
+}
+function smileySVG(grade, size) {
+  return `<svg class="smi" viewBox="0 0 12 12" width="${size}" height="${size}" shape-rendering="crispEdges" role="img" aria-label="${GRADES[grade - 1].t}">${smileyRects(grade)}</svg>`;
+}
+// Талисман семейства — смайлик в фирменном цвете бота (у журнала — лаймовый)
+const MASCOT_C = '#D4FF3A';
+function mascotSVG(size) {
+  return `<svg class="smi" viewBox="0 0 12 12" width="${size}" height="${size}" shape-rendering="crispEdges" role="img" aria-label="Талисман журнала">${smileyRects(4, MASCOT_C)}</svg>`;
 }
 function drawSmiley(x, grade, ox, oy, px) {
   const g = smileyGrid(grade), face = GRADES[grade - 1].c;
@@ -1774,15 +2148,18 @@ function monthScore(mk) {
   const grade = score >= 0.85 ? 5 : score >= 0.65 ? 4 : score >= 0.45 ? 3 : score >= 0.25 ? 2 : 1;
   return { mk, isCur, grade, score, parts, ms, act, days };
 }
-const markOf = s => s >= 0.99 ? '<span class="mark ok">✓</span>' : s >= 0.5 ? '<span class="mark half">–</span>' : '<span class="mark no">✗</span>';
+const markOf = s => s >= 0.99 ? `<span class="mk ok" role="img" aria-label="выполнено">${pxSvg('check', 16)}</span>` : s >= 0.5 ? `<span class="mk half" role="img" aria-label="частично">${pxSvg('dash', 16)}</span>` : `<span class="mk no" role="img" aria-label="не выполнено">${pxSvg('cross', 12)}</span>`;
+const CONF = [[7, 12, '#D4FF3A', 10], [14, 70, '#B79CFF', 8], [86, 16, '#FF9F43', 10], [90, 70, '#5AA9FF', 8], [24, 36, '#FF6B9A', 6], [73, 46, '#D4FF3A', 6], [10, 88, '#FFD43B', 6], [80, 86, '#B79CFF', 10]];
 function openSummary(mk) {
   const sc = monthScore(mk), gr = GRADES[sc.grade - 1];
   if (!sc.isCur && !G().sum[mk]) { G().sum[mk] = 1; markDirty('g'); }
-  const html = `<div class="sum-card" style="--gc:${gr.c}">${smileySVG(sc.grade, 132)}
-      <div class="sum-m">${sc.isCur ? 'Предварительные итоги' : 'Итоги месяца'} · ${mTitle(mk, true)}</div>
+  const conf = sc.grade >= 4 ? CONF.map(([l, t, c, z]) => `<i class="cf" style="left:${l}%;top:${t}%;width:${z}px;height:${z}px;background:${c}"></i>`).join('') : '';
+  const html = `<div class="sum2"><div class="sum-hero" style="--gc:${gr.c}">${conf}${smileySVG(sc.grade, 120)}</div>
+      <div class="sum-m">${sc.isCur ? 'Предварительные итоги' : 'Итоги'} · ${mTitle(mk, true)}</div>
       <div class="sum-t">${gr.t}</div><div class="sum-d">${gr.d}</div>
-      <div class="sum-score"><div class="bar"><i class="${sc.grade >= 4 ? 'ok' : sc.grade >= 3 ? 'amber' : 'red'}" style="width:${Math.round(sc.score * 100)}%"></i></div><span>${Math.round(sc.score * 100)} из 100</span></div></div>
-    <div class="card list">${sc.parts.map(p => `<div class="row">${markOf(p.s)}<div class="ic sm">${esc(p.ic)}</div><div class="grow"><div class="t">${esc(p.label)}</div><div class="sub t">${esc(p.txt)}</div></div></div>`).join('')}</div>
+      <div class="sum-sc"><span class="sum-n">${Math.round(sc.score * 100)}</span><span class="sub">из 100</span></div>
+      ${pxBar(sc.score, 'cv', 20, gr.c)}</div>
+    <div class="card list">${sc.parts.map(p => `<div class="row">${markOf(p.s)}<div class="grow"><div class="t">${esc(p.label)}</div><div class="sub t">${esc(p.txt)}</div></div></div>`).join('')}</div>
     <div class="card"><div class="tri"><div><div class="sub">Доходы</div><div class="amt inc">${money(sc.ms.inc)}</div></div><div><div class="sub">Расходы</div><div class="amt">${money(sc.ms.exp)}</div></div><div><div class="sub">Отложено</div><div class="amt">${money(Math.max(0, sc.ms.saved))}</div></div></div></div>
     <button class="btn wide" data-s="share">Поделиться</button>
     <button class="btn wide ghost" data-s="how">Как считаются итоги</button>`;
@@ -1791,37 +2168,53 @@ function openSummary(mk) {
 function openGradesInfo() {
   info('Как считаются итоги', `<div class="card"><div class="grades">${[1, 2, 3, 4, 5].map(g => `<div>${smileySVG(g, 44)}${['0–24', '25–44', '45–64', '65–84', '85–100'][g - 1]}</div>`).join('')}</div></div>
     <div class="card"><div class="sub" style="font-size:14px;line-height:1.5">Итоги месяца — это оценка от 0 до 100 и смайлик от грустного до сияющего. Оценка складывается из целей месяца:<br><br>
-    📒 <b>Учёт</b> — сколько дней вы вели журнал. 80% дней — полный балл.<br>
-    🎯 <b>Бюджет</b> — уложились ли в лимиты. Каждые 10% перерасхода снимают 20% балла.<br>
-    💰 <b>Месяц</b> — заработали ли больше, чем потратили.<br>
-    🐷 <b>Цели копилок</b> — считаются вдвойне. Большая цель (на несколько месяцев) оценивается по тому, насколько вы к ней приблизились: 64% пути — 64% балла. Цель со сроком в этом месяце — по тому, успели ли вы её закрыть.<br><br>
+    ${icn('📒')} <b>Учёт</b> — сколько дней вы вели журнал. 80% дней — полный балл.<br>
+    ${icn('🎯')} <b>Бюджет</b> — уложились ли в лимиты. Каждые 10% перерасхода снимают 20% балла.<br>
+    ${icn('💰')} <b>Месяц</b> — заработали ли больше, чем потратили.<br>
+    ${icn('🐷')} <b>Цели копилок</b> — считаются вдвойне. Большая цель (на несколько месяцев) оценивается по тому, насколько вы к ней приблизились: 64% пути — 64% балла. Цель со сроком в этом месяце — по тому, успели ли вы её закрыть.<br><br>
     Если бюджет или копилки не заведены, они просто не участвуют в оценке.</div></div>`);
 }
-const FONT = '-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif';
+const FONT = "'Onest',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
+const FONTU = "'Unbounded'," + FONT;
+async function fontsReady() {
+  try { await Promise.race([Promise.all(['700 64px Unbounded', '800 120px Unbounded', '400 36px Onest', '600 40px Onest'].map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 1500))]); } catch (e) {}
+}
+function drawPx(x, name, ox, oy, px, color) {
+  x.fillStyle = color; (PXG[name] || []).forEach((row, r) => { for (let c = 0; c < 9; c++) if (row[c] === '#') x.fillRect(ox + c * px, oy + r * px, px + 0.5, px + 0.5); });
+}
 function drawShareCard(sc) {
   const W = 1080, H = 1350, c = document.createElement('canvas'); c.width = W; c.height = H;
   const x = c.getContext('2d'), gr = GRADES[sc.grade - 1];
-  x.fillStyle = '#FFFFFF'; x.fillRect(0, 0, W, H);
-  x.globalAlpha = 0.32; x.fillStyle = gr.c; x.fillRect(0, 0, W, 640); x.globalAlpha = 1;
-  drawSmiley(x, sc.grade, W / 2 - 216, 96, 36);
-  x.textAlign = 'center'; x.fillStyle = '#5C6168'; x.font = `500 40px ${FONT}`;
-  x.fillText(`${sc.isCur ? 'Предварительные итоги' : 'Итоги'} · ${mTitle(sc.mk, true)}`, W / 2, 610);
-  x.fillStyle = '#16181B'; x.font = `800 74px ${FONT}`; x.fillText(gr.t, W / 2, 760, W - 120);
-  x.fillStyle = '#5C6168'; x.font = `400 38px ${FONT}`; x.fillText(gr.d, W / 2, 830, W - 120);
-  let y = 950; x.textAlign = 'left';
+  x.fillStyle = '#0B0B0D'; x.fillRect(0, 0, W, H);
+  x.globalAlpha = 0.16; x.fillStyle = gr.c; x.fillRect(60, 60, W - 120, 470); x.globalAlpha = 1;
+  if (sc.grade >= 4) for (const [l, t, col, z] of CONF) { x.fillStyle = col; x.fillRect(60 + (W - 120) * l / 100, 60 + 470 * t / 100, z * 2.4, z * 2.4); }
+  drawSmiley(x, sc.grade, W / 2 - 180, 115, 30);
+  x.textAlign = 'center'; x.fillStyle = '#A1A1AA'; x.font = `600 32px ${FONT}`;
+  x.fillText(`${sc.isCur ? 'ПРЕДВАРИТЕЛЬНЫЕ ИТОГИ' : 'ИТОГИ'} · ${mTitle(sc.mk, true).toUpperCase()}`, W / 2, 610);
+  x.fillStyle = '#FFFFFF'; x.font = `700 60px ${FONTU}`; x.fillText(gr.t, W / 2, 695, W - 120);
+  x.fillStyle = '#A1A1AA'; x.font = `400 34px ${FONT}`; x.fillText(gr.d, W / 2, 752, W - 120);
+  const sct = String(Math.round(sc.score * 100));
+  x.font = `800 110px ${FONTU}`; const w1 = x.measureText(sct).width; x.font = `500 38px ${FONT}`; const w2 = x.measureText(' из 100').width;
+  const sx = W / 2 - (w1 + w2) / 2; x.textAlign = 'left';
+  x.fillStyle = '#FFFFFF'; x.font = `800 110px ${FONTU}`; x.fillText(sct, sx, 880);
+  x.fillStyle = '#A1A1AA'; x.font = `500 38px ${FONT}`; x.fillText(' из 100', sx + w1, 880);
+  const cells = 20, cw = (W - 240 - 19 * 8) / cells, on = Math.round(sc.score * cells);
+  for (let i = 0; i < cells; i++) { x.fillStyle = i < on ? gr.c : '#2E2E34'; x.fillRect(120 + i * (cw + 8), 915, cw, 26); }
+  let y = 1010;
   for (const p of sc.parts.slice(0, 4)) {
-    const m = p.s >= 0.99 ? ['✓', '#2EA866'] : p.s >= 0.5 ? ['–', '#E0961A'] : ['✗', '#E0393E'];
-    x.fillStyle = m[1]; x.font = `700 44px ${FONT}`; x.fillText(m[0], 110, y);
-    x.fillStyle = '#16181B'; x.font = `600 40px ${FONT}`;
+    const m = p.s >= 0.99 ? ['check', '#D4FF3A'] : p.s >= 0.5 ? ['dash', '#FFB547'] : ['cross', '#FF6B5A'];
+    drawPx(x, m[0], 120, y - 34, 4.4, m[1]);
+    x.fillStyle = '#FFFFFF'; x.font = `600 38px ${FONT}`;
     let line = `${p.label}: ${p.txt.replace(/ \(.*\)$/, '')}`;
-    while (x.measureText(line).width > W - 280 && line.length > 4) line = line.slice(0, -2) + '…';
-    x.fillText(line, 180, y); y += 78;
+    while (x.measureText(line).width > W - 300 && line.length > 4) line = line.slice(0, -2) + '…';
+    x.fillText(line, 185, y); y += 64;
   }
-  x.textAlign = 'center'; x.fillStyle = '#9AA0A6'; x.font = `500 36px ${FONT}`;
-  x.fillText(`${Math.round(sc.score * 100)} из 100 · ${APP_NAME}`, W / 2, H - 70);
+  x.textAlign = 'center'; x.fillStyle = '#D4FF3A'; x.font = `700 32px ${FONTU}`;
+  x.fillText(APP_NAME, W / 2, H - 56);
   return c;
 }
 async function shareSummary(sc) {
+  await fontsReady();
   const c = drawShareCard(sc), gr = GRADES[sc.grade - 1];
   const blob = await new Promise(r => c.toBlob(r, 'image/png'));
   const name = `itogi-${sc.mk}.png`;
@@ -1835,33 +2228,62 @@ async function shareSummary(sc) {
 }
 
 /* ====== Экран «Прогресс» ====== */
+const BADGE_PX = { first: 'pencil', week: 'cal', recon: 'scales', qr: 'camera', goal: 'pig', goaldone: 'trophy', bud: 'target', plus: 'up', debt: 'hand', ch: 'bolt', tx100: 'cent', streak4: 'fire' };
+const CH_PX = { log7: 'book', nocafe: 'cup', save10: 'pig', bud14: 'target' };
+// Финансовая лестница ступеньками; талисман стоит на текущей ступени
+function stairsSVG(L) {
+  const SW = 53, BW = 49, BH = 20, G2 = 2, H = 150, cur = L.cur < 0 ? 5 : L.cur;
+  let s = '';
+  for (let i = 0; i < 6; i++) {
+    const n = i + 1, st = L.steps[i], x = i * SW;
+    const fill = st.done ? n : i === L.cur ? Math.min(n - 1, Math.floor(st.p * n)) : 0;
+    for (let b = 0; b < n; b++) {
+      const y = H - (b + 1) * (BH + G2) + G2;
+      s += `<rect class="${b < fill ? 'on' : i === L.cur ? 'cur' : 'off'}" x="${x + 0.75}" y="${y + 0.75}" width="${BW - 1.5}" height="${BH - 1.5}"/>`;
+    }
+    const ty = H - n * (BH + G2) + G2 + 14;
+    s += `<text class="${fill === n ? 'lon' : i === L.cur ? 'lcur' : 'loff'}" x="${x + BW / 2}" y="${ty}" text-anchor="middle">${n}</text>`;
+  }
+  const my = H - (cur + 1) * (BH + G2) + G2 - 26;
+  return `<svg class="stairs" viewBox="0 -10 318 ${H + 10}" role="img" aria-label="Финансовая лестница: пройдено ${L.done} из 6">${s}<g transform="translate(${cur * SW + 12.5} ${my}) scale(2)">${smileyRects(4, MASCOT_C)}</g></svg>`;
+}
 function vProgress() {
-  const gm = game(), L = ladder(gm), g = G();
-  const pct = Math.round((gm.xp - gm.lv.from) / (gm.lv.to - gm.lv.from) * 100);
+  const gm = game(), L = ladder(gm), g = G(), tk = todayKey();
+  const p = (gm.xp - gm.lv.from) / (gm.lv.to - gm.lv.from), toNext = gm.lv.to - gm.xp;
   const earned = BADGES.filter(([id]) => g.ach['b:' + id]).length;
   const months = Object.keys(S.months).sort().reverse().slice(0, 6);
-  return `<div class="h1">Прогресс</div>
-  <div class="card"><div class="lvl-top"><div><div class="sub">Уровень</div><div class="big">${gm.lv.lv}</div></div>
-      <div class="grow"><div class="t"><b>${L.rank}</b></div><div class="sub">${gm.xp} ${plural(gm.xp, 'очко', 'очка', 'очков')}</div></div>
-      <div class="streak"><div class="fire">🔥</div><b>${gm.streak}</b><div class="sub small">${plural(gm.streak, 'неделя', 'недели', 'недель')}</div></div></div>
-    <div class="bar"><i class="ok" style="width:${pct}%"></i></div>
-    <div class="sub mt">До уровня ${gm.lv.lv + 1}: ${gm.lv.to - gm.xp} ${plural(gm.lv.to - gm.xp, 'очко', 'очка', 'очков')}. На этой неделе ${Math.min(gm.thisWeek, 7)} из ${STREAK_DAYS} дней для серии${gm.thisWeek >= STREAK_DAYS ? ' ✓' : ''}.</div></div>
-  <div class="cap">Финансовая лестница · ${L.done} из 6</div>
-  <div class="card list">${L.steps.map((s, i) => `<div class="step ${s.done ? 'done' : i === L.cur ? 'cur' : 'lock'}"><div class="num">${s.done ? '✓' : i + 1}</div><div class="grow"><div class="t">${s.n}</div><div class="sub">${s.d}</div>${!s.done && i === L.cur ? barHTMLp(s.p) : ''}<div class="sub small">${esc(s.txt)}</div></div></div>`).join('')}</div>
+  const w0 = weekOf(tk);
+  const week = ['П', 'В', 'С', 'Ч', 'П', 'С', 'В'].map((d, i) => { const k = addDays(w0, i); return `<span class="${gm.active.has(k) ? 'on' : k === tk ? 'today' : k > tk ? 'fut' : ''}"><i></i>${d}</span>`; }).join('');
+  const cs = L.cur >= 0 ? L.steps[L.cur] : null;
+  return `<div class="toprow"><div class="h1">Прогресс</div><button class="iconb" data-act="xprules" aria-label="Как начисляются очки">${pxSvg('help', 18)}</button></div>
+  <div class="card"><div class="lvl-top"><div class="lvl-mas">${mascotSVG(44)}</div>
+      <div class="grow"><div class="kick game">Уровень</div><div class="big">${gm.lv.lv}</div><div class="sub">${esc(L.rank)} · ${gm.xp} ${plural(gm.xp, 'очко', 'очка', 'очков')}</div></div></div>
+    ${pxBar(p, 'game')}
+    <div class="sub mt">До уровня ${gm.lv.lv + 1}: ${toNext} ${plural(toNext, 'очко', 'очка', 'очков')}</div>
+    <div class="sepl"></div>
+    <div class="streak-row"><span class="game">${pxSvg('fire', 24)}</span><div class="grow"><div class="sk">${gm.streak} ${plural(gm.streak, 'неделя', 'недели', 'недель')}</div><div class="sub">Эта неделя: ${Math.min(gm.thisWeek, 7)} из ${STREAK_DAYS}${gm.thisWeek >= STREAK_DAYS ? ' ✓' : ''}</div></div>
+      <div class="week" role="img" aria-label="На этой неделе ${Math.min(gm.thisWeek, 7)} ${plural(Math.min(gm.thisWeek, 7), 'день', 'дня', 'дней')} с учётом">${week}</div></div></div>
+  <div class="card"><div class="ch"><b>Финансовая лестница</b><span class="sub">${L.done} из 6</span></div>
+    ${stairsSVG(L)}
+    ${cs ? `<div class="curstep"><div class="ch"><b>Шаг ${L.cur + 1} · ${cs.n}</b><span class="pp">${Math.round(cs.p * 100)}%</span></div><div class="sub">${cs.d}</div>${pxBar(cs.p, 'sm')}<div class="sub mt">${esc(cs.txt)}</div></div>`
+      : '<div class="curstep"><b>Все шесть ступеней пройдены!</b><div class="sub mt">Вы прошли путь от учёта до вложений. Держите привычки — и лестница останется за вами.</div></div>'}
+    <details class="steps"><summary>Все ступени</summary>${L.steps.map((st, i) => `<div class="step ${st.done ? 'done' : i === L.cur ? 'cur' : 'lock'}"><div class="num">${st.done ? '✓' : i + 1}</div><div class="grow"><div class="t">${st.n}</div><div class="sub">${st.d}</div><div class="sub small">${esc(st.txt)}</div></div></div>`).join('')}</details></div>
   <div class="cap">Испытание</div>${chCard()}
   <div class="cap">Значки · ${earned} из ${BADGES.length}</div>
-  <div class="card badges">${BADGES.map(([id, ic, n]) => `<button class="bdg ${g.ach['b:' + id] ? '' : 'off'}" data-act="badge" data-id="${id}"><span class="e">${ic}</span>${n}</button>`).join('')}</div>
+  <div class="card badges">${BADGES.map(([id, , n]) => `<button class="bdg ${g.ach['b:' + id] ? '' : 'off'}" data-act="badge" data-id="${id}"><span class="e">${pxSvg(BADGE_PX[id] || 'star', 24)}</span>${n}</button>`).join('')}</div>
   ${months.length ? `<div class="cap">Итоги месяцев</div><div class="card list">${months.map(mk => { const sc = monthScore(mk); return `<div class="row" data-act="summary" data-m="${mk}">${smileySVG(sc.grade, 30)}<div class="grow"><div class="t">${mTitle(mk, true)}${mk === curM() ? ' · идёт' : ''}</div><div class="sub">${GRADES[sc.grade - 1].t} · ${Math.round(sc.score * 100)} из 100</div></div><div class="chev">›</div></div>`; }).join('')}</div>` : ''}
   <button class="linkbtn" data-act="xprules">Как начисляются очки</button>`;
 }
 function chCard() {
   const g = G();
   if (g.ch && CH[g.ch.id]) {
-    const c = CH[g.ch.id], r = evalCh(g.ch);
-    return `<div class="card"><div class="rtop"><div class="ic">${c.ic}</div><div class="grow"><div class="t"><b>${c.n}</b></div><div class="sub">${c.d}</div></div></div>${barHTMLp(r.p || 0)}<div class="sub mt">${esc(r.txt || '')} · награда ${c.xp} очков</div><button class="linkbtn danger" data-act="chstop" style="padding:10px 0 0">Отказаться</button></div>`;
+    const c = CH[g.ch.id], r = evalCh(g.ch), n = c.id === 'save10' ? 20 : c.id === 'bud14' ? 14 : 7;
+    return `<div class="card"><div class="chx"><div class="ic gtile">${pxSvg(CH_PX[c.id], 22)}</div><div class="grow"><div class="kick game">Идёт испытание</div><div class="t"><b>${c.n}</b></div></div><span class="xp">+${c.xp}</span></div>
+      ${pxBar(r.p || 0, 'game', n)}<div class="sub mt">${esc(r.txt || '')}</div><div class="sub small mt">${c.d}</div>
+      <button class="linkbtn danger" data-act="chstop" style="padding:10px 0 0">Отказаться</button></div>`;
   }
   const done = new Set(g.chd.filter(x => x.ok).map(x => x.id));
-  return `<div class="card list">${CHALLENGES.map(c => `<div class="ch-row"><div class="ic">${c.ic}</div><div class="grow"><div class="t"><b>${c.n}</b>${done.has(c.id) ? ' <span class="kind-tag">пройдено</span>' : ''}</div><div class="sub">${c.d}</div><div class="sub small">+${c.xp} очков</div></div><button class="btn sm" data-act="chstart" data-id="${c.id}" style="margin:0">Начать</button></div>`).join('')}</div>`;
+  return `<div class="card list">${CHALLENGES.map(c => `<div class="ch-row"><div class="ic gtile">${pxSvg(CH_PX[c.id], 20)}</div><div class="grow"><div class="t"><b>${c.n}</b>${done.has(c.id) ? ' <span class="kind-tag">пройдено</span>' : ''}</div><div class="sub">${c.d}</div><div class="sub small game">+${c.xp} очков</div></div><button class="btn sm" data-act="chstart" data-id="${c.id}" style="margin:0">Начать</button></div>`).join('')}</div>`;
 }
 function openXpRules() {
   info('Очки, уровни и серия', `<div class="card"><div class="sub" style="font-size:14px;line-height:1.55">Очки начисляются за привычки, которые улучшают финансы, а не за количество записей:<br><br>
@@ -1982,7 +2404,7 @@ function openImport() {
         <div class="fld" style="margin:0"><label>Категория банка</label><select class="sel" data-ref="ccat">${opt(map.cat, true)}</select></div></div>
       <div class="cap">В какой кошелёк</div>
       <div class="card"><select class="sel" data-ref="w">${regWallets().map(w => `<option value="${esc(w.id)}">${esc(w.ic)} ${esc(w.n)}</option>`).join('')}</select></div>
-      ${res.out.length ? `<div class="cap">Первые операции</div><div class="card"><table class="imp-table">${res.out.slice(0, 6).map(t => `<tr><td>${pad(t.d)}.${t.m.slice(4)}</td><td>${esc(cat(t.c).ic)} ${esc(t.n || cat(t.c).n)}</td><td class="r ${t.k === 'i' ? 'inc' : ''}">${t.k === 'i' ? '+' : '−'}${money(t.a)}</td></tr>`).join('')}</table><div class="sub mt">Категории подобраны автоматически — их можно поправить в журнале.</div></div>` : ''}
+      ${res.out.length ? `<div class="cap">Первые операции</div><div class="card"><table class="imp-table">${res.out.slice(0, 6).map(t => `<tr><td>${pad(t.d)}.${t.m.slice(4)}</td><td>${icn(cat(t.c).ic)} ${esc(t.n || cat(t.c).n)}</td><td class="r ${t.k === 'i' ? 'inc' : ''}">${t.k === 'i' ? '+' : '−'}${money(t.a)}</td></tr>`).join('')}</table><div class="sub mt">Категории подобраны автоматически — их можно поправить в журнале.</div></div>` : ''}
       <button class="btn wide" data-s="go"${res.out.length ? '' : ' disabled'}>Добавить ${res.out.length} в журнал</button>`;
   };
   const sh = openSheet({
@@ -2208,23 +2630,23 @@ function openEveSetting() {
 /* ====== Обучение, вопросы, что нового ====== */
 const TUT = [
   { t: 'Ваш личный финансовый журнал', d: 'Учёт денег без привязки к банкам. Вы вносите доходы и расходы, а журнал считает остатки и показывает, куда уходят деньги. Записи видите только вы.',
-    art: () => `<div class="tm-logo">📒</div><div class="tm-chips"><span class="tm-chip">💼 <span class="inc">+45 000 ₽</span></span><span class="tm-chip">🛒 −1 250 ₽</span><span class="tm-chip">☕ −350 ₽</span></div>` },
+    art: () => `<div class="tm-logo">${mascotSVG(64)}</div><div class="tm-chips"><span class="tm-chip">${icn('💼')} <span class="inc">+45 000 ₽</span></span><span class="tm-chip">${icn('🛒')} −1 250 ₽</span><span class="tm-chip">${icn('☕')} −350 ₽</span></div>` },
   { t: 'Запись за три касания', d: '«− Расход» → сумма → категория, и запись сохранена. Клавиатура умеет складывать: 1200+350. А трату по чеку можно внести, отсканировав QR-код.',
     art: () => `<div class="tm-panel" aria-hidden="true"><div class="tm-amt"><span class="a0" style="color:var(--hint)">0 ₽</span><span class="a1">2 ₽</span><span class="a2">25 ₽</span><span class="a3">250 ₽</span></div>
-      <div class="tm-cats"><div class="tm-cat c1">🛒<i>Продукты</i></div><div class="tm-cat">☕<i>Кафе и еда</i></div><div class="tm-cat">🚌<i>Транспорт</i></div></div>
+      <div class="tm-cats"><div class="tm-cat c1">${icn('🛒', 22)}<i>Продукты</i></div><div class="tm-cat">${icn('☕', 22)}<i>Кафе и еда</i></div><div class="tm-cat">${icn('🚌', 22)}<i>Транспорт</i></div></div>
       <div class="tm-kp"><b>1</b><b class="k2">2</b><b>3</b><b>4</b><b class="k5">5</b><b>6</b><b>7</b><b>8</b><b>9</b><b>,</b><b class="k0">0</b><b>⌫</b></div>
       <div class="tm-toast">Записано: Продукты −250 ₽</div></div>` },
   { t: 'Кошельки и сверка', d: 'Карта, наличные: у каждого свой остаток. Раз в неделю сверяйте его с банком: нажмите на кошелёк → «Сверить с фактом». Перевод между кошельками не считается расходом.',
-    art: () => `<div class="tm-card" aria-hidden="true"><div class="tm-sub">Всего денег</div><div class="tm-big">31 500 ₽</div><div class="tm-row"><span>💳 Карта</span><b>28 000 ₽</b></div><div class="tm-row"><span>💵 Наличные</span><b>3 500 ₽</b></div></div><div class="tm-pill">⚖️ Сверить с фактом</div>` },
+    art: () => `<div class="tm-card" aria-hidden="true"><div class="tm-sub">Всего денег</div><div class="tm-big">31 500 ₽</div><div class="tm-row"><span>${icn('💳')} Карта</span><b>28 000 ₽</b></div><div class="tm-row"><span>${icn('💵')} Наличные</span><b>3 500 ₽</b></div></div><div class="tm-pill">${icn('⚖️')} Сверить с фактом</div>` },
   { t: 'Журнал, отчёт и планы', d: 'Ошиблись — нажмите на запись, чтобы исправить. В отчёте видно, куда ушли деньги. В «Планах» — копилки, бюджет, долги и регулярные платежи.',
-    art: () => `<div class="tm-card" aria-hidden="true"><div class="tm-row" style="border:0"><span>🏖️ Отпуск</span><b>64%</b></div><div class="tm-bar"><i style="width:64%;background:var(--inc)"></i></div>
-      <div class="tm-row" style="border:0"><span>🎯 Бюджет месяца</span><b>72%</b></div><div class="tm-bar"><i style="width:72%"></i></div>
-      <div class="tm-row"><span>📱 Связь, 15-го</span><b>600 ₽</b></div></div>` },
+    art: () => `<div class="tm-card" aria-hidden="true"><div class="tm-row" style="border:0"><span>${icn('🏖️')} Отпуск</span><b>64%</b></div>${pxBar(0.64, 'sm')}
+      <div class="tm-row" style="border:0;margin-top:6px"><span>${icn('🎯')} Бюджет месяца</span><b>72%</b></div>${pxBar(0.72, 'sm')}
+      <div class="tm-row" style="margin-top:8px"><span>${icn('📱')} Связь, 15-го</span><b>600 ₽</b></div></div>` },
   { t: 'Вечер, прогресс и итоги', d: 'Вечером журнал спросит про траты и платежи. За хорошие привычки начисляются очки, растёт уровень и серия недель. В начале месяца — итоги со смайликом.',
-    art: () => `<div class="tm-card" aria-hidden="true"><div class="tm-row" style="border:0"><span><b>Уровень 4</b> · Учётчик</span><b>🔥 3</b></div><div class="tm-bar"><i style="width:60%;background:var(--inc)"></i></div><div class="tm-row"><span>🌙 Были ещё траты сегодня?</span></div></div>
+    art: () => `<div class="tm-card" aria-hidden="true"><div class="tm-row" style="border:0"><span><b>Уровень 4</b> · Учётчик</span><b class="game">${icn('🔥')} 3</b></div>${pxBar(0.6, 'sm game')}<div class="tm-row" style="margin-top:8px"><span>${icn('🌙')} Были ещё траты сегодня?</span></div></div>
       <div style="display:flex;gap:8px">${[1, 2, 3, 4, 5].map(g => smileySVG(g, 40)).join('')}</div>` },
-  { t: 'Записи в сохранности', d: 'Всё хранится в облаке Telegram и видно на телефоне и компьютере. В «Ещё» можно включить вход по Face ID, шифрование и резервную копию. Это обучение тоже там.',
-    art: () => `<div class="tm-logo">☁️</div><div class="tm-chips"><span class="tm-chip">📱 Телефон</span><span class="tm-chip">💻 Компьютер</span><span class="tm-chip">🔒 Face ID</span><span class="tm-chip">💾 Копия</span></div>` },
+  { t: 'Записи в сохранности', d: 'Всё хранится в облаке Telegram и видно на телефоне и компьютере. В «Ещё» можно включить вход по Face ID, шифрование и резервную копию. Это обучение всегда под рукой: в историях на Главной и в «Ещё».',
+    art: () => `<div class="tm-logo" style="color:var(--accent)">${pxSvg('cloud', 60)}</div><div class="tm-chips"><span class="tm-chip">${icn('📱')} Телефон</span><span class="tm-chip">${icn('💻')} Компьютер</span><span class="tm-chip">${icn('🔒')} Face ID</span><span class="tm-chip">${icn('💾')} Копия</span></div>` },
 ];
 let tutSeen = false, tutOpen = false;
 function openTutorial(firstRun) {
@@ -2258,25 +2680,38 @@ function openTutorial(firstRun) {
   }, { passive: true });
   go(0);
 }
+// tv — значение TUT_VER, начиная с которого группа считается увиденной
 const NEWS = [
-  ['🐷', 'Копилки и цели', 'Откладывайте на отпуск или подушку безопасности. Журнал посчитает, сколько откладывать в месяц.'],
-  ['🤝', 'Долги и кредиты', 'Кто кому должен, сколько осталось и платежи по графику.'],
-  ['🌙', 'Вечерний вопрос', 'Вечером журнал спросит про траты за день и регулярные платежи.'],
-  ['🏆', 'Прогресс', 'Очки за привычки, уровни, серия недель, финансовая лестница, испытания и значки.'],
-  ['😊', 'Итоги месяца', 'Оценка от 0 до 100 и пиксельный смайлик — от грустного до сияющего.'],
-  ['📷', 'Трата по чеку', 'Отсканируйте QR-код чека — сумма и дата подставятся сами.'],
-  ['🔒', 'Face ID и шифрование', 'Вход по биометрии и пароль на записи — в разделе «Ещё».'],
-  ['📥', 'Импорт выписки', 'Загрузите CSV из банка, и операции попадут в журнал.'],
+  { v: '0.4', tv: 3, items: [
+    ['✨', 'Новый вид', 'Тёмная тема, крупные цифры и пиксельные иконки. Все ваши записи на месте — переносить ничего не нужно.'],
+    ['📒', 'Истории на Главной', 'Вверху — итоги месяца, квест дня, совет недели и обучение.'],
+    ['📊', 'Траты по дням', 'В отчёте — график из клеток: видно дни в норме бюджета, выше нормы и без трат.'],
+    ['🏆', 'Лестница ступеньками', 'Финансовая лестница в «Прогрессе» теперь нарисована, талисман стоит на вашей ступени.'],
+    ['🎯', 'Цель как дорожка', 'Путь к цели копилки — от старта до флажка, по клеткам.'],
+  ] },
+  { v: '0.3', tv: 2, items: [
+    ['🐷', 'Копилки и цели', 'Откладывайте на отпуск или подушку безопасности. Журнал посчитает, сколько откладывать в месяц.'],
+    ['🤝', 'Долги и кредиты', 'Кто кому должен, сколько осталось и платежи по графику.'],
+    ['🌙', 'Вечерний вопрос', 'Вечером журнал спросит про траты за день и регулярные платежи.'],
+    ['🔥', 'Прогресс', 'Очки за привычки, уровни, серия недель, финансовая лестница, испытания и значки.'],
+    ['📅', 'Итоги месяца', 'Оценка от 0 до 100 и пиксельный смайлик — от грустного до сияющего.'],
+    ['📷', 'Трата по чеку', 'Отсканируйте QR-код чека — сумма и дата подставятся сами.'],
+    ['🔒', 'Face ID и шифрование', 'Вход по биометрии и пароль на записи — в разделе «Ещё».'],
+    ['📥', 'Импорт выписки', 'Загрузите CSV из банка, и операции попадут в журнал.'],
+  ] },
 ];
-function openWhatsNew() {
+function openWhatsNew(auto) {
+  const seen = (S.cfg && S.cfg.tut) || 0;
+  const groups = auto ? NEWS.filter(g => g.tv > seen) : NEWS;
   openSheet({
-    title: 'Что нового', html: `<div class="card list">${NEWS.map(([ic, t, d]) => `<div class="row"><div class="ic">${ic}</div><div class="grow"><div class="t"><b>${t}</b></div><div class="sub">${d}</div></div></div>`).join('')}</div><button class="btn wide" data-s="close">Отлично</button>`,
+    title: 'Что нового', html: groups.map(g => `<div class="newsv">Версия ${g.v}</div><div class="card list">${g.items.map(([ic, t, d]) => `<div class="row">${ict(ic)}<div class="grow"><div class="t"><b>${t}</b></div><div class="sub">${d}</div></div></div>`).join('')}</div>`).join('') + '<button class="btn wide" data-s="close">Отлично</button>',
     onClose: () => { if (S.cfg && (S.cfg.tut || 0) < TUT_VER) { S.cfg.tut = TUT_VER; markDirty('cfg'); } },
   });
 }
 const FAQ = [
   ['Как исправить или удалить запись?', 'Нажмите на запись на главной или в журнале. Можно поменять сумму, категорию, кошелёк, дату и заметку или удалить запись. Сразу после сохранения или удаления запись можно вернуть кнопкой во всплывающей подсказке.'],
   ['Как внести трату задним числом?', 'При вводе нажмите на «📅 Сегодня» и выберите нужный день.'],
+  ['Что за плитки вверху Главной?', 'Это истории: итоги прошлого месяца, квест дня (закрыть день вечером), совет недели и обучение. Новые подсвечены лаймовой рамкой.'],
   ['Что такое перевод?', 'Перемещение денег между своими кошельками: сняли наличные с карты, отложили в копилку. Общая сумма денег не меняется, поэтому перевод не попадает ни в доходы, ни в расходы.'],
   ['Как работают копилки?', 'Копилка — это отдельный кошелёк с целью. Деньги туда переводятся с карты или наличных кнопкой «Отложить». Общая сумма денег не меняется, а журнал показывает, сколько осталось до цели.'],
   ['Зачем сверять остаток?', 'Мелкие траты легко забыть. Сверка подгоняет остаток кошелька под реальный: разница запишется отдельной строкой «Сверка остатка» и не исказит отчёт по категориям.'],
@@ -2300,47 +2735,109 @@ function txRow(t, showDate) {
   else if (t.k === 'a') { ic = '⚖️'; title = 'Сверка остатка'; sub = esc(wal(t.w).n); amt = money(t.a, true); cls = t.a > 0 ? 'inc' : ''; }
   else { const c = cat(t.c); ic = c.ic; title = c.n; sub = esc(wal(t.w).n); amt = t.k === 'i' ? money(t.a, true) : '−' + money(t.a); cls = t.k === 'i' ? 'inc' : ''; }
   if (t.n) sub = esc(t.n) + ' · ' + sub;
-  if (t.x && t.x[0] === 'q') sub = '🧾 ' + sub;
+  if (t.x && t.x[0] === 'q') sub = icn('🧾', 12) + ' ' + sub;
   if (showDate) sub = dayLabel(t.m, t.d) + ' · ' + sub;
-  return `<div class="row tx" data-act="edit" data-id="${esc(t.id)}" data-m="${t.m}"><div class="ic">${esc(ic)}</div><div class="grow"><div class="t">${esc(title)}</div><div class="sub t">${sub}</div></div><div class="amt ${cls}">${amt}</div></div>`;
+  return `<div class="row tx" data-act="edit" data-id="${esc(t.id)}" data-m="${t.m}">${ict(ic)}<div class="grow"><div class="t">${esc(title)}</div><div class="sub t">${sub}</div></div><div class="amt ${cls}">${amt}</div></div>`;
 }
 function barHTML(v, max) {
-  const p = max > 0 ? Math.min(100, v / max * 100) : 0;
-  const c = v > max ? 'red' : v > max * 0.8 ? 'amber' : 'ok';
-  return `<div class="bar"><i class="${c}" style="width:${p.toFixed(1)}%"></i></div>`;
+  const p = max > 0 ? Math.min(1, v / max) : 0;
+  return pxBar(p, v > max ? 'sm red' : v > max * 0.8 ? 'sm amber' : 'sm');
 }
-const barHTMLp = p => `<div class="bar"><i class="ok" style="width:${(Math.max(0, Math.min(1, p)) * 100).toFixed(1)}%"></i></div>`;
+const barHTMLp = p => pxBar(p, 'sm');
 function monthNav(w, mk) {
   return `<div class="mnav"><button data-act="mprev" data-w="${w}" aria-label="Назад">‹</button><div class="mt">${mTitle(mk, true)}</div><button data-act="mnext" data-w="${w}" aria-label="Вперёд" ${mk >= curM() ? 'disabled' : ''}>›</button></div>`;
 }
 const eveHour = () => S.cfg.eve == null ? 18 : S.cfg.eve;
+// цвета категорий для полосы трат: по иконке, без повторов
+const CAT_PAL = ['#FF9F43', '#5AA9FF', '#FFD43B', '#FF6B9A', '#22D3EE', '#4ADE80', '#FF7A6B', '#FF8FB1'];
+function catColors(ids) {
+  const used = new Set(), out = {};
+  for (const id of ids) { const m = pxOf(cat(id).ic); let c = m && m[1] !== PXC.N && m[1] !== PXC.W && m[1] !== PXC.L ? m[1] : null; if (!c || used.has(c)) c = CAT_PAL.find(x => !used.has(x)) || PXC.N; used.add(c); out[id] = c; }
+  return out;
+}
+// раскладка N клеток пропорционально суммам (метод наибольших остатков)
+function cellsSplit(vals, n) {
+  const tot = vals.reduce((s, v) => s + v, 0) || 1, raw = vals.map(v => v / tot * n), out = raw.map(Math.floor);
+  let left = n - out.reduce((s, v) => s + v, 0);
+  raw.map((v, i) => [v - out[i], i]).sort((a, b) => b[0] - a[0]).forEach(([, i]) => { if (left > 0) { out[i]++; left--; } });
+  return out;
+}
+function moneyBig(k) { return money(k).replace(/\s₽$/, '<span class="cur">&nbsp;₽</span>'); }
+// Совет недели
+const TIPS = [
+  ['Сначала заплатите себе', 'В день зарплаты сразу переведите часть в копилку, а тратьте остаток. Так откладывать проще, чем «что останется в конце месяца».'],
+  ['Сверка раз в неделю', 'Сравните остаток кошелька с банком: «Ещё» → кошелёк → «Сверить с фактом». Забытые траты не будут копиться.'],
+  ['Правило 24 часов', 'Захотелось крупную незапланированную покупку — отложите решение на сутки. Если желание осталось, покупка, скорее всего, нужная.'],
+  ['Подушка безопасности', 'Обычно советуют запас на 3–6 месяцев расходов. Начните с одного месяца: это третья ступень финансовой лестницы.'],
+  ['Мелочи складываются', 'Откройте отчёт и посмотрите категорию «Кафе и еда» за месяц. Часто это самая неожиданная сумма.'],
+  ['Платежи по плану', 'Внесите аренду, связь и кредит в «Планы» → «Платежи». Вечером в день платежа журнал спросит о нём сам.'],
+  ['Лимиты вместо запретов', 'Лимит на категорию работает лучше, чем «больше не трачу». Задайте его в «Планы» → «Бюджет».'],
+  ['Сначала дорогой долг', 'Если долгов несколько, лишние деньги направляйте на тот, где самая высокая ставка: так переплата меньше.'],
+  ['Цель со сроком', 'Укажите у копилки дату — журнал посчитает, сколько откладывать в месяц, чтобы успеть.'],
+  ['Закрывайте день', 'Даже если трат не было, закройте день вечером. Это тоже учёт: +10 очков и сохранённая серия недель.'],
+];
+function tipWeek() { return weekOf(todayKey()); }
+function tipNow() { const w = tipWeek(); let h = 0; for (const ch of w) h = (h * 31 + ch.charCodeAt(0)) % 9973; return TIPS[h % TIPS.length]; }
+function openTip() {
+  const [t, d] = tipNow();
+  LS.set(LKEY + '_tip', tipWeek());
+  openSheet({ title: 'Совет недели', html: `<div class="tipc"><div style="display:flex;justify-content:center">${mascotSVG(72)}</div><div class="tipt">${t}</div><p>${d}</p></div><button class="btn wide" data-s="close">Понятно</button>`, onClose: () => render() });
+}
+function story(act, label, face, isNew, extra) {
+  return `<button class="story ${isNew ? 'new' : ''}" data-act="${act}" ${extra || ''}><span class="ring"><span class="face">${face}</span></span><span>${label}</span></button>`;
+}
 function vHome() {
   const b = balances(), regs = regWallets(), goals = goalWallets();
   const total = activeWallets().reduce((s, w) => s + (b[w.id] || 0), 0);
   const goalSum = goals.reduce((s, w) => s + (b[w.id] || 0), 0);
-  const mk = curM(), ms = monthStats(mk), bud = budgetInfo(mk), gm = game();
+  const mk = curM(), ms = monthStats(mk), bud = budgetInfo(mk), gm = game(), L = ladder(gm);
   const recent = sortTx(allTx()).slice(0, 6);
   const pend = pendingRec(), tk = todayKey(), closed = G().cd.includes(tk);
   const isEve = eveHour() && new Date().getHours() >= eveHour();
-  const pct = Math.round((gm.xp - gm.lv.from) / (gm.lv.to - gm.lv.from) * 100);
-  return `<div class="toprow"><div class="h1">${APP_NAME}</div>${syncBadge()}</div>
+  const pm = mShift(mk, -1), sumMk = S.months[pm] ? pm : mk;
+  // истории
+  const stories = story('summary', 'Итоги', S.months[sumMk] ? smileySVG(monthScore(sumMk).grade, 40) : mascotSVG(40), !!S.months[pm] && !G().sum[pm], `data-m="${sumMk}"`)
+    + story('checkin', 'Квест', `<span class="game">${pxSvg('bolt', 30)}</span>`, !closed).replace('<span class="face">', '<span class="face game">')
+    + story('tip', 'Совет', `<span class="acc">${pxSvg('coin', 28)}</span>`, LS.get(LKEY + '_tip') !== tipWeek())
+    + story('tutorial', 'Обучение', pxSvg('book', 28), false);
+  // быстрые действия
+  const acts = [['add', 'e', 'minus', 'Расход', 1], ['add', 'i', 'plus', 'Доход']];
+  if (activeWallets().length > 1) acts.push(['add', 't', 'xfer', 'Перевод']);
+  if (CAN_QR) acts.push(['qr', '', 'qr', 'Чек']);
+  // траты месяца по категориям
+  const eRows = Object.entries(ms.byE).sort((a, b) => b[1] - a[1]);
+  const top = eRows.slice(0, eRows.length > 5 ? 4 : 5), restSum = eRows.slice(top.length).reduce((s, r) => s + r[1], 0);
+  const cols = catColors(top.map(r => r[0]));
+  const parts = top.map(([id, v]) => ({ c: cols[id], n: cat(id).n, v })).concat(restSum ? [{ c: '#5A5A62', n: 'Остальное', v: restSum }] : []);
+  const split = cellsSplit(parts.map(x => x.v), 30);
+  const comp = parts.map((x, i) => `<i style="background:${x.c}"></i>`.repeat(split[i])).join('');
+  const quest = closed
+    ? `<div class="quest done" data-act="checkin"><span class="qi">${pxSvg('check', 20)}</span><div class="grow"><div class="kick game">Квест дня</div><div class="qt">День закрыт — так держать</div></div><span class="qx">+10</span></div>`
+    : `<div class="quest" data-act="checkin"><span class="qi">${pxSvg('bolt', 20)}</span><div class="grow"><div class="kick game">${isEve ? 'Вечерний вопрос' : 'Квест дня'}</div><div class="qt">${isEve ? 'Отметьте траты и закройте день' : 'Вечером закройте день'}</div></div><span class="qx">+10</span></div>`;
+  return `<div class="hhead"><button class="hmas" data-act="tab" data-tab="progress" aria-label="Прогресс">${mascotSVG(30)}</button>
+    <div class="grow"><div class="hname">${APP_NAME}</div><div class="hlv" data-act="tab" data-tab="progress">Ур. ${gm.lv.lv} · ${esc(L.rank)}</div></div>
+    <button class="spill" data-act="tab" data-tab="progress" aria-label="Серия: ${gm.streak} ${plural(gm.streak, 'неделя', 'недели', 'недель')}">${pxSvg('fire', 14)}${gm.streak}&nbsp;нед</button></div>
   ${syncState === 'error' ? `<div class="warn">${syncText()}</div>` : ''}
-  <div class="pstrip" data-act="tab" data-tab="progress"><span class="lv">Ур. ${gm.lv.lv}</span><div class="pbar"><i style="width:${pct}%"></i></div><span class="fire">🔥 ${gm.streak}</span>${closed ? '<span class="sub">✓ день</span>' : ''}</div>
-  <div class="card hero"><div class="sub">Всего денег</div><div class="big ${total < 0 ? 'neg' : ''}">${money(total)}</div>
-    <div class="wl">${regs.map(w => `<div class="row" data-act="wallet" data-id="${esc(w.id)}"><div class="ic sm">${esc(w.ic)}</div><div class="grow t">${esc(w.n)}</div><div class="amt ${b[w.id] < 0 ? 'neg' : ''}">${money(b[w.id])}</div></div>`).join('')}
-    ${goals.length ? `<div class="row" data-act="plans" data-k="goals"><div class="ic sm">🐷</div><div class="grow t">В копилках</div><div class="amt">${money(goalSum)}</div></div>` : ''}</div></div>
-  <div class="qa"><button class="btn" data-act="add" data-k="e">− Расход</button><button class="btn alt" data-act="add" data-k="i">+ Доход</button></div>
-  <div class="links">${activeWallets().length > 1 ? '<button class="linkbtn" data-act="add" data-k="t">⇄ Перевод</button>' : ''}${CAN_QR ? '<button class="linkbtn" data-act="qr">📷 Чек по QR</button>' : ''}</div>
-  ${pend.length ? `<div class="card tap" data-act="plan"><div class="due"><div class="ic">📅</div><div class="grow"><div class="t">${esc(recName(pend[0].r))} — ${money(pend[0].r.a)}</div><div class="sub">${pend[0].k < tk ? 'с ' + keyLabelL(pend[0].k) : 'по плану сегодня'}${pend.length > 1 ? ` · и ещё ${pend.length - 1}` : ''}</div></div><button class="btn sm" data-act="plan" style="margin:0">Отметить</button></div></div>` : ''}
-  ${isEve && !closed ? `<div class="card tap eve" data-act="checkin"><div class="due"><div class="ic">🌙</div><div class="grow"><div class="t">Вечерний вопрос</div><div class="sub">Отметьте траты за день и закройте его · +10 очков</div></div><div class="chev">›</div></div></div>` : ''}
-  <div class="card tap" data-act="tab" data-tab="report"><div class="ch"><b>${mTitle(mk)}</b><span class="sub">Отчёт ›</span></div>
-    <div class="tri"><div><div class="sub">Доходы</div><div class="amt inc">${money(ms.inc)}</div></div><div><div class="sub">Расходы</div><div class="amt">${money(ms.exp)}</div></div><div><div class="sub">Разница</div><div class="amt ${ms.inc - ms.exp < 0 ? 'neg' : ''}">${money(ms.inc - ms.exp, true)}</div></div></div></div>
-  ${bud.limit ? `<div class="card tap" data-act="plans" data-k="budget"><div class="ch"><b>Бюджет</b><span class="sub">${bud.left >= 0 ? 'осталось ' + money(bud.left) : '<span class="neg">перерасход ' + money(-bud.left) + '</span>'} ›</span></div>
-      ${barHTML(bud.spent, bud.limit)}<div class="sub mt">Потрачено ${money(bud.spent)} из ${money(bud.limit)}${bud.daysLeft && bud.left > 0 ? ` · можно ${money(bud.perDay)} в день` : ''}</div></div>` : ''}
-  ${goals.filter(w => w.g.t > 0).slice(0, 2).map(w => { const gi = goalInfo(w, b[w.id] || 0); return `<div class="card tap" data-act="goal" data-id="${esc(w.id)}"><div class="ch"><b>${esc(w.ic)} ${esc(w.n)}</b><span class="sub">${Math.round(gi.p * 100)}% ›</span></div>${barHTMLp(gi.p)}<div class="sub mt">${money(b[w.id] || 0)} из ${money(gi.t)}${gi.perMonth != null ? ` · по ${money(gi.perMonth)} в месяц` : ''}</div></div>`; }).join('')}
+  <div class="stories">${stories}</div>
+  <div class="hero2"><div class="hl"><span class="sub">Всего денег</span>${syncBadge()}</div><div class="big xl ${total < 0 ? 'neg' : ''}">${moneyBig(total)}</div></div>
+  <div class="wchips">${regs.map(w => `<button class="wchip" data-act="wallet" data-id="${esc(w.id)}">${ict(w.ic, 'sm')}<span class="wc-n">${esc(w.n)}</span><span class="wc-a ${b[w.id] < 0 ? 'neg' : ''}">${money(b[w.id])}</span></button>`).join('')}
+    ${goals.length ? `<button class="wchip" data-act="plans" data-k="goals">${ict('🐷', 'sm')}<span class="wc-n">Копилки</span><span class="wc-a">${money(goalSum)}</span></button>` : ''}</div>
+  <div class="qa4" style="grid-template-columns:repeat(${acts.length},minmax(0,1fr))">${acts.map(([a, k, ic, l, pri]) => `<button class="qbtn ${pri ? 'pri' : ''}" data-act="${a}"${k ? ` data-k="${k}"` : ''}>${pxSvg(ic, 20)}<span>${l}</span></button>`).join('')}</div>
+  ${pend.length ? `<div class="card tap" data-act="plan"><div class="due">${ict('📅')}<div class="grow"><div class="t">${esc(recName(pend[0].r))} — ${money(pend[0].r.a)}</div><div class="sub">${pend[0].k < tk ? 'с ' + keyLabelL(pend[0].k) : 'по плану сегодня'}${pend.length > 1 ? ` · и ещё ${pend.length - 1}` : ''}</div></div><button class="btn sm" data-act="plan" style="margin:0">Отметить</button></div></div>` : ''}
+  ${quest}
+  ${goals.filter(w => w.g.t > 0).slice(0, 2).map(w => {
+      const bal = b[w.id] || 0, gi = goalInfo(w, bal), sub = [w.n !== GOAL_KIND[w.g.kind] ? GOAL_KIND[w.g.kind] || 'Цель' : '', w.g.dl ? 'к ' + monthDat(w.g.dl) : ''].filter(Boolean).join(' · ');
+      return `<div class="card tap goalc" data-act="goal" data-id="${esc(w.id)}"><div class="gh">${ict(w.ic, 'sm')}<div class="grow"><div class="t"><b>${esc(w.n)}</b></div>${sub ? `<div class="sub">${sub}</div>` : ''}</div><span class="gp">${Math.round(gi.p * 100)}%</span></div>
+        <div class="gtrack">${pxBar(gi.p)}<span class="gflag">${pxSvg(gi.done ? 'trophy' : 'flag', 18)}</span></div>
+        <div class="gfoot"><span><b>${money(bal)}</b> из ${money(gi.t)}</span><span>${gi.done ? 'цель достигнута' : gi.perMonth != null ? 'по ' + money(gi.perMonth) + ' в месяц' : ''}</span></div></div>`;
+    }).join('')}
+  <div class="card tap spend" data-act="tab" data-tab="report"><div class="ch"><b>Траты в ${MONTHS_P[+mk.slice(4) - 1]}</b><span class="sub">Отчёт ›</span></div>
+    <div class="sp-amt"><span class="big md">${moneyBig(ms.exp)}</span>${ms.inc ? `<span class="sub">доходы ${money(ms.inc)}</span>` : ''}</div>
+    ${ms.exp ? `<div class="comp" role="img" aria-label="Траты по категориям">${comp}</div><div class="legend2">${parts.map(x => `<span><i style="background:${x.c}"></i><em>${esc(x.n)}</em><b>${money(x.v)}</b></span>`).join('')}</div>` : '<div class="sub">Трат в этом месяце пока нет</div>'}
+    ${bud.limit ? `<button class="budl" data-act="plans" data-k="budget">Бюджет: ${money(bud.spent)} из ${money(bud.limit)} · ${bud.left >= 0 ? `<span class="acc">осталось ${money(bud.left)}</span>${bud.daysLeft && bud.left > 0 ? `, ${money(Math.floor(bud.perDay / 100) * 100)} в день` : ''}` : `<span class="neg">перерасход ${money(-bud.left)}</span>`} ›</button>` : ''}</div>
   <div class="cap">Последние записи</div>
   ${recent.length ? `<div class="card list">${recent.map(t => txRow(t, true)).join('')}</div><button class="linkbtn" data-act="tab" data-tab="journal">Весь журнал ›</button>`
-    : '<div class="card empty">Пока пусто. Нажмите «− Расход», наберите сумму и выберите категорию.</div>'}`;
+    : '<div class="card empty">Пока пусто. Нажмите «Расход», наберите сумму и выберите категорию.</div>'}`;
 }
 function vJournal() {
   const mk = jMonth, f = jFilter;
@@ -2350,13 +2847,39 @@ function vJournal() {
   const groups = []; let g = null;
   for (const t of list) { if (!g || g.d !== t.d) { g = { d: t.d, items: [], exp: 0 }; groups.push(g); } g.items.push(t); if (t.k === 'e') g.exp += t.a; }
   const ms = monthStats(mk);
-  const chips = f.c ? `<button class="fchip on" data-act="jclear">${esc(cat(f.c).ic)} ${esc(cat(f.c).n)} ✕</button>`
+  const chips = f.c ? `<button class="fchip on" data-act="jclear">${icn(cat(f.c).ic)} ${esc(cat(f.c).n)} ✕</button>`
     : [['all', 'Все'], ['e', 'Расходы'], ['i', 'Доходы'], ['t', 'Переводы']].map(([k, l]) => `<button class="fchip ${f.k === k ? 'on' : ''}" data-act="jf" data-k="${k}">${l}</button>`).join('');
   const sum = f.c ? `<span>Итого по категории</span><span><b>${money(list.reduce((s, t) => s + t.a, 0))}</b></span>`
     : `<span>Доходы <b class="inc">${money(ms.inc)}</b></span><span>Расходы <b>${money(ms.exp)}</b></span>`;
   return `<div class="h1">Журнал</div>${monthNav('j', mk)}<div class="fchips">${chips}</div><div class="sumline">${sum}</div>
   ${groups.length ? groups.map(g => `<div class="dhead"><span>${dayHeader(mk, g.d)}</span>${g.exp ? `<span>−${money(g.exp)}</span>` : ''}</div><div class="card list">${g.items.map(t => txRow(t)).join('')}</div>`).join('')
     : `<div class="card empty" style="margin-top:12px">${f.c || f.k !== 'all' ? 'Нет записей с таким фильтром' : 'В этом месяце записей нет'}</div>`}`;
+}
+// Траты по дням — столбики из клеток. Цвет: в дневной норме бюджета / выше / день без трат
+function dayChart(mk) {
+  const isCur = mk === curM(), dim = daysIn(mk), upto = isCur ? now().d : dim;
+  const day = new Array(dim + 1).fill(0), limd = new Array(dim + 1).fill(0);
+  const limIds = new Set(Object.keys(S.cfg.bud).filter(id => S.cfg.bud[id] > 0));
+  const limit = [...limIds].reduce((s, id) => s + S.cfg.bud[id], 0), norm = limit ? limit / dim : 0;
+  for (const t of S.months[mk] || []) if (t.k === 'e') { day[t.d] += t.a; if (limIds.has(t.c)) limd[t.d] += t.a; }
+  const spent = day.slice(1, upto + 1).filter(v => v > 0).sort((a, b) => a - b);
+  if (!spent.length) return '';
+  const ref = Math.max(norm * 1.6, spent[Math.min(spent.length - 1, Math.floor(spent.length * 0.85))]);
+  const CAP = 12, unit = Math.max(1, ref / 10);
+  let cols = '', big = null;
+  for (let d = 1; d <= dim; d++) {
+    const v = day[d];
+    if (d > upto) { cols += '<div class="dc"></div>'; continue; }
+    if (!v) { cols += '<div class="dc zero"><i></i></div>'; continue; }
+    const n = Math.min(CAP, Math.max(1, Math.round(v / unit)));
+    if (v / unit > CAP && (!big || v > day[big])) big = d;
+    cols += `<div class="dc${norm && limd[d] > norm ? ' over' : ''}${v / unit > CAP ? ' cap' : ''}">${'<i></i>'.repeat(n)}</div>`;
+  }
+  const lim = norm ? `<span class="lim" style="bottom:${Math.min(CAP, Math.round(norm / unit)) * 8 - 1}px"></span>` : '';
+  const lbl = [1, 10, 20, dim].map(d => `<span style="left:${((d - 0.5) / dim * 100).toFixed(2)}%">${d}</span>`).join('');
+  return `<div class="card"><div class="ch"><b>По дням</b><span class="dleg"><span><i></i>${norm ? 'в норме' : 'траты'}</span>${norm ? '<span><i class="o"></i>выше</span>' : ''}<span><i class="z"></i>без трат</span></span></div>
+    <div class="dchart" style="height:${CAP * 8}px" role="img" aria-label="Траты по дням">${cols}${lim}</div><div class="dlabels">${lbl}</div>
+    <div class="sub">${norm ? `Пунктир — дневная норма по бюджету, около ${money(Math.round(norm / 100) * 100)}.` : 'Задайте лимиты в «Планах», и график покажет дни выше нормы.'}${big ? ` Самый большой день — ${big} ${MONTHS_G[+mk.slice(4) - 1]}: ${money(day[big])}.` : ''}</div></div>`;
 }
 function vReport() {
   const mk = rMonth, isCur = mk === curM(), ms = monthStats(mk);
@@ -2377,14 +2900,15 @@ function vReport() {
   return `<div class="h1">Отчёт</div>${monthNav('r', mk)}
   ${sc ? `<div class="card tap" data-act="summary" data-m="${mk}"><div class="due">${smileySVG(sc.grade, 40)}<div class="grow"><div class="t">${isCur ? 'Предварительные итоги' : 'Итоги месяца'}: ${GRADES[sc.grade - 1].t}</div><div class="sub">${Math.round(sc.score * 100)} из 100 · подробнее</div></div><div class="chev">›</div></div></div>` : ''}
   <div class="card"><div class="tri"><div><div class="sub">Доходы</div><div class="amt inc">${money(ms.inc)}</div></div><div><div class="sub">Расходы</div><div class="amt">${money(ms.exp)}</div></div><div><div class="sub">Разница</div><div class="amt ${ms.inc - ms.exp < 0 ? 'neg' : ''}">${money(ms.inc - ms.exp, true)}</div></div></div>
-    ${ms.exp ? `<div class="sub mt">В среднем ${money(Math.round(ms.exp / days))} в день${cmp ? '. ' + cmp : ''}</div>` : ''}${ms.saved > 0 ? `<div class="sub">Отложено в копилки: ${money(ms.saved)}</div>` : ''}</div>
+    ${ms.exp ? `<div class="sub mt">В среднем ${money(Math.round(ms.exp / days / 100) * 100)} в день${cmp ? '. ' + cmp : ''}</div>` : ''}${ms.saved > 0 ? `<div class="sub">Отложено в копилки: ${money(ms.saved)}</div>` : ''}</div>
+  ${dayChart(mk)}
   <div class="cap">Куда ушли деньги</div>
   ${eRows.length ? `<div class="card list">${eRows.map(([id, v]) => {
       const c = cat(id), pv = (isCur ? prevSame : prevFull).byE[id] || 0, d = v - pv;
-      return `<div class="rrow" data-act="repcat" data-id="${esc(id)}" style="cursor:pointer"><div class="rtop"><div class="ic">${esc(c.ic)}</div><div class="grow t">${esc(c.n)}</div><div class="amt">${money(v)}<span class="pct">${Math.round(v / ms.exp * 100)}%</span></div></div>
-        <div class="bar"><i style="width:${(v / maxE * 100).toFixed(1)}%"></i></div>${pv && d ? `<div class="delta ${d > 0 ? 'neg' : 'inc'}">${d > 0 ? '▲' : '▼'} ${money(Math.abs(d))} к прошлому месяцу</div>` : ''}</div>`;
+      return `<div class="rrow" data-act="repcat" data-id="${esc(id)}" style="cursor:pointer"><div class="rtop">${ict(c.ic)}<div class="grow t">${esc(c.n)}</div><div class="amt">${money(v)}<span class="pct">${Math.round(v / ms.exp * 100)}%</span></div></div>
+        ${pxBar(v / maxE, 'sm cv', 20, catColors([id])[id])}${pv && d ? `<div class="delta ${d > 0 ? 'neg' : 'inc'}">${d > 0 ? '▲' : '▼'} ${money(Math.abs(d))} к прошлому месяцу</div>` : ''}</div>`;
     }).join('')}</div>` : '<div class="card empty">Расходов в этом месяце нет</div>'}
-  ${iRows.length ? `<div class="cap">Доходы</div><div class="card list">${iRows.map(([id, v]) => { const c = cat(id); return `<div class="row"><div class="ic">${esc(c.ic)}</div><div class="grow t">${esc(c.n)}</div><div class="amt inc">${money(v)}</div></div>`; }).join('')}</div>` : ''}
+  ${iRows.length ? `<div class="cap">Доходы</div><div class="card list">${iRows.map(([id, v]) => { const c = cat(id); return `<div class="row">${ict(c.ic)}<div class="grow t">${esc(c.n)}</div><div class="amt inc">${money(v)}</div></div>`; }).join('')}</div>` : ''}
   <div class="cap">Полгода</div>
   <div class="card"><div class="chart">${cols.map(c => `<div class="col ${c.m === mk ? 'cur' : ''}" data-act="rmonth" data-m="${c.m}"><div class="bars"><i class="in" style="height:${(c.inc / cmax * 100).toFixed(1)}%"></i><i style="height:${(c.exp / cmax * 100).toFixed(1)}%"></i></div><div class="lbl">${MONTHS_S[+c.m.slice(4) - 1]}</div></div>`).join('')}</div>
     <div class="legend"><span><i style="background:var(--inc)"></i>Доходы</span><span><i style="background:var(--danger)"></i>Расходы</span></div></div>`;
@@ -2395,8 +2919,8 @@ function vBudgetInner() {
   const withL = cats.filter(c => S.cfg.bud[c.id] > 0), noL = cats.filter(c => !(S.cfg.bud[c.id] > 0));
   const row = c => {
     const L = S.cfg.bud[c.id] || 0, sp = ms.byE[c.id] || 0;
-    if (!L) return `<div class="row" data-act="bud" data-id="${esc(c.id)}"><div class="ic">${esc(c.ic)}</div><div class="grow"><div class="t">${esc(c.n)}</div>${sp ? `<div class="sub">потрачено ${money(sp)}</div>` : ''}</div><div class="addl">+ лимит</div></div>`;
-    return `<div class="rrow" data-act="bud" data-id="${esc(c.id)}" style="cursor:pointer"><div class="rtop"><div class="ic">${esc(c.ic)}</div><div class="grow"><div class="t">${esc(c.n)}</div><div class="sub">${money(sp)} из ${money(L)}</div></div><div class="amt ${sp > L ? 'neg' : ''}">${sp > L ? 'перерасход ' + money(sp - L) : 'осталось ' + money(L - sp)}</div></div>${barHTML(sp, L)}</div>`;
+    if (!L) return `<div class="row" data-act="bud" data-id="${esc(c.id)}">${ict(c.ic)}<div class="grow"><div class="t">${esc(c.n)}</div>${sp ? `<div class="sub">потрачено ${money(sp)}</div>` : ''}</div><div class="addl">+ лимит</div></div>`;
+    return `<div class="rrow" data-act="bud" data-id="${esc(c.id)}" style="cursor:pointer"><div class="rtop">${ict(c.ic)}<div class="grow"><div class="t">${esc(c.n)}</div><div class="sub">${money(sp)} из ${money(L)}</div></div><div class="amt ${sp > L ? 'neg' : ''}">${sp > L ? 'перерасход ' + money(sp - L) : 'осталось ' + money(L - sp)}</div></div>${barHTML(sp, L)}</div>`;
   };
   return `${monthNav('b', mk)}
   ${bi.limit ? `<div class="card"><div class="sub">${bi.left >= 0 ? 'Осталось на месяц' : 'Перерасход'}</div><div class="big ${bi.left < 0 ? 'neg' : ''}">${money(Math.abs(bi.left))}</div>
@@ -2412,7 +2936,7 @@ function vGoals() {
     <button class="btn wide" data-act="goalnew">+ Новая копилка</button>${hidden.length ? `<div class="sub c mt">Скрытых копилок: ${hidden.length}</div>` : ''}`;
   return gs.map(w => {
     const bal = b[w.id] || 0, gi = goalInfo(w, bal);
-    return `<div class="card tap" data-act="goal" data-id="${esc(w.id)}"><div class="rtop"><div class="ic">${esc(w.ic)}</div><div class="grow"><div class="t"><b>${esc(w.n)}</b></div><div class="sub">${[w.n !== GOAL_KIND[w.g.kind] ? GOAL_KIND[w.g.kind] || 'Цель' : '', w.g.dl ? 'к ' + monthDat(w.g.dl) : ''].filter(Boolean).join(' · ')}</div></div><div class="amt">${money(bal)}</div></div>
+    return `<div class="card tap" data-act="goal" data-id="${esc(w.id)}"><div class="rtop">${ict(w.ic)}<div class="grow"><div class="t"><b>${esc(w.n)}</b></div><div class="sub">${[w.n !== GOAL_KIND[w.g.kind] ? GOAL_KIND[w.g.kind] || 'Цель' : '', w.g.dl ? 'к ' + monthDat(w.g.dl) : ''].filter(Boolean).join(' · ')}</div></div><div class="amt">${money(bal)}</div></div>
       ${gi.t ? `${barHTMLp(gi.p)}<div class="sub mt">${gi.done ? '🏆 Цель достигнута!' : `${Math.round(gi.p * 100)}% из ${money(gi.t)} · осталось ${money(gi.t - bal)}${gi.perMonth != null ? ` · по ${money(gi.perMonth)} в месяц` : ''}`}</div>` : ''}
       <button class="btn sm" data-act="goalput" data-id="${esc(w.id)}">Отложить</button></div>`;
   }).join('') + `<button class="btn wide ghost" data-act="goalnew">+ Новая копилка</button>`;
@@ -2422,7 +2946,7 @@ function vDebts() {
   const block = (dir, title) => {
     const list = ds.filter(d => d.dir === dir);
     if (!list.length) return '';
-    return `<div class="cap">${title}</div><div class="card list">${list.map(d => { const { paid, left } = debtLeft(d); return `<div class="rrow" data-act="debt" data-id="${esc(d.id)}" style="cursor:pointer"><div class="rtop"><div class="ic">${dir === 'out' ? '🏦' : '🤝'}</div><div class="grow"><div class="t">${esc(d.n)}</div><div class="sub">${left ? `${dir === 'out' ? 'выплачено' : 'вернули'} ${money(paid)} из ${money(d.a)}` : 'закрыт ✓'}${d.due && left ? ` · срок ${dayLabel(fromISO(d.due).m, fromISO(d.due).d)}` : ''}</div></div><div class="amt ${left ? '' : 'inc'}">${left ? money(left) : '✓'}</div></div>${barHTMLp(d.a ? paid / d.a : 1)}</div>`; }).join('')}</div>`;
+    return `<div class="cap">${title}</div><div class="card list">${list.map(d => { const { paid, left } = debtLeft(d); return `<div class="rrow" data-act="debt" data-id="${esc(d.id)}" style="cursor:pointer"><div class="rtop">${ict(dir === 'out' ? '🏦' : '🤝')}<div class="grow"><div class="t">${esc(d.n)}</div><div class="sub">${left ? `${dir === 'out' ? 'выплачено' : 'вернули'} ${money(paid)} из ${money(d.a)}` : 'закрыт ✓'}${d.due && left ? ` · срок ${dayLabel(fromISO(d.due).m, fromISO(d.due).d)}` : ''}</div></div><div class="amt ${left ? '' : 'inc'}">${left ? money(left) : '✓'}</div></div>${barHTMLp(d.a ? paid / d.a : 1)}</div>`; }).join('')}</div>`;
   };
   const leftOut = ds.filter(d => d.dir === 'out').reduce((s, d) => s + debtLeft(d).left, 0);
   const leftIn = ds.filter(d => d.dir === 'in').reduce((s, d) => s + debtLeft(d).left, 0);
@@ -2432,10 +2956,10 @@ function vDebts() {
 }
 function vRec() {
   const rs = S.cfg.rec || [];
-  return (rs.length ? `<div class="card list">${rs.map(r => { const nx = recNext(r); return `<div class="row" data-act="rec" data-id="${esc(r.id)}"><div class="ic">${esc(cat(r.c).ic)}</div><div class="grow"><div class="t">${esc(recName(r))}</div><div class="sub">${recSchedule(r)}${nx ? ` · ${nx < todayKey() ? 'ждёт отметки с ' + keyLabelL(nx) : 'следующий ' + keyLabelL(nx)}` : ''}</div></div><div class="amt ${r.k === 'i' ? 'inc' : ''}">${r.k === 'i' ? '+' : '−'}${money(r.a)}</div></div>`; }).join('')}</div>`
+  return (rs.length ? `<div class="card list">${rs.map(r => { const nx = recNext(r); return `<div class="row" data-act="rec" data-id="${esc(r.id)}">${ict(cat(r.c).ic)}<div class="grow"><div class="t">${esc(recName(r))}</div><div class="sub">${recSchedule(r)}${nx ? ` · ${nx < todayKey() ? 'ждёт отметки с ' + keyLabelL(nx) : 'следующий ' + keyLabelL(nx)}` : ''}</div></div><div class="amt ${r.k === 'i' ? 'inc' : ''}">${r.k === 'i' ? '+' : '−'}${money(r.a)}</div></div>`; }).join('')}</div>`
     : `<div class="card"><b>Регулярные платежи</b><div class="sub mt">Аренда, связь, кредит, подписки, зарплата. Вечером в день платежа журнал спросит, был ли он, и запишет одной кнопкой.</div></div>`)
     + `<button class="btn wide ${rs.length ? 'ghost' : ''}" data-act="recnew">+ Новый платёж</button>
-    <div class="row" data-act="evesetting" style="margin-top:6px"><div class="ic">🌙</div><div class="grow"><div class="t">Вечерний вопрос</div><div class="sub">${eveHour() ? 'после ' + eveHour() + ':00' : 'выключен'}</div></div><div class="chev">›</div></div>`;
+    <div class="row" data-act="evesetting" style="margin-top:6px">${ict('🌙')}<div class="grow"><div class="t">Вечерний вопрос</div><div class="sub">${eveHour() ? 'после ' + eveHour() + ':00' : 'выключен'}</div></div><div class="chev">›</div></div>`;
 }
 function vPlans() {
   const segs = [['goals', 'Копилки'], ['budget', 'Бюджет'], ['debts', 'Долги'], ['rec', 'Платежи']];
@@ -2445,41 +2969,41 @@ function vPlans() {
 function vMore() {
   const b = balances();
   const act = regWallets(), arch = S.cfg.wallets.filter(w => w.arch && !w.g);
-  const wrow = w => `<div class="row" data-act="wallet" data-id="${esc(w.id)}"><div class="ic">${esc(w.ic)}</div><div class="grow t">${esc(w.n)}</div><div class="amt">${money(b[w.id])}</div><div class="chev">›</div></div>`;
+  const wrow = w => `<div class="row" data-act="wallet" data-id="${esc(w.id)}">${ict(w.ic)}<div class="grow t">${esc(w.n)}</div><div class="amt">${money(b[w.id])}</div><div class="chev">›</div></div>`;
   const sw = on => `<span class="sw ${on ? 'on' : ''}"></span>`;
   return `<div class="h1">Ещё</div>
   <div class="cap">Кошельки</div>
-  <div class="card list">${act.map(wrow).join('')}<div class="row" data-act="addwallet"><div class="ic">＋</div><div class="grow acc">Добавить кошелёк</div></div></div>
+  <div class="card list">${act.map(wrow).join('')}<div class="row" data-act="addwallet">${ict('＋')}<div class="grow acc">Добавить кошелёк</div></div></div>
   ${arch.length ? `<div class="cap">Скрытые кошельки</div><div class="card list">${arch.map(wrow).join('')}</div>` : ''}
   <div class="cap">Категории</div>
-  <div class="card list"><div class="row" data-act="cats" data-k="e"><div class="ic">🛒</div><div class="grow">Категории расходов</div><div class="sub">${catsOf('e').length}</div><div class="chev">›</div></div>
-    <div class="row" data-act="cats" data-k="i"><div class="ic">💼</div><div class="grow">Категории доходов</div><div class="sub">${catsOf('i').length}</div><div class="chev">›</div></div></div>
+  <div class="card list"><div class="row" data-act="cats" data-k="e">${ict('🛒')}<div class="grow">Категории расходов</div><div class="sub">${catsOf('e').length}</div><div class="chev">›</div></div>
+    <div class="row" data-act="cats" data-k="i">${ict('💼')}<div class="grow">Категории доходов</div><div class="sub">${catsOf('i').length}</div><div class="chev">›</div></div></div>
   <div class="cap">Безопасность</div>
-  <div class="card list">${bioAvail ? `<div class="row" data-act="bio"><div class="ic">${bioType === 'finger' ? '👆' : '🔒'}</div><div class="grow"><div class="t">Вход по ${bioName()}</div><div class="sub">На этом устройстве</div></div>${sw(bioIsOn())}</div>` : ''}
-    <div class="row" data-act="encrypt"><div class="ic">🔐</div><div class="grow"><div class="t">Шифрование паролем</div><div class="sub">${encMeta ? 'Включено' : 'Записи в облаке под паролем'}</div></div>${sw(!!encMeta)}</div></div>
+  <div class="card list">${bioAvail ? `<div class="row" data-act="bio">${ict('🔒')}<div class="grow"><div class="t">Вход по ${bioName()}</div><div class="sub">На этом устройстве</div></div>${sw(bioIsOn())}</div>` : ''}
+    <div class="row" data-act="encrypt">${ict('🔐')}<div class="grow"><div class="t">Шифрование паролем</div><div class="sub">${encMeta ? 'Включено' : 'Записи в облаке под паролем'}</div></div>${sw(!!encMeta)}</div></div>
   <div class="cap">Удобство</div>
-  <div class="card list">${CAN_HOME && homeStatus !== 'unsupported' ? `<div class="row" data-act="homescreen"><div class="ic">📱</div><div class="grow"><div class="t">Иконка на главный экран</div><div class="sub">${homeStatus === 'added' ? 'Уже добавлена' : 'Открывать журнал как приложение'}</div></div><div class="chev">›</div></div>` : ''}
-    <div class="row" data-act="evesetting"><div class="ic">🌙</div><div class="grow"><div class="t">Вечерний вопрос</div><div class="sub">${eveHour() ? 'после ' + eveHour() + ':00' : 'выключен'}</div></div><div class="chev">›</div></div></div>
+  <div class="card list">${CAN_HOME && homeStatus !== 'unsupported' ? `<div class="row" data-act="homescreen">${ict('📱')}<div class="grow"><div class="t">Иконка на главный экран</div><div class="sub">${homeStatus === 'added' ? 'Уже добавлена' : 'Открывать журнал как приложение'}</div></div><div class="chev">›</div></div>` : ''}
+    <div class="row" data-act="evesetting">${ict('🌙')}<div class="grow"><div class="t">Вечерний вопрос</div><div class="sub">${eveHour() ? 'после ' + eveHour() + ':00' : 'выключен'}</div></div><div class="chev">›</div></div></div>
   <div class="cap">Данные</div>
-  <div class="card list"><div class="row" data-act="import"><div class="ic">📥</div><div class="grow">Импорт выписки из банка</div><div class="chev">›</div></div>
-    <div class="row" data-act="csv"><div class="ic">📊</div><div class="grow">Выгрузка для Excel</div><div class="chev">›</div></div>
-    <div class="row" data-act="backup"><div class="ic">💾</div><div class="grow">Резервная копия</div><div class="chev">›</div></div>
-    <div class="row" data-act="restore"><div class="ic">♻️</div><div class="grow">Восстановить из копии</div><div class="chev">›</div></div></div>
+  <div class="card list"><div class="row" data-act="import">${ict('📥')}<div class="grow">Импорт выписки из банка</div><div class="chev">›</div></div>
+    <div class="row" data-act="csv">${ict('📊')}<div class="grow">Выгрузка для Excel</div><div class="chev">›</div></div>
+    <div class="row" data-act="backup">${ict('💾')}<div class="grow">Резервная копия</div><div class="chev">›</div></div>
+    <div class="row" data-act="restore">${ict('♻️')}<div class="grow">Восстановить из копии</div><div class="chev">›</div></div></div>
   <div class="cap">Помощь</div>
-  <div class="card list"><div class="row" data-act="tutorial"><div class="ic">🎓</div><div class="grow">Как пользоваться</div><div class="sub">${TUT.length} шагов</div><div class="chev">›</div></div>
-    <div class="row" data-act="faq"><div class="ic">❓</div><div class="grow">Вопросы и ответы</div><div class="chev">›</div></div>
-    <div class="row" data-act="news"><div class="ic">✨</div><div class="grow">Что нового</div><div class="chev">›</div></div></div>
+  <div class="card list"><div class="row" data-act="tutorial">${ict('🎓')}<div class="grow">Как пользоваться</div><div class="sub">${TUT.length} шагов</div><div class="chev">›</div></div>
+    <div class="row" data-act="faq">${ict('❓')}<div class="grow">Вопросы и ответы</div><div class="chev">›</div></div>
+    <div class="row" data-act="news">${ict('✨')}<div class="grow">Что нового</div><div class="chev">›</div></div></div>
   <div class="cap">Где хранятся записи</div>
   <div class="card"><div id="syncInfo">${syncText()}</div><div class="sub mt">${HAS_CLOUD ? 'Облако привязано к вашему аккаунту Telegram и этому боту: записи видны на телефоне и компьютере. Своего сервера у бота нет, записи никуда больше не отправляются.' : 'Откройте приложение через бота в Telegram, чтобы записи сохранялись в облаке.'}</div></div>
   <button class="linkbtn danger" data-act="reset">Удалить все данные</button>
-  <div class="foot">${APP_NAME} · версия ${VERSION}</div>`;
+  <div class="foot">${APP_NAME} · версия ${VERSION}${ENV ? ' · ' + esc(ENV) : ''}</div>`;
 }
 function vOnboarding() {
-  return `<div class="ob"><div class="ob-logo">📒</div><div class="h1 c">${APP_NAME}</div>
+  return `<div class="ob"><div class="ob-logo">${mascotSVG(72)}</div><div class="h1 c">${APP_NAME}</div>
   <p class="sub c">Личная бухгалтерия без привязки к банкам. Вносите доходы и расходы, а журнал покажет остатки, куда уходят деньги и сколько можно тратить до конца месяца.</p>
   <div class="cap">Сколько денег у вас сейчас?</div>
-  <div class="card list"><div class="row"><div class="ic">💳</div><div class="grow">Карта</div><input class="inp" id="ob_card" inputmode="decimal" placeholder="0"></div>
-    <div class="row"><div class="ic">💵</div><div class="grow">Наличные</div><input class="inp" id="ob_cash" inputmode="decimal" placeholder="0"></div></div>
+  <div class="card list"><div class="row">${ict('💳')}<div class="grow">Карта</div><input class="inp" id="ob_card" inputmode="decimal" placeholder="0"></div>
+    <div class="row">${ict('💵')}<div class="grow">Наличные</div><input class="inp" id="ob_cash" inputmode="decimal" placeholder="0"></div></div>
   <p class="sub">Можно оставить пустым и указать позже. Названия кошельков и новые кошельки — в разделе «Ещё».</p>
   <button class="btn wide" data-act="obstart">Начать</button>
   <button class="linkbtn" data-act="restore">Восстановить из резервной копии</button>
@@ -2508,7 +3032,7 @@ function maybePopups() {
   if (HAS_CLOUD && !cloudLoaded) return;
   if (!tutSeen && (!S.cfg || !S.cfg.tut)) { openTutorial(!S.cfg); return; }
   if (!S.cfg) return;
-  if ((S.cfg.tut || 0) < TUT_VER && !shownPop.has('new')) { shownPop.add('new'); openWhatsNew(); return; }
+  if ((S.cfg.tut || 0) < TUT_VER && !shownPop.has('new')) { shownPop.add('new'); openWhatsNew(true); return; }
   const pm = mShift(curM(), -1);
   if (S.months[pm] && !G().sum[pm] && !shownPop.has('sum')) { shownPop.add('sum'); openSummary(pm); return; }
   const tk = todayKey();
@@ -2547,7 +3071,7 @@ const ACT = {
   bud: ds => {
     const c = cat(ds.id), L = S.cfg.bud[ds.id] || 0, sp = monthStats(curM()).byE[ds.id] || 0;
     openAmount({
-      title: 'Лимит на месяц', sub: `${esc(c.ic)} ${esc(c.n)} · в этом месяце потрачено ${money(sp)}`, initial: L,
+      title: 'Лимит на месяц', sub: `${icn(c.ic)} ${esc(c.n)} · в этом месяце потрачено ${money(sp)}`, initial: L,
       extra: L ? '<button class="linkbtn danger" data-s="clear">Убрать лимит</button>' : '',
       onSave: a => { if (a > 0) S.cfg.bud[ds.id] = a; else delete S.cfg.bud[ds.id]; markDirty('cfg'); render(); },
     });
@@ -2563,7 +3087,8 @@ const ACT = {
   import: () => openImport(),
   tutorial: () => openTutorial(false),
   faq: () => openFAQ(),
-  news: () => openWhatsNew(),
+  news: () => openWhatsNew(false),
+  tip: () => openTip(),
   csv: () => exportCSV(),
   backup: () => openBackup(),
   restore: () => openRestore(),
@@ -2603,11 +3128,13 @@ function setupTG() {
   try {
     TG.ready(); TG.expand();
     if (ver('7.7')) TG.disableVerticalSwipes();
-    if (ver('6.1')) { TG.setHeaderColor('secondary_bg_color'); TG.setBackgroundColor('secondary_bg_color'); TG.BackButton.onClick(closeTop); }
+    if (ver('6.1')) { TG.setHeaderColor(ver('6.9') ? '#0B0B0D' : 'bg_color'); TG.setBackgroundColor('#0B0B0D'); TG.BackButton.onClick(closeTop); }
+    if (ver('7.10') && TG.setBottomBarColor) TG.setBottomBarColor('#0B0B0D');
     if (ver('8.0') && TG.onEvent) TG.onEvent('homeScreenAdded', () => { homeStatus = 'added'; toast('Иконка добавлена на главный экран'); if (tab === 'more') render(); });
   } catch (e) {}
 }
 (async function boot() {
+  document.querySelectorAll('[data-px]').forEach(el => { el.outerHTML = pxSvg(el.dataset.px, +el.dataset.size || 22); });
   setupTG();
   const raw = readLocalRaw();
   encMeta = raw.enc || null;
