@@ -580,17 +580,98 @@ details.steps summary::-webkit-details-marker{display:none}
 .stairs rect.off{fill:var(--sec2)}
 .stairs text{font-family:var(--fu);font-weight:700;font-size:11px}
 .stairs .lon{fill:var(--btnt)}.stairs .lcur{fill:var(--accent)}.stairs .loff{fill:var(--hint)}
+details.tipd{padding:0}
+details.tipd+details.tipd{border-top:1px solid var(--sep)}
+details.tipd summary{list-style:none;cursor:pointer;padding:13px 0;font-weight:600;font-size:15px}
+details.tipd summary::-webkit-details-marker{display:none}
+details.tipd p{margin:0 0 13px;color:var(--hint);font-size:14.5px;line-height:1.45}
+/* цветовые схемы */
+body[data-look="calm"]{--accent:#9ED9A8;--btn:#9ED9A8;--link:#9ED9A8;--inc:#9ED9A8;--acc-bg:#9ED9A824;--game:#A99BDB;--game-bg:#A99BDB26;--warn:#E0A07A;--danger:#E5867A;--amber:#E2B86E}
+body[data-look="strict"]{--accent:#D6BE8A;--btn:#D6BE8A;--link:#D6BE8A;--inc:#D6BE8A;--acc-bg:#D6BE8A22;--game:#AFA8CF;--game-bg:#AFA8CF22;--warn:#C9946A;--danger:#D07A6E;--amber:#C9A46A}
+.lookc{display:block;width:100%;text-align:left;border:0;border-radius:18px;background:var(--sec);color:var(--text);padding:14px;margin-bottom:10px;box-shadow:inset 0 0 0 1.5px transparent}
+.lookc.on{box-shadow:inset 0 0 0 2px var(--accent)}
+.lk-top{display:flex;align-items:center;gap:12px}
+.lk-top .grow{display:flex;flex-direction:column;gap:2px}
+.lk-top b{font-size:16px}
+.lk-sw{display:flex;gap:4px;margin-top:12px}
+.lk-sw i{flex:1;height:14px}
+/* стили оформления */
+#tabs .ti{display:flex;height:24px;align-items:center;justify-content:center}
+.ln{display:block;flex:none}
+.ice .emo{font-size:20px;line-height:1}
+.ic.sm.ice .emo{font-size:16px}
+.smi-e{display:inline-block;line-height:1}
+.sbar{height:8px;border-radius:4px;background:var(--line);margin-top:10px;overflow:hidden}
+.sbar i{display:block;height:100%;border-radius:4px;background:var(--accent)}
+.sbar.sm{height:6px;margin-top:8px}
+.sbar.game i{background:var(--game)}.sbar.amber i{background:var(--amber)}.sbar.red i{background:var(--danger)}.sbar.cv i{background:var(--pc)}
+.gtrack .sbar{flex:1;margin:0}
+.comp.s{height:12px;border-radius:6px;overflow:hidden;gap:2px}
+.comp.s i{height:12px}
+.dchart .dc.s{justify-content:flex-start}
+.dchart .dc.s i{border-radius:3px 3px 0 0;background:var(--accent)}
+.dchart .dc.s.over i{background:var(--warn)}
+body[data-style="classic"]{--fu:var(--fo)}
+body[data-style="classic"] .big{letter-spacing:-.5px;font-weight:700}
+body[data-style="classic"] .week i{border-radius:50%}
+body[data-style="classic"] #tabs button.on::before{border-radius:2px}
+body[data-style="classic"] .pxbar i{border-radius:2px}
+.lk-m{display:flex;width:40px;justify-content:center}
+.lk-ok{color:var(--accent)}
+.lk-demo{display:flex;align-items:center;gap:8px;margin-top:12px}
+.lk-demo .pxbar,.lk-demo .sbar{margin:0}
+body[data-style="classic"] .dchart .dc.zero i{border-radius:50%}
+/* режим учёта */
+.aseg{margin-bottom:4px}
+.soon{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--game);background:var(--game-bg);border-radius:6px;padding:1px 5px;margin-left:4px;vertical-align:1px}
+.soonrow{opacity:.62}
+/* живой сканер */
+.sheet.scanner{background:#000}
+.scan{position:relative;flex:1;min-height:0;border-radius:20px;overflow:hidden;background:#0B0B0D}
+.scan video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.scan-frame{position:absolute;left:50%;top:44%;width:min(66vw,280px);height:min(66vw,280px);transform:translate(-50%,-50%);box-shadow:0 0 0 200vmax rgba(0,0,0,.5);border-radius:6px}
+.scan-frame i{position:absolute;width:30px;height:30px;border:4px solid var(--accent)}
+.scan-frame i:nth-child(1){left:-4px;top:-4px;border-right:0;border-bottom:0}
+.scan-frame i:nth-child(2){right:-4px;top:-4px;border-left:0;border-bottom:0}
+.scan-frame i:nth-child(3){left:-4px;bottom:-4px;border-right:0;border-top:0}
+.scan-frame i:nth-child(4){right:-4px;bottom:-4px;border-left:0;border-top:0}
+body[data-style="classic"] .scan-frame i{border-radius:10px}
+.scan-line{position:absolute;left:8%;right:8%;height:3px;background:var(--accent);box-shadow:0 0 12px var(--accent);animation:scanl 2.2s ease-in-out infinite}
+@keyframes scanl{0%,100%{top:8%}50%{top:90%}}
+.scan-hint{position:absolute;left:16px;right:16px;bottom:96px;text-align:center;color:#fff;font-weight:600;font-size:15px;text-shadow:0 1px 6px rgba(0,0,0,.8)}
+.scan-bar{position:absolute;left:16px;right:16px;bottom:16px}
+.scan.nocam video,.scan.nocam .scan-frame{display:none}
+.scan.nocam .scan-hint{top:38%;bottom:auto;color:var(--hint);text-shadow:none}
+@media (prefers-reduced-motion:reduce){.scan-line{animation:none;top:50%}}
+/* подсказки по разделам */
+.tour{position:fixed;inset:0;z-index:45;opacity:0;transition:opacity .25s}
+.tour.on{opacity:1}
+.tour.closing{opacity:0}
+.tour-spot{position:fixed;border-radius:20px;box-shadow:0 0 0 200vmax rgba(5,5,7,.78);transition:left .35s cubic-bezier(.2,.8,.3,1),top .35s cubic-bezier(.2,.8,.3,1),width .35s cubic-bezier(.2,.8,.3,1),height .35s cubic-bezier(.2,.8,.3,1);pointer-events:none}
+.tour-spot::after{content:'';position:absolute;inset:-4px;border-radius:24px;border:2px solid var(--accent);animation:tourp 1.6s ease-out infinite}
+@keyframes tourp{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(1.06)}}
+.tour-tip{position:fixed;left:16px;right:16px;max-width:520px;margin:0 auto;background:var(--sec);border-radius:20px;padding:16px;box-shadow:0 12px 40px rgba(0,0,0,.5);transition:top .35s cubic-bezier(.2,.8,.3,1)}
+.tour-tip.in{animation:tipin .3s ease-out}
+@keyframes tipin{from{opacity:0;transform:translateY(8px)}}
+.tour-k{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--game)}
+.tour-t{font-family:var(--fu);font-weight:700;font-size:18px;margin:6px 0}
+.tour-d{font-size:14.5px;line-height:1.45;color:var(--hint)}
+.tour-nav{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+.tour-nav .btn{margin:0}
+.tour-skip,.tour-off{border:0;background:none;color:var(--hint);font-size:14px;padding:8px 0}
+.tour-off{display:block;margin:6px auto 0;font-size:12.5px;text-decoration:underline;text-underline-offset:3px}
+@media (prefers-reduced-motion:reduce){.tour-spot,.tour-tip{transition:none}.tour-spot::after{animation:none}}
 </style>
 </head>
 <body>
 <main id="screen"></main>
 <nav id="tabs">
-  <button data-tab="home"><i data-px="home"></i>Главная</button>
-  <button data-tab="journal"><i data-px="list"></i>Журнал</button>
-  <button data-tab="report"><i data-px="chart"></i>Отчёт</button>
-  <button data-tab="plans"><i data-px="target"></i>Планы</button>
-  <button data-tab="progress"><i data-px="trophy"></i>Прогресс</button>
-  <button data-tab="more"><i data-px="dots"></i>Ещё</button>
+  <button data-tab="home"><span class="ti"></span>Главная</button>
+  <button data-tab="journal"><span class="ti"></span>Журнал</button>
+  <button data-tab="report"><span class="ti"></span>Отчёт</button>
+  <button data-tab="plans"><span class="ti"></span>Планы</button>
+  <button data-tab="progress"><span class="ti"></span>Прогресс</button>
+  <button data-tab="more"><span class="ti"></span>Ещё</button>
 </nav>
 <div id="lock" hidden><div class="lock-in">
   <div class="lock-ic"><i data-px="lock" data-size="56"></i></div>
@@ -608,8 +689,8 @@ details.steps summary::-webkit-details-marker{display:none}
 'use strict';
 /* ====== Настройки ====== */
 const APP_NAME = 'Финансовый журнал';
-const VERSION = '0.4';
-const TUT_VER = 3;      // 2 = v0.3 (планы и прогресс), 3 = v0.4 (новый вид). Показ «Что нового» тем, кто видел меньше
+const VERSION = '0.6';
+const TUT_VER = 5;      // 2 = v0.3 (планы и прогресс), 3 = v0.4 (новый вид), 5 = v0.6 (стили, живой сканер, накопления, подсказки). Показ «Что нового» тем, кто видел меньше
 const PART = 2000;      // длина одного куска в облаке Telegram (лимит 4096)
 const META_KEYS = new Set(['xenc']);
 
@@ -1171,7 +1252,63 @@ const PXG = {
   help: ['..#####..', '.#.....#.', '.......#.', '......#..', '....##...', '....#....', '.........', '....#....', '.........'],
   hand: ['.........', '##.....##', '###...###', '#.##.##.#', '#..###..#', '##..#..##', '.##...##.', '..#####..', '.........'],
 };
-const PXC = { O: '#FF9F43', P: '#FF6B9A', Y: '#FFD43B', B: '#5AA9FF', C: '#22D3EE', G: '#4ADE80', L: '#D4FF3A', R: '#FF7A6B', N: '#A1A1AA', W: '#F2F2F5', V: '#B79CFF', K: '#FF8FB1' };
+// Цветовые схемы: общая ДНК (шрифты, пиксели, раскладка) + своя палитра. Ключи: категории O,P,Y,B,C,G,R,K; L — деньги/акцент; N, W — нейтральные; V — игра
+const LOOKS = {
+  bright: { name: 'Яркая', d: 'Сочные цвета категорий, лаймовый акцент', acc: '#D4FF3A', game: '#B79CFF', warn: '#FF8A5B', red: '#FF6B5A', amber: '#FFB547',
+    pal: { O: '#FF9F43', P: '#FF6B9A', Y: '#FFD43B', B: '#5AA9FF', C: '#22D3EE', G: '#4ADE80', L: '#D4FF3A', R: '#FF7A6B', N: '#A1A1AA', W: '#F2F2F5', V: '#B79CFF', K: '#FF8FB1' },
+    cats: ['#FF9F43', '#5AA9FF', '#FFD43B', '#FF6B9A', '#22D3EE', '#4ADE80', '#FF7A6B', '#FF8FB1'] },
+  calm: { name: 'Умеренная', d: 'Приглушённые тона, мятный акцент', acc: '#9ED9A8', game: '#A99BDB', warn: '#E0A07A', red: '#E5867A', amber: '#E2B86E',
+    pal: { O: '#D9A066', P: '#D98AA6', Y: '#D9C26E', B: '#7FA6D9', C: '#6FBFCC', G: '#86C79A', L: '#9ED9A8', R: '#D98C80', N: '#9A9AA2', W: '#E8E8EC', V: '#A99BDB', K: '#D9A0B6' },
+    cats: ['#D9A066', '#7FA6D9', '#D9C26E', '#D98AA6', '#6FBFCC', '#86C79A', '#D98C80', '#D9A0B6'] },
+  strict: { name: 'Консервативная', d: 'Графит и шампань, почти без цвета', acc: '#D6BE8A', game: '#AFA8CF', warn: '#C9946A', red: '#D07A6E', amber: '#C9A46A',
+    pal: { O: '#C9C9CF', P: '#C9C9CF', Y: '#C9C9CF', B: '#C9C9CF', C: '#C9C9CF', G: '#C9C9CF', L: '#D6BE8A', R: '#C9C9CF', N: '#A1A1AA', W: '#E8E8EC', V: '#AFA8CF', K: '#C9C9CF' },
+    cats: ['#D6BE8A', '#A8956C', '#C9C9CF', '#7F7558', '#8B8B94', '#B7A884', '#5E5E66', '#9C9C86'] },
+};
+let LOOK = LOOKS.bright;
+// Стили оформления: две крайности и середина. Общая ДНК семейства остаётся: раскладка, логика, тёмный фон
+const STYLES = {
+  pixel: { name: 'Пиксельный', d: 'Пиксельные значки и клетки, яркие цвета — как в игре', look: 'bright', icons: 'px', game: 'px', bars: 'px' },
+  balanced: { name: 'Сбалансированный', d: 'Обычные значки, пиксели только в игре, спокойные цвета', look: 'calm', icons: 'emoji', game: 'px', bars: 'px' },
+  classic: { name: 'Классический', d: 'Привычные значки, плавные полосы, сдержанные цвета, без пикселей', look: 'strict', icons: 'emoji', game: 'emoji', bars: 'smooth' },
+};
+let ST = STYLES.pixel, stKey = '';
+const styleOf = c => (c && STYLES[c.style] && c.style) || (c && ({ calm: 'balanced', strict: 'classic' })[c.look]) || 'pixel';
+function setStyle(k) {
+  if (!STYLES[k]) k = 'pixel';
+  ST = STYLES[k]; LOOK = LOOKS[ST.look];
+  if (stKey === k) return;
+  stKey = k; document.body.dataset.style = k; document.body.dataset.look = ST.look;
+  try { localStorage.setItem('fj_style', k); } catch (e) {}
+  renderTabs();
+}
+// линейные значки для интерфейса (сбалансированный и классический стили)
+const LN = {
+  home: '<path d="M3.5 10.5 12 3.5l8.5 7"/><path d="M5.5 9v11h13V9"/><path d="M10 20v-5.5h4V20"/>',
+  list: '<path d="M9 6.5h11M9 12h11M9 17.5h11"/><circle cx="4.5" cy="6.5" r="1.1" fill="currentColor"/><circle cx="4.5" cy="12" r="1.1" fill="currentColor"/><circle cx="4.5" cy="17.5" r="1.1" fill="currentColor"/>',
+  chart: '<path d="M11 4a8.5 8.5 0 1 0 9 9h-9z"/><path d="M14.5 3.2a8 8 0 0 1 6.3 6.3h-6.3z"/>',
+  target: '<circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="1" fill="currentColor"/>',
+  trophy: '<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5v1a3 3 0 0 0 3 3M16 6h3v1a3 3 0 0 1-3 3"/><path d="M12 13v4M8.5 20.5h7M10 17h4v3.5h-4z"/>',
+  dots: '<circle cx="5" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><circle cx="19" cy="12" r="1.8" fill="currentColor" stroke="none"/>',
+  minus: '<path d="M5 12h14"/>', plus: '<path d="M12 5v14M5 12h14"/>', xfer: '<path d="M4 8h15l-3.5-3.5M20 16H5l3.5 3.5"/>',
+  qr: '<rect x="4" y="4" width="6" height="6" rx="1"/><rect x="14" y="4" width="6" height="6" rx="1"/><rect x="4" y="14" width="6" height="6" rx="1"/><path d="M14 14h2v2M20 14v6h-4M14 18v2"/>',
+  help: '<circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7v.5"/><circle cx="12" cy="17" r=".9" fill="currentColor"/>',
+  check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>', dash: '<path d="M6 12h12"/>', cross: '<path d="M6 6l12 12M18 6 6 18"/>',
+  flag: '<path d="M6 21V4M6 4h11l-2 4 2 4H6"/>',
+  spark: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/>',
+  cloud: '<path d="M7 18a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 9a4.5 4.5 0 0 1 .5 9z"/>',
+  lock: '<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>',
+  camera: '<path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
+  file: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  torch: '<path d="M8 3h8l-1.5 6h-5z"/><path d="M9.5 9v12h5V9"/><path d="M12 13v3"/>',
+};
+function lnSvg(name, size) { size = size || 20; return `<svg class="ln" viewBox="0 0 24 24" width="${size}" height="${size}" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${LN[name] || LN.dots}</svg>`; }
+// значок интерфейса
+function uic(name, size) { return ST.icons === 'px' || !LN[name] ? pxSvg(name, size) : lnSvg(name, size); }
+// игровой значок: пиксели или эмодзи
+function gic(name, emoji, size) { size = size || 20; return ST.game === 'px' ? pxSvg(name, size) : `<span class="emo" style="font-size:${Math.round(size * 0.9)}px;line-height:1">${emoji}</span>`; }
+const TAB_IC = { home: 'home', journal: 'list', report: 'chart', plans: 'target', progress: 'trophy', more: 'dots' };
+function renderTabs() { document.querySelectorAll('#tabs button[data-tab]').forEach(b => { const t = b.querySelector('.ti'); if (t) t.innerHTML = ST.icons === 'px' ? pxSvg(TAB_IC[b.dataset.tab], 22) : lnSvg(TAB_IC[b.dataset.tab], 24); }); }
+const PXC = new Proxy({}, { get: (t, k) => LOOK.pal[k] });
 // эмодзи → [иконка, цвет]. Эмодзи без пары показываются как есть.
 const PXE = {};
 [['🛒', 'cart', 'O'], ['☕', 'cup', 'P'], ['🍔', 'burger', 'O'], ['🍺', 'mug', 'P'], ['🚌', 'bus', 'Y'], ['🚕', 'taxi', 'Y'], ['🚗', 'car', 'Y'], ['⛽', 'fuel', 'Y'],
@@ -1181,11 +1318,11 @@ const PXE = {};
  ['📦', 'box', 'N'], ['❤', 'heart', 'R'], ['⭐', 'star', 'Y'], ['🎓', 'grad', 'C'], ['💳', 'card', 'B'], ['🪙', 'coin', 'Y'], ['🐷', 'pig', 'K'], ['🎯', 'target', 'R'],
  ['🧾', 'receipt', 'N'], ['🏖', 'beach', 'Y'], ['🛟', 'buoy', 'O'], ['💍', 'ring', 'C'], ['📅', 'cal', 'B'], ['🌙', 'moon', 'V'], ['⚖', 'scales', 'W'], ['⇄', 'xfer', 'W'],
  ['🔐', 'lock', 'W'], ['🔒', 'lock', 'W'], ['📊', 'chart', 'W'], ['♻', 'repeat', 'W'], ['❓', 'help', 'W'], ['✨', 'spark', 'V'], ['＋', 'plus', 'L'], ['📥', 'inbox', 'W'],
- ['💾', 'disk', 'W'], ['📒', 'book', 'W'], ['☁', 'cloud', 'W'], ['💻', 'laptop', 'W'], ['📷', 'camera', 'W'], ['✏', 'pencil', 'W'], ['🏆', 'trophy', 'Y'], ['🤝', 'hand', 'W'],
+ ['💾', 'disk', 'W'], ['🔦', 'spark', 'V'], ['💱', 'coin', 'Y'], ['📒', 'book', 'W'], ['☁', 'cloud', 'W'], ['💻', 'laptop', 'W'], ['📷', 'camera', 'W'], ['✏', 'pencil', 'W'], ['🏆', 'trophy', 'Y'], ['🤝', 'hand', 'W'],
  ['⚡', 'bolt', 'V'], ['💯', 'cent', 'W'], ['🔥', 'fire', 'V'], ['🎉', 'spark', 'V'], ['🍕', 'burger', 'O'], ['🚇', 'bus', 'Y'], ['🛍', 'gift', 'P'], ['🏥', 'med', 'G']]
-  .forEach(([e, g, c]) => { PXE[e] = [g, PXC[c]]; });
+  .forEach(([e, g, c]) => { PXE[e] = [g, c]; });
 const pxKey = e => String(e == null ? '' : e).replace(/[️‍]/g, '').trim();
-const pxOf = ic => PXE[pxKey(ic)] || null;
+const pxOf = ic => { const m = PXE[pxKey(ic)]; return m ? [m[0], LOOK.pal[m[1]]] : null; };
 const pxPaths = {};
 function pxPath(name) {
   if (pxPaths[name]) return pxPaths[name];
@@ -1197,21 +1334,466 @@ function pxPath(name) {
 function pxSvg(name, size) { size = size || 20; return `<svg class="px" viewBox="0 0 9 9" width="${size}" height="${size}" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true"><path d="${pxPath(name)}"/></svg>`; }
 // иконка по эмодзи: в строке текста
 function icn(ic, size) {
+  if (ST.icons !== 'px') return `<span class="emo">${esc(ic)}</span>`;
   const m = pxOf(ic);
   return m ? `<span class="pxi" style="color:${m[1]}">${pxSvg(m[0], size || 16)}</span>` : `<span class="emo">${esc(ic)}</span>`;
 }
 // иконка по эмодзи: цветная плитка .ic
 function ict(ic, cls) {
   const m = pxOf(ic), c = m ? m[1] : PXC.N;
+  if (ST.icons !== 'px') return `<div class="ic ice${cls ? ' ' + cls : ''}" style="background:${ST.look === 'strict' || !m ? 'var(--sec2)' : c + '22'}"><span class="emo">${esc(ic)}</span></div>`;
   return `<div class="ic${cls ? ' ' + cls : ''}" style="color:${c};background:${c}24">${m ? pxSvg(m[0], cls === 'sm' ? 16 : 20) : `<span class="emo">${esc(ic)}</span>`}</div>`;
 }
 // пиксельная полоса прогресса из клеток
 function pxBar(p, cls, n, color) {
   n = n || 20; p = Math.max(0, Math.min(1, p || 0));
+  if (ST.bars === 'smooth') return `<div class="sbar ${cls || ''}"${color ? ` style="--pc:${color}"` : ''} role="img" aria-label="${Math.round(p * 100)}%"><i style="width:${(p * 100).toFixed(1)}%"></i></div>`;
   const f = p > 0 && p < 1 ? Math.min(n - 1, Math.max(1, Math.round(p * n))) : Math.round(p * n);
   let h = ''; for (let i = 0; i < n; i++) h += i < f ? '<i class="on"></i>' : '<i></i>';
   return `<div class="pxbar ${cls || ''}"${color ? ` style="--pc:${color}"` : ''} role="img" aria-label="${Math.round(p * 100)}%">${h}</div>`;
 }
+
+/* ====== Распознавание QR-кода на фото (без внешних библиотек; алгоритм по мотивам ZXing) ====== */
+const QR = (() => {
+  // ---------- поле Галуа GF(256) и Рида — Соломона ----------
+  const EXP = new Array(512), LOG = new Array(256);
+  (() => { let x = 1; for (let i = 0; i < 255; i++) { EXP[i] = x; LOG[x] = i; x <<= 1; if (x & 0x100) x ^= 0x11D; } for (let i = 255; i < 512; i++) EXP[i] = EXP[i - 255]; })();
+  const gmul = (a, b) => (a === 0 || b === 0) ? 0 : EXP[LOG[a] + LOG[b]];
+  const ginv = a => { if (a === 0) throw new Error('inv0'); return EXP[255 - LOG[a]]; };
+  class Poly {
+    constructor(c) { let i = 0; while (i < c.length - 1 && c[i] === 0) i++; this.c = c.slice(i); }
+    get deg() { return this.c.length - 1; }
+    isZero() { return this.c[0] === 0; }
+    coef(d) { return this.c[this.c.length - 1 - d]; }
+    at(a) { if (a === 0) return this.coef(0); let r = 0; if (a === 1) { for (const v of this.c) r ^= v; return r; } r = this.c[0]; for (let i = 1; i < this.c.length; i++) r = gmul(a, r) ^ this.c[i]; return r; }
+    add(o) {
+      if (this.isZero()) return o; if (o.isZero()) return this;
+      let s = this.c, l = o.c; if (s.length > l.length) [s, l] = [l, s];
+      const r = l.slice(), d = l.length - s.length; for (let i = 0; i < s.length; i++) r[i + d] = s[i] ^ l[i + d];
+      return new Poly(r);
+    }
+    mul(o) {
+      if (this.isZero() || o.isZero()) return ZERO;
+      const r = new Array(this.c.length + o.c.length - 1).fill(0);
+      for (let i = 0; i < this.c.length; i++) for (let j = 0; j < o.c.length; j++) r[i + j] ^= gmul(this.c[i], o.c[j]);
+      return new Poly(r);
+    }
+    scale(s) { if (s === 0) return ZERO; return new Poly(this.c.map(v => gmul(v, s))); }
+    mulMono(deg, s) { if (s === 0) return ZERO; const r = new Array(this.c.length + deg).fill(0); for (let i = 0; i < this.c.length; i++) r[i] = gmul(this.c[i], s); return new Poly(r); }
+  }
+  const ZERO = new Poly([0]), ONE = new Poly([1]);
+  const mono = (deg, s) => { if (s === 0) return ZERO; const r = new Array(deg + 1).fill(0); r[0] = s; return new Poly(r); };
+  function rsDecode(rec, twoS) {
+    const p = new Poly(rec), syn = new Array(twoS); let ok = true;
+    for (let i = 0; i < twoS; i++) { const e = p.at(EXP[i]); syn[twoS - 1 - i] = e; if (e) ok = false; }
+    if (ok) return true;
+    let a = mono(twoS, 1), b = new Poly(syn);
+    if (a.deg < b.deg) [a, b] = [b, a];
+    let rLast = a, r = b, tLast = ZERO, t = ONE;
+    while (2 * r.deg >= twoS) {
+      const rLL = rLast, tLL = tLast; rLast = r; tLast = t;
+      if (rLast.isZero()) return false;
+      r = rLL; let q = ZERO;
+      const dlt = ginv(rLast.coef(rLast.deg));
+      while (r.deg >= rLast.deg && !r.isZero()) {
+        const dd = r.deg - rLast.deg, sc = gmul(r.coef(r.deg), dlt);
+        q = q.add(mono(dd, sc)); r = r.add(rLast.mulMono(dd, sc));
+      }
+      t = q.mul(tLast).add(tLL);
+      if (r.deg >= rLast.deg) return false;
+    }
+    const s0 = t.coef(0); if (!s0) return false;
+    const inv = ginv(s0), sigma = t.scale(inv), omega = r.scale(inv);
+    const nE = sigma.deg, locs = [];
+    if (nE === 1) locs.push(sigma.coef(1));
+    else for (let i = 1; i < 256 && locs.length < nE; i++) if (sigma.at(i) === 0) locs.push(ginv(i));
+    if (locs.length !== nE) return false;
+    for (let i = 0; i < locs.length; i++) {
+      const xi = ginv(locs[i]); let den = 1;
+      for (let j = 0; j < locs.length; j++) if (i !== j) { const term = gmul(locs[j], xi); den = gmul(den, (term & 1) === 0 ? term | 1 : term & ~1); }
+      const mag = gmul(omega.at(xi), ginv(den));
+      const pos = rec.length - 1 - LOG[locs[i]];
+      if (pos < 0) return false;
+      rec[pos] ^= mag;
+    }
+    return true;
+  }
+
+  // ---------- версии 1–15 (чеки укладываются в 4–8) ----------
+  // [выравнивающие центры, {L,M,Q,H: [ecPerBlock, [count, data], ...]}]
+  const VER = [null,
+    [[], { L: [7, [1, 19]], M: [10, [1, 16]], Q: [13, [1, 13]], H: [17, [1, 9]] }],
+    [[6, 18], { L: [10, [1, 34]], M: [16, [1, 28]], Q: [22, [1, 22]], H: [28, [1, 16]] }],
+    [[6, 22], { L: [15, [1, 55]], M: [26, [1, 44]], Q: [18, [2, 17]], H: [22, [2, 13]] }],
+    [[6, 26], { L: [20, [1, 80]], M: [18, [2, 32]], Q: [26, [2, 24]], H: [16, [4, 9]] }],
+    [[6, 30], { L: [26, [1, 108]], M: [24, [2, 43]], Q: [18, [2, 15], [2, 16]], H: [22, [2, 11], [2, 12]] }],
+    [[6, 34], { L: [18, [2, 68]], M: [16, [4, 27]], Q: [24, [4, 19]], H: [28, [4, 15]] }],
+    [[6, 22, 38], { L: [20, [2, 78]], M: [18, [4, 31]], Q: [18, [2, 14], [4, 15]], H: [26, [4, 13], [1, 14]] }],
+    [[6, 24, 42], { L: [24, [2, 97]], M: [22, [2, 38], [2, 39]], Q: [22, [4, 18], [2, 19]], H: [26, [4, 14], [2, 15]] }],
+    [[6, 26, 46], { L: [30, [2, 116]], M: [22, [3, 36], [2, 37]], Q: [20, [4, 16], [4, 17]], H: [24, [4, 12], [4, 13]] }],
+    [[6, 28, 50], { L: [18, [2, 68], [2, 69]], M: [26, [4, 43], [1, 44]], Q: [24, [6, 19], [2, 20]], H: [28, [6, 15], [2, 16]] }],
+    [[6, 30, 54], { L: [20, [4, 81]], M: [30, [1, 50], [4, 51]], Q: [28, [4, 22], [4, 23]], H: [24, [3, 12], [8, 13]] }],
+    [[6, 32, 58], { L: [24, [2, 92], [2, 93]], M: [22, [6, 36], [2, 37]], Q: [26, [4, 20], [6, 21]], H: [28, [7, 14], [4, 15]] }],
+    [[6, 34, 62], { L: [26, [4, 107]], M: [22, [8, 37], [1, 38]], Q: [24, [8, 20], [4, 21]], H: [22, [12, 11], [4, 12]] }],
+    [[6, 26, 46, 66], { L: [30, [3, 115], [1, 116]], M: [24, [4, 40], [5, 41]], Q: [20, [11, 16], [5, 17]], H: [24, [11, 12], [5, 13]] }],
+    [[6, 26, 48, 70], { L: [22, [5, 87], [1, 88]], M: [24, [5, 41], [5, 42]], Q: [30, [5, 24], [7, 25]], H: [24, [11, 12], [7, 13]] }],
+  ];
+  const bch = (v, poly, n) => { let x = v << n; const top = 31 - Math.clz32(poly); while (x && (31 - Math.clz32(x)) >= top) x ^= poly << ((31 - Math.clz32(x)) - top); return (v << n) | x; };
+  const FORMATS = []; for (let d = 0; d < 32; d++) FORMATS.push([bch(d, 0x537, 10) ^ 0x5412, d]);
+  const VERSIONS = []; for (let v = 7; v <= 40; v++) VERSIONS.push([bch(v, 0x1F25, 12), v]);
+  const popc = x => { let c = 0; while (x) { c += x & 1; x >>>= 1; } return c; };
+  function bestOf(table, bits, maxD) { let best = null, bd = 99; for (const [code, val] of table) { const d = popc(code ^ bits); if (d < bd) { bd = d; best = val; } } return bd <= maxD ? best : null; }
+
+  // ---------- бинаризация (локальный порог блоками 8×8) ----------
+  function binarize(rgba, w, h, invert) {
+    const lum = new Uint8ClampedArray(w * h);
+    for (let i = 0, p = 0; i < w * h; i++, p += 4) lum[i] = (rgba[p] * 54 + rgba[p + 1] * 183 + rgba[p + 2] * 19) >> 8;
+    const B = 8, bw = Math.ceil(w / B), bh = Math.ceil(h / B), bp = new Float32Array(bw * bh);
+    for (let by = 0; by < bh; by++) for (let bx = 0; bx < bw; bx++) {
+      let sum = 0, mn = 255, mx = 0, n = 0;
+      for (let y = by * B; y < Math.min(h, by * B + B); y++) for (let x = bx * B; x < Math.min(w, bx * B + B); x++) { const v = lum[y * w + x]; sum += v; n++; if (v < mn) mn = v; if (v > mx) mx = v; }
+      let avg = sum / n;
+      if (mx - mn <= 24) {
+        avg = mn / 2;
+        if (by > 0 && bx > 0) { const nb = (bp[(by - 1) * bw + bx] + 2 * bp[by * bw + bx - 1] + bp[(by - 1) * bw + bx - 1]) / 4; if (mn < nb) avg = nb; }
+      }
+      bp[by * bw + bx] = avg;
+    }
+    const out = new Uint8Array(w * h);
+    for (let by = 0; by < bh; by++) for (let bx = 0; bx < bw; bx++) {
+      const l = Math.min(Math.max(bx, 2), bw - 3), t = Math.min(Math.max(by, 2), bh - 3);
+      let s = 0, n = 0;
+      for (let dy = -2; dy <= 2; dy++) for (let dx = -2; dx <= 2; dx++) { const yy = t + dy, xx = l + dx; if (yy >= 0 && yy < bh && xx >= 0 && xx < bw) { s += bp[yy * bw + xx]; n++; } }
+      const thr = s / n;
+      for (let y = by * B; y < Math.min(h, by * B + B); y++) for (let x = bx * B; x < Math.min(w, bx * B + B); x++) { const black = lum[y * w + x] <= thr; out[y * w + x] = (black !== !!invert) ? 1 : 0; }
+    }
+    return { w, h, b: out, get(x, y) { return x >= 0 && y >= 0 && x < w && y < h && out[y * w + x] === 1; } };
+  }
+
+  // ---------- поиск трёх «глаз» (finder patterns) ----------
+  const sum = a => a.reduce((s, v) => s + v, 0);
+  function crossOK(sc, div) {
+    const tot = sum(sc); if (tot < 7) return false;
+    const m = tot / 7, mv = m / (div || 2);
+    return Math.abs(m - sc[0]) < mv && Math.abs(m - sc[1]) < mv && Math.abs(3 * m - sc[2]) < 3 * mv && Math.abs(m - sc[3]) < mv && Math.abs(m - sc[4]) < mv;
+  }
+  const centerFromEnd = (sc, end) => (end - sc[4] - sc[3]) - sc[2] / 2;
+  function findFinders(img) {
+    const { w, h } = img, centers = [];
+    const vert = (si, cj, maxC, orig) => {
+      const sc = [0, 0, 0, 0, 0]; let i = si;
+      while (i >= 0 && img.get(cj, i)) { sc[2]++; i--; } if (i < 0) return NaN;
+      while (i >= 0 && !img.get(cj, i) && sc[1] <= maxC) { sc[1]++; i--; } if (i < 0 || sc[1] > maxC) return NaN;
+      while (i >= 0 && img.get(cj, i) && sc[0] <= maxC) { sc[0]++; i--; } if (sc[0] > maxC) return NaN;
+      i = si + 1;
+      while (i < h && img.get(cj, i)) { sc[2]++; i++; } if (i === h) return NaN;
+      while (i < h && !img.get(cj, i) && sc[3] < maxC) { sc[3]++; i++; } if (i === h || sc[3] >= maxC) return NaN;
+      while (i < h && img.get(cj, i) && sc[4] < maxC) { sc[4]++; i++; } if (sc[4] >= maxC) return NaN;
+      if (5 * Math.abs(sum(sc) - orig) >= 2 * orig) return NaN;
+      return crossOK(sc) ? centerFromEnd(sc, i) : NaN;
+    };
+    const horz = (sj, ci, maxC, orig) => {
+      const sc = [0, 0, 0, 0, 0]; let j = sj;
+      while (j >= 0 && img.get(j, ci)) { sc[2]++; j--; } if (j < 0) return NaN;
+      while (j >= 0 && !img.get(j, ci) && sc[1] <= maxC) { sc[1]++; j--; } if (j < 0 || sc[1] > maxC) return NaN;
+      while (j >= 0 && img.get(j, ci) && sc[0] <= maxC) { sc[0]++; j--; } if (sc[0] > maxC) return NaN;
+      j = sj + 1;
+      while (j < w && img.get(j, ci)) { sc[2]++; j++; } if (j === w) return NaN;
+      while (j < w && !img.get(j, ci) && sc[3] < maxC) { sc[3]++; j++; } if (j === w || sc[3] >= maxC) return NaN;
+      while (j < w && img.get(j, ci) && sc[4] < maxC) { sc[4]++; j++; } if (sc[4] >= maxC) return NaN;
+      if (5 * Math.abs(sum(sc) - orig) >= orig) return NaN;
+      return crossOK(sc) ? centerFromEnd(sc, j) : NaN;
+    };
+    const diag = (ci, cj) => {
+      const sc = [0, 0, 0, 0, 0]; let i = 0;
+      while (ci >= i && cj >= i && img.get(cj - i, ci - i)) { sc[2]++; i++; } if (!sc[2]) return false;
+      while (ci >= i && cj >= i && !img.get(cj - i, ci - i)) { sc[1]++; i++; } if (!sc[1]) return false;
+      while (ci >= i && cj >= i && img.get(cj - i, ci - i)) { sc[0]++; i++; } if (!sc[0]) return false;
+      i = 1;
+      while (ci + i < h && cj + i < w && img.get(cj + i, ci + i)) { sc[2]++; i++; }
+      while (ci + i < h && cj + i < w && !img.get(cj + i, ci + i)) { sc[3]++; i++; } if (!sc[3]) return false;
+      while (ci + i < h && cj + i < w && img.get(cj + i, ci + i)) { sc[4]++; i++; } if (!sc[4]) return false;
+      return crossOK(sc, 1.333);
+    };
+    const handle = (sc, i, j) => {
+      const tot = sum(sc);
+      let cj = centerFromEnd(sc, j);
+      const ci = vert(i, Math.floor(cj), sc[2], tot);
+      if (isNaN(ci)) return false;
+      cj = horz(Math.floor(cj), Math.floor(ci), sc[2], tot);
+      if (isNaN(cj) || !diag(Math.floor(ci), Math.floor(cj))) return false;
+      const ms = tot / 7;
+      for (const c of centers) {
+        if (Math.abs(ci - c.y) <= ms && Math.abs(cj - c.x) <= ms) {
+          const d = Math.abs(ms - c.size);
+          if (d <= 1 || d <= c.size) { const n = c.count + 1; c.x = (c.count * c.x + cj) / n; c.y = (c.count * c.y + ci) / n; c.size = (c.count * c.size + ms) / n; c.count = n; return true; }
+        }
+      }
+      centers.push({ x: cj, y: ci, size: ms, count: 1 });
+      return true;
+    };
+    for (let i = 2; i < h; i += 2) {
+      let sc = [0, 0, 0, 0, 0], st = 0;
+      for (let j = 0; j < w; j++) {
+        if (img.get(j, i)) { if (st & 1) st++; sc[st]++; }
+        else if (!(st & 1)) {
+          if (st === 4) {
+            if (crossOK(sc) && handle(sc, i, j)) { st = 0; sc = [0, 0, 0, 0, 0]; }
+            else { sc = [sc[2], sc[3], sc[4], 1, 0]; st = 3; }
+          } else sc[++st]++;
+        } else sc[st]++;
+      }
+      if (crossOK(sc)) handle(sc, i, w);
+    }
+    return centers;
+  }
+  const dist = (a, b) => Math.hypot(a.x - b.x, a.y - b.y);
+  // тройки-кандидаты, лучшие первыми
+  function triples(centers) {
+    let cs = centers.slice();
+    const strong = cs.filter(c => c.count >= 2);
+    if (strong.length >= 3) cs = strong;
+    cs.sort((a, b) => b.count - a.count); cs = cs.slice(0, 12);
+    cs.sort((a, b) => a.size - b.size);
+    const out = [];
+    for (let i = 0; i < cs.length - 2; i++) for (let j = i + 1; j < cs.length - 1; j++) for (let k = j + 1; k < cs.length; k++) {
+      if (cs[k].size > cs[i].size * 1.4) continue;
+      const d = [dist(cs[i], cs[j]) ** 2, dist(cs[j], cs[k]) ** 2, dist(cs[i], cs[k]) ** 2].sort((a, b) => a - b);
+      if (d[0] < (cs[i].size * 8) ** 2) continue;
+      out.push({ p: [cs[i], cs[j], cs[k]], s: (Math.abs(d[2] - 2 * d[1]) + Math.abs(d[2] - 2 * d[0])) / d[2] });
+    }
+    return out.sort((a, b) => a.s - b.s).slice(0, 6).map(o => o.p);
+  }
+  function order(p) {
+    const [a, b, c] = p, d01 = dist(a, b), d12 = dist(b, c), d02 = dist(a, c);
+    let A, B, C;
+    if (d12 >= d01 && d12 >= d02) { B = a; A = b; C = c; } else if (d02 >= d12 && d02 >= d01) { B = b; A = a; C = c; } else { B = c; A = a; C = b; }
+    if ((C.x - B.x) * (A.y - B.y) - (C.y - B.y) * (A.x - B.x) < 0) [A, C] = [C, A];
+    return { bl: A, tl: B, tr: C };
+  }
+
+  // ---------- размер модуля по чёрно-бело-чёрному пробегу ----------
+  function runBWB(img, fx, fy, tx, ty) {
+    fx |= 0; fy |= 0; tx |= 0; ty |= 0;
+    const steep = Math.abs(ty - fy) > Math.abs(tx - fx);
+    if (steep) { [fx, fy] = [fy, fx]; [tx, ty] = [ty, tx]; }
+    const dx = Math.abs(tx - fx), dy = Math.abs(ty - fy); let err = -dx / 2;
+    const xs = fx < tx ? 1 : -1, ys = fy < ty ? 1 : -1; let state = 0;
+    for (let x = fx, y = fy; x !== tx + xs; x += xs) {
+      const rx = steep ? y : x, ry = steep ? x : y;
+      if ((state === 1) === img.get(rx, ry)) { if (state === 2) return Math.hypot(x - fx, y - fy); state++; }
+      err += dy; if (err > 0) { if (y === ty) break; y += ys; err -= dx; }
+    }
+    if (state === 2) return Math.hypot(tx + xs - fx, ty - fy);
+    return NaN;
+  }
+  function runBoth(img, fx, fy, tx, ty) {
+    let r = runBWB(img, fx, fy, tx, ty), sc = 1, ox = fx - (tx - fx);
+    if (ox < 0) { sc = fx / (fx - ox); ox = 0; } else if (ox >= img.w) { sc = (img.w - 1 - fx) / (ox - fx); ox = img.w - 1; }
+    let oy = Math.floor(fy - (ty - fy) * sc); sc = 1;
+    if (oy < 0) { sc = fy / (fy - oy); oy = 0; } else if (oy >= img.h) { sc = (img.h - 1 - fy) / (oy - fy); oy = img.h - 1; }
+    ox = Math.floor(fx + (ox - fx) * sc);
+    r += runBWB(img, fx, fy, ox, oy);
+    return r - 1;
+  }
+  function moduleOneWay(img, a, b) {
+    const e1 = runBoth(img, a.x, a.y, b.x, b.y), e2 = runBoth(img, b.x, b.y, a.x, a.y);
+    if (isNaN(e1)) return e2 / 7; if (isNaN(e2)) return e1 / 7; return (e1 + e2) / 14;
+  }
+
+  // ---------- выравнивающий узор ----------
+  function findAlign(img, ms, ex, ey, factor) {
+    const allow = Math.floor(factor * ms);
+    const L = Math.max(0, ex - allow), R = Math.min(img.w - 1, ex + allow), T = Math.max(0, ey - allow), Bt = Math.min(img.h - 1, ey + allow);
+    if (R - L < ms * 3 || Bt - T < ms * 3) return null;
+    const W = R - L, H = Bt - T, cands = [];
+    const ok3 = sc => { const m = sum(sc) / 3, mv = m / 2; return sc.every(v => Math.abs(m - v) < mv); };
+    const vert = (si, cj, maxC, orig) => {
+      const sc = [0, 0, 0]; let i = si;
+      while (i >= 0 && img.get(cj, i) && sc[1] <= maxC) { sc[1]++; i--; } if (i < 0 || sc[1] > maxC) return NaN;
+      while (i >= 0 && !img.get(cj, i) && sc[0] <= maxC) { sc[0]++; i--; } if (sc[0] > maxC) return NaN;
+      i = si + 1;
+      while (i < img.h && img.get(cj, i) && sc[1] <= maxC) { sc[1]++; i++; } if (i === img.h || sc[1] > maxC) return NaN;
+      while (i < img.h && !img.get(cj, i) && sc[2] <= maxC) { sc[2]++; i++; } if (sc[2] > maxC) return NaN;
+      if (5 * Math.abs(sum(sc) - orig) >= 2 * orig) return NaN;
+      return ok3(sc) ? (i - sc[2]) - sc[1] / 2 : NaN;
+    };
+    const handle = (sc, i, j) => {
+      const tot = sum(sc), cj = (j - sc[2]) - sc[1] / 2, ci = vert(i, Math.floor(cj), 2 * sc[1], tot);
+      if (isNaN(ci)) return null;
+      const m = tot / 3;
+      for (const c of cands) if (Math.abs(ci - c.y) <= m && Math.abs(cj - c.x) <= m) { const d = Math.abs(m - c.size); if (d <= 1 || d <= c.size) return { x: (c.x + cj) / 2, y: (c.y + ci) / 2 }; }
+      cands.push({ x: cj, y: ci, size: m }); return null;
+    };
+    const mid = T + (H >> 1);
+    for (let g = 0; g < H; g++) {
+      const i = mid + ((g & 1) === 0 ? ((g + 1) >> 1) : -((g + 1) >> 1));
+      if (i < 0 || i >= img.h) continue;
+      const sc = [0, 0, 0]; let j = L;
+      while (j < L + W && !img.get(j, i)) j++;
+      let st = 0;
+      while (j < L + W) {
+        if (img.get(j, i)) {
+          if (st === 1) sc[1]++;
+          else if (st === 2) { if (ok3(sc)) { const r = handle(sc, i, j); if (r) return r; } sc[0] = sc[2]; sc[1] = 1; sc[2] = 0; st = 1; }
+          else sc[++st]++;
+        } else { if (st === 1) st++; sc[st]++; }
+        j++;
+      }
+      if (ok3(sc)) { const r = handle(sc, i, L + W); if (r) return r; }
+    }
+    return cands.length ? cands[0] : null;
+  }
+
+  // ---------- перспективное преобразование ----------
+  const PT = (a11, a21, a31, a12, a22, a32, a13, a23, a33) => ({ a11, a21, a31, a12, a22, a32, a13, a23, a33 });
+  function sq2q(x0, y0, x1, y1, x2, y2, x3, y3) {
+    const dx3 = x0 - x1 + x2 - x3, dy3 = y0 - y1 + y2 - y3;
+    if (dx3 === 0 && dy3 === 0) return PT(x1 - x0, x2 - x1, x0, y1 - y0, y2 - y1, y0, 0, 0, 1);
+    const dx1 = x1 - x2, dx2 = x3 - x2, dy1 = y1 - y2, dy2 = y3 - y2, den = dx1 * dy2 - dx2 * dy1;
+    const a13 = (dx3 * dy2 - dx2 * dy3) / den, a23 = (dx1 * dy3 - dx3 * dy1) / den;
+    return PT(x1 - x0 + a13 * x1, x3 - x0 + a23 * x3, x0, y1 - y0 + a13 * y1, y3 - y0 + a23 * y3, y0, a13, a23, 1);
+  }
+  const adj = m => PT(m.a22 * m.a33 - m.a23 * m.a32, m.a23 * m.a31 - m.a21 * m.a33, m.a21 * m.a32 - m.a22 * m.a31,
+    m.a13 * m.a32 - m.a12 * m.a33, m.a11 * m.a33 - m.a13 * m.a31, m.a12 * m.a31 - m.a11 * m.a32,
+    m.a12 * m.a23 - m.a13 * m.a22, m.a13 * m.a21 - m.a11 * m.a23, m.a11 * m.a22 - m.a12 * m.a21);
+  const times = (m, o) => PT(m.a11 * o.a11 + m.a21 * o.a12 + m.a31 * o.a13, m.a11 * o.a21 + m.a21 * o.a22 + m.a31 * o.a23, m.a11 * o.a31 + m.a21 * o.a32 + m.a31 * o.a33,
+    m.a12 * o.a11 + m.a22 * o.a12 + m.a32 * o.a13, m.a12 * o.a21 + m.a22 * o.a22 + m.a32 * o.a23, m.a12 * o.a31 + m.a22 * o.a32 + m.a32 * o.a33,
+    m.a13 * o.a11 + m.a23 * o.a12 + m.a33 * o.a13, m.a13 * o.a21 + m.a23 * o.a22 + m.a33 * o.a23, m.a13 * o.a31 + m.a23 * o.a32 + m.a33 * o.a33);
+  const q2q = (s, d) => times(sq2q(...d), adj(sq2q(...s)));
+  const apply = (m, x, y) => { const den = m.a13 * x + m.a23 * y + m.a33; return [(m.a11 * x + m.a21 * y + m.a31) / den, (m.a12 * x + m.a22 * y + m.a32) / den]; };
+
+  // ---------- сетка модулей ----------
+  function extract(img, tri) {
+    const { tl, tr, bl } = order(tri);
+    const ms = (moduleOneWay(img, tl, tr) + moduleOneWay(img, tl, bl)) / 2;
+    if (!(ms >= 1)) return [];
+    const base = ((Math.round(dist(tl, tr) / ms) + Math.round(dist(tl, bl) / ms)) >> 1) + 7;
+    const dims = [];
+    for (const d of [base, base + 1, base - 1, base + 2, base - 2, base + 3, base - 3, base + 4, base - 4]) if ((d & 3) === 1 && d >= 21 && d <= 77 && !dims.includes(d)) dims.push(d);
+    const grids = [];
+    for (const dim of dims) {
+      const v = (dim - 17) >> 2;
+      let al = null;
+      if (v >= 2) {
+        const mb = dim - 7, brx = tr.x - tl.x + bl.x, bry = tr.y - tl.y + bl.y, cor = 1 - 3 / mb;
+        const ex = Math.floor(tl.x + cor * (brx - tl.x)), ey = Math.floor(tl.y + cor * (bry - tl.y));
+        for (let f = 4; f <= 16 && !al; f <<= 1) al = findAlign(img, ms, ex, ey, f);
+      }
+      const dm3 = dim - 3.5;
+      const sample = al => {
+        let tf;
+        if (al) tf = q2q([3.5, 3.5, dm3, 3.5, dm3 - 3, dm3 - 3, 3.5, dm3], [tl.x, tl.y, tr.x, tr.y, al.x, al.y, bl.x, bl.y]);
+        else tf = q2q([3.5, 3.5, dm3, 3.5, dm3, dm3, 3.5, dm3], [tl.x, tl.y, tr.x, tr.y, tr.x - tl.x + bl.x, tr.y - tl.y + bl.y, bl.x, bl.y]);
+        const g = new Uint8Array(dim * dim);
+        for (let y = 0; y < dim; y++) for (let x = 0; x < dim; x++) { const [px, py] = apply(tf, x + 0.5, y + 0.5); g[y * dim + x] = img.get(Math.floor(px), Math.floor(py)) ? 1 : 0; }
+        return { dim, g, get(x, y) { return this.g[y * dim + x] === 1; } };
+      };
+      if (al) grids.push(sample(al));
+      grids.push(sample(null));
+    }
+    return grids;
+  }
+
+  // ---------- чтение кода ----------
+  const MASKS = [(i, j) => ((i + j) & 1) === 0, i => (i & 1) === 0, (i, j) => j % 3 === 0, (i, j) => (i + j) % 3 === 0,
+    (i, j) => (((i >> 1) + Math.floor(j / 3)) & 1) === 0, (i, j) => (i * j) % 6 === 0, (i, j) => ((i * j) % 6) < 3, (i, j) => ((i + j + ((i * j) % 3)) & 1) === 0];
+  const LEVEL = ['M', 'L', 'H', 'Q'];
+  function decodeGrid(G) {
+    const dim = G.dim;
+    const cb = (x, y, bits) => (bits << 1) | (G.get(x, y) ? 1 : 0);
+    let f1 = 0; for (let i = 0; i < 6; i++) f1 = cb(i, 8, f1);
+    f1 = cb(7, 8, f1); f1 = cb(8, 8, f1); f1 = cb(8, 7, f1);
+    for (let j = 5; j >= 0; j--) f1 = cb(8, j, f1);
+    let f2 = 0; for (let j = dim - 1; j >= dim - 7; j--) f2 = cb(8, j, f2);
+    for (let i = dim - 8; i < dim; i++) f2 = cb(i, 8, f2);
+    let fi = bestOf(FORMATS, f1, 3); if (fi == null) fi = bestOf(FORMATS, f2, 3);
+    if (fi == null) return null;
+    const level = LEVEL[(fi >> 3) & 3], mask = MASKS[fi & 7];
+    let ver = (dim - 17) >> 2;
+    if (ver >= 7) {
+      let vb = 0; for (let j = 5; j >= 0; j--) for (let i = dim - 9; i >= dim - 11; i--) vb = cb(i, j, vb);
+      let vv = bestOf(VERSIONS, vb, 3);
+      if (vv == null) { vb = 0; for (let i = 5; i >= 0; i--) for (let j = dim - 9; j >= dim - 11; j--) vb = cb(i, j, vb); vv = bestOf(VERSIONS, vb, 3); }
+      if (vv == null || vv !== ver) return null;
+    }
+    const V = VER[ver]; if (!V) return null;
+    // функциональные модули
+    const fn = new Uint8Array(dim * dim);
+    const reg = (l, t, w, h) => { for (let y = t; y < t + h; y++) for (let x = l; x < l + w; x++) fn[y * dim + x] = 1; };
+    reg(0, 0, 9, 9); reg(dim - 8, 0, 8, 9); reg(0, dim - 8, 9, 8);
+    const ac = V[0], n = ac.length;
+    for (let x = 0; x < n; x++) for (let y = 0; y < n; y++) { if ((x === 0 && (y === 0 || y === n - 1)) || (x === n - 1 && y === 0)) continue; reg(ac[y] - 2, ac[x] - 2, 5, 5); }
+    reg(6, 9, 1, dim - 17); reg(9, 6, dim - 17, 1);
+    if (ver > 6) { reg(dim - 11, 0, 3, 6); reg(0, dim - 11, 6, 3); }
+    // кодовые слова
+    const raw = []; let up = true, cur = 0, nb = 0;
+    for (let j = dim - 1; j > 0; j -= 2) {
+      if (j === 6) j--;
+      for (let c = 0; c < dim; c++) {
+        const i = up ? dim - 1 - c : c;
+        for (let k = 0; k < 2; k++) {
+          const x = j - k; if (fn[i * dim + x]) continue;
+          let bit = G.get(x, i); if (mask(i, x)) bit = !bit;
+          cur = (cur << 1) | (bit ? 1 : 0); if (++nb === 8) { raw.push(cur); cur = 0; nb = 0; }
+        }
+      }
+      up = !up;
+    }
+    // блоки
+    const [ecPer, ...groups] = V[1][level], blocks = [];
+    for (const [cnt, nd] of groups) for (let i = 0; i < cnt; i++) blocks.push({ nd, cw: new Array(ecPer + nd) });
+    const shortTot = blocks[0].cw.length; let longAt = blocks.length - 1;
+    while (longAt >= 0 && blocks[longAt].cw.length !== shortTot) longAt--;
+    longAt++;
+    const shortData = shortTot - ecPer; let off = 0;
+    for (let i = 0; i < shortData; i++) for (const b of blocks) b.cw[i] = raw[off++];
+    for (let j = longAt; j < blocks.length; j++) blocks[j].cw[shortData] = raw[off++];
+    const max = blocks[0].cw.length;
+    for (let i = shortData; i < max; i++) for (let j = 0; j < blocks.length; j++) blocks[j].cw[j < longAt ? i : i + 1] = raw[off++];
+    const data = [];
+    for (const b of blocks) { if (b.cw.some(v => v === undefined)) return null; if (!rsDecode(b.cw, ecPer)) return null; for (let i = 0; i < b.nd; i++) data.push(b.cw[i]); }
+    return parseBits(data, ver);
+  }
+  function parseBits(bytes, ver) {
+    let pos = 0;
+    const avail = () => bytes.length * 8 - pos;
+    const read = n => { let r = 0; for (let i = 0; i < n; i++) { const b = bytes[pos >> 3] >> (7 - (pos & 7)) & 1; r = (r << 1) | b; pos++; } return r; };
+    const AN = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:';
+    const cc = (mode) => { const t = ver <= 9 ? 0 : ver <= 26 ? 1 : 2; return { 1: [10, 12, 14], 2: [9, 11, 13], 4: [8, 16, 16], 8: [8, 10, 12] }[mode][t]; };
+    let out = '', bin = [];
+    const flush = () => { if (!bin.length) return; let s; try { s = new TextDecoder('utf-8', { fatal: true }).decode(new Uint8Array(bin)); } catch (e) { try { s = new TextDecoder('windows-1251').decode(new Uint8Array(bin)); } catch (e2) { s = String.fromCharCode(...bin); } } out += s; bin = []; };
+    while (avail() >= 4) {
+      const mode = read(4);
+      if (mode === 0) break;
+      if (mode === 7) { const f = read(8); if ((f & 0x80) === 0) {} else if ((f & 0xC0) === 0x80) read(8); else read(16); continue; }
+      if (mode === 5 || mode === 9) { if (mode === 9) read(8); continue; }
+      if (mode === 3) { read(16); continue; }
+      if (![1, 2, 4, 8].includes(mode)) return null;
+      const n = read(cc(mode));
+      if (mode === 4) { if (avail() < n * 8) return null; for (let i = 0; i < n; i++) bin.push(read(8)); continue; }
+      flush();
+      if (mode === 1) { let k = n; while (k >= 3) { const v = read(10); out += String(v).padStart(3, '0'); k -= 3; } if (k === 2) out += String(read(7)).padStart(2, '0'); else if (k === 1) out += String(read(4)); }
+      else if (mode === 2) { let k = n; while (k >= 2) { const v = read(11); out += AN[Math.floor(v / 45)] + AN[v % 45]; k -= 2; } if (k === 1) out += AN[read(6)]; }
+      else { for (let i = 0; i < n; i++) read(13); out += '?'.repeat(n); }
+    }
+    flush();
+    return out;
+  }
+
+  // ---------- общий вход: RGBA-картинка → текст ----------
+  function decodeRGBA(rgba, w, h) {
+    for (const inv of [false, true]) {
+      const img = binarize(rgba, w, h, inv);
+      const cs = findFinders(img);
+      if (cs.length < 3) continue;
+      for (const tri of triples(cs)) for (const g of extract(img, tri)) { try { const t = decodeGrid(g); if (t) return t; } catch (e) {} }
+    }
+    return null;
+  }
+  return { decodeRGBA };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = QR;
 
 /* ====== Биометрия и экран блокировки ====== */
 let bioAvail = false, bioType = '';
@@ -1320,7 +1902,7 @@ function openSheet(o) {
   stack.push(sh); updBack();
   return sh;
 }
-function closeTop() { const s = stack[stack.length - 1]; if (s) s.close(); }
+function closeTop() { if (typeof tourEl !== 'undefined' && tourEl) { endTour(); return; } const s = stack[stack.length - 1]; if (s) s.close(); }
 function updBack() {
   document.body.classList.toggle('modal', stack.length > 0);
   try { if (IN_TG && ver('6.1')) { if (stack.length) TG.BackButton.show(); else TG.BackButton.hide(); } } catch (e) {}
@@ -1412,7 +1994,7 @@ function openEntry(tx, kind, preset) {
   const updChips = () => {
     const date = `<label class="chip">📅 <span>${dayLabel(st.m, st.d)}</span><input type="date" value="${isoOf(st.m, st.d)}" max="${todayISO()}"></label>`;
     const note = `<button class="chip${st.n ? ' on' : ''}" data-s="note">✎ <span class="cl">${st.n ? esc(st.n) : 'Заметка'}</span></button>`;
-    const qr = (!edit && CAN_QR && st.k !== 't') ? `<button class="chip" data-s="qr">📷 <span class="cl">Чек</span></button>` : '';
+    const qr = (!edit && st.k !== 't') ? `<button class="chip" data-s="qr">${icn('📷')} <span class="cl">Чек</span></button>` : '';
     const a = wal(st.w);
     let h = `<button class="chip" data-s="wal" data-which="from">${icn(a.ic)} <span class="cl">${esc(a.n)}</span></button>`;
     if (st.k === 't') {
@@ -1585,51 +2167,189 @@ function parseReceipt(s) {
   if (isoOf(mk, d) > todayISO()) { mk = curM(); d = now().d; }
   return { a, m: mk, d, k: (n === '2' || n === '3') ? 'i' : 'e', note: `Чек ${m[3]}.${m[2]} ${m[4]}:${m[5]}`, x: 'q' + (p.get('fp') || (p.get('fn') || '') + (p.get('i') || '')) };
 }
-function scanReceipt(cb) {
-  if (!CAN_QR) { toast('Сканер чеков работает в Telegram на телефоне'); return; }
+// Результат QR-кода чека — общий для камеры и фото
+function onReceiptText(txt, cb) {
+  const r = parseReceipt(txt);
+  if (!r) { toast(txt ? 'Это не QR-код кассового чека' : 'QR-код на фото не найден. Снимите чек ближе и ровнее'); haptic('err'); return; }
+  G().ach['b:qr'] = G().ach['b:qr'] || todayKey(); markDirty('g');
+  if (allTx().some(t => t.x === r.x)) toast('Похоже, этот чек уже записан — проверьте журнал');
+  haptic('ok');
+  if (cb) cb(r); else openEntry(null, r.k, { a: r.a, m: r.m, d: r.d, n: r.note, x: r.x, c: r.k === 'i' ? 'refund' : null, title: 'Трата по чеку' });
+}
+function scanCamera(cb) {
   try {
-    TG.showScanQrPopup({ text: 'Наведите камеру на QR-код чека' }, txt => {
-      const r = parseReceipt(txt);
-      setTimeout(() => {
-        if (!r) { toast('Это не QR-код кассового чека'); haptic('err'); return; }
-        G().ach['b:qr'] = G().ach['b:qr'] || todayKey(); markDirty('g');
-        const dup = allTx().some(t => t.x === r.x);
-        if (dup) toast('Похоже, этот чек уже записан — проверьте журнал');
-        haptic('ok');
-        if (cb) cb(r); else openEntry(null, r.k, { a: r.a, m: r.m, d: r.d, n: r.note, x: r.x, c: r.k === 'i' ? 'refund' : null, title: 'Трата по чеку' });
-      }, 60);
-      return true;
-    });
+    TG.showScanQrPopup({ text: 'Наведите камеру на QR-код чека' }, txt => { setTimeout(() => onReceiptText(txt, cb), 60); return true; });
   } catch (e) { toast('Не удалось открыть сканер'); }
+}
+// выбор фото: input создаётся и нажимается в том же касании пользователя
+function pickImage(onFile) {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'image/*'; inp.style.cssText = 'position:fixed;left:-9999px;opacity:0';
+  document.body.appendChild(inp);
+  inp.addEventListener('change', () => { const f = inp.files && inp.files[0]; inp.remove(); if (f) onFile(f); });
+  inp.click();
+}
+async function qrFromFile(file) {
+  if ('BarcodeDetector' in window) {
+    try { const bd = new BarcodeDetector({ formats: ['qr_code'] }); const bmp = await createImageBitmap(file); const r = await bd.detect(bmp); if (r && r[0] && r[0].rawValue) return r[0].rawValue; } catch (e) {}
+  }
+  const url = URL.createObjectURL(file);
+  try {
+    const img = new Image(); img.src = url;
+    await (img.decode ? img.decode() : new Promise((ok, no) => { img.onload = ok; img.onerror = no; }));
+    const W = img.naturalWidth, H = img.naturalHeight, mx = Math.max(W, H);
+    const sizes = [...new Set([1600, 1000, 2400].map(m => Math.min(mx, m)))];
+    for (const m of sizes) {
+      const sc = m / mx, w = Math.max(1, Math.round(W * sc)), h = Math.max(1, Math.round(H * sc));
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const x = c.getContext('2d', { willReadFrequently: true }); x.drawImage(img, 0, 0, w, h);
+      const t = QR.decodeRGBA(x.getImageData(0, 0, w, h).data, w, h);
+      if (t) return t;
+      await new Promise(r => setTimeout(r, 0));
+    }
+  } catch (e) { console.warn('qr photo', e); } finally { URL.revokeObjectURL(url); }
+  return null;
+}
+// Чек по QR в реальном времени: на телефоне — встроенный сканер Telegram, иначе — своя камера; файл — запасной путь
+function scanReceipt(cb) {
+  if (CAN_QR) { scanCamera(cb); return; }
+  openLiveScanner(cb);
+}
+function openLiveScanner(cb) {
+  const md = navigator.mediaDevices;
+  let stream = null, timer = null, busy = false, done = false, bd = null, lastBad = '', n = 0;
+  const stop = () => { done = true; clearTimeout(timer); if (stream) stream.getTracks().forEach(t => t.stop()); stream = null; };
+  const html = `<div class="scan" data-ref="box"><video data-ref="v" playsinline muted autoplay></video>
+    <div class="scan-frame" aria-hidden="true"><i></i><i></i><i></i><i></i><span class="scan-line"></span></div>
+    <div class="scan-hint" data-ref="hint" aria-live="polite">Включаю камеру…</div>
+    <div class="scan-bar"><button class="btn wide ghost" data-s="file" style="margin:0">${uic('file', 18)} Загрузить фото или файл</button></div></div>`;
+  const sh = openSheet({
+    title: 'Чек по QR-коду', cls: 'full scanner', html,
+    on: { file: () => pickImage(async f => { stop(); sh.close(); toast('Ищу QR-код на фото…'); onReceiptText(await qrFromFile(f), cb); }) },
+    onClose: stop,
+  });
+  const v = sh.ref('v'), hint = sh.ref('hint');
+  const fail = msg => { hint.textContent = msg; sh.ref('box').classList.add('nocam'); };
+  if (!md || !md.getUserMedia) { fail('Камера в этом окне недоступна. Загрузите фото или скриншот чека.'); return; }
+  if ('BarcodeDetector' in window) { try { bd = new BarcodeDetector({ formats: ['qr_code'] }); } catch (e) {} }
+  const cnv = document.createElement('canvas'), ctx = cnv.getContext('2d', { willReadFrequently: true });
+  const grab = full => {
+    const vw = v.videoWidth, vh = v.videoHeight; if (!vw || !vh) return null;
+    let sx = 0, sy = 0, sw = vw, sh2 = vh;
+    if (!full) { const side = Math.min(vw, vh) * 0.75; sx = (vw - side) / 2; sy = (vh - side) / 2; sw = sh2 = side; }
+    const sc = Math.min(1, (full ? 960 : 640) / Math.max(sw, sh2)), w = Math.round(sw * sc), h = Math.round(sh2 * sc);
+    cnv.width = w; cnv.height = h; ctx.drawImage(v, sx, sy, sw, sh2, 0, 0, w, h);
+    return QR.decodeRGBA(ctx.getImageData(0, 0, w, h).data, w, h);
+  };
+  const tick = async () => {
+    if (done) return;
+    if (v.readyState >= 2 && !busy) {
+      busy = true;
+      try {
+        let txt = null;
+        if (bd) { const r = await bd.detect(v); if (r && r[0]) txt = r[0].rawValue; }
+        else txt = grab(n++ % 3 === 2);
+        if (txt && !done) {
+          if (parseReceipt(txt)) { stop(); sh.close(); onReceiptText(txt, cb); return; }
+          if (txt !== lastBad) { lastBad = txt; hint.textContent = 'Это не QR-код кассового чека. Наведите на код внизу чека'; haptic('err'); }
+        }
+      } catch (e) {}
+      busy = false;
+    }
+    timer = setTimeout(tick, 140);
+  };
+  md.getUserMedia({ video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 }, height: { ideal: 720 } }, audio: false })
+    .then(st => {
+      if (done) { st.getTracks().forEach(t => t.stop()); return; }
+      stream = st; v.srcObject = st; const pl = v.play(); if (pl && pl.catch) pl.catch(() => {});
+      hint.textContent = 'Наведите камеру на QR-код чека'; tick();
+    })
+    .catch(e => fail(e && e.name === 'NotAllowedError' ? 'Нет доступа к камере. Разрешите его в настройках или загрузите фото чека.' : 'Камера не найдена. Загрузите фото или скриншот чека.'));
 }
 
 /* ====== Кошельки, категории ====== */
 function emoRow(list) { return `<div class="emos">${list.map(e => `<button data-s="emo" data-e="${e}" aria-label="${e}">${icn(e, 20)}</button>`).join('')}</div>`; }
-function openWallet(id) {
+// Новый кошелёк: сначала режим учёта — упрощённо или расширенно (скоро)
+const ASSET_SIMPLE = [['card', '💳', 'Карта', 'Дебетовая или зарплатная карта'], ['cash', '💵', 'Наличные', 'Деньги в кошельке'], ['dep', '🏦', 'Накопления', 'Вклад или накопительный счёт: ставка, срок, проценты']];
+const ASSET_ADV = [['💱', 'Валюта', 'Доллары, евро, юани — по курсу Банка России'], ['🪙', 'Золото и металлы', 'Слитки и монеты — по учётной цене Банка России'], ['📈', 'Ценные бумаги', 'Акции, облигации и фонды Мосбиржи'], ['🏠', 'Недвижимость и авто', 'Своя оценка с напоминанием переоценить']];
+function assetModeHTML(mode) {
+  return `<div class="seg aseg"><button class="${mode === 'simple' ? 'on' : ''}" data-s="mode" data-k="simple">Упрощённо</button><button class="${mode === 'adv' ? 'on' : ''}" data-s="mode" data-k="adv">Расширенно <span class="soon">скоро</span></button></div>`;
+}
+function openAddAsset() {
+  let mode = 'simple';
+  const body = () => assetModeHTML(mode) + (mode === 'simple'
+    ? `<div class="sub" style="margin:12px 4px">Карты, наличные и накопления — всё для ежедневного учёта.</div><div class="card list">${ASSET_SIMPLE.map(([t, ic, n, d]) => `<div class="row" data-s="type" data-k="${t}">${ict(ic)}<div class="grow"><div class="t">${n}</div><div class="sub">${d}</div></div><div class="chev">›</div></div>`).join('')}</div>`
+    : `<div class="sub" style="margin:12px 4px">Активы с ценой из сети. Появятся вместе с серверной версией журнала.</div><div class="card list">${ASSET_ADV.map(([ic, n, d]) => `<div class="row soonrow" data-s="soon">${ict(ic)}<div class="grow"><div class="t">${n} <span class="kind-tag">скоро</span></div><div class="sub">${d}</div></div></div>`).join('')}</div>`);
+  const sh = openSheet({ title: 'Новый кошелёк', html: body(), on: {
+    mode: ds => { mode = ds.k; sh.set(body()); haptic('sel'); },
+    type: ds => { sh.close(); openWallet(null, ds.k); },
+    soon: () => toast('Расширенный учёт появится в одной из следующих версий'),
+  } });
+}
+const fmtRate = r => String(Math.round(r * 100) / 100).replace('.', ',');
+const ASV_LIMIT = 140000000; // 1,4 млн ₽ в копейках — лимит страхования вкладов на одного вкладчика в одном банке
+function depInfo(w, bal) {
+  const d = w.dp || {}, r = +d.r || 0, out = [];
+  if (r > 0) {
+    if (d.k !== 'sav' && d.e) {
+      const days = Math.max(0, Math.round((new Date(d.e) - new Date(todayISO())) / 864e5));
+      out.push(`Ставка ${fmtRate(r)}% · до ${dayLabel(d.e.slice(0, 4) + d.e.slice(5, 7), +d.e.slice(8, 10))}`);
+      if (days > 0 && bal > 0) out.push(`Проценты к концу срока ≈ ${money(Math.round(bal * r / 100 * days / 365 / 100) * 100, true)} (без капитализации, до налога)`);
+    } else {
+      out.push(`Ставка ${fmtRate(r)}% годовых`);
+      if (bal > 0) out.push(`Около ${money(Math.round(bal * r / 100 / 12 / 100) * 100, true)} в месяц при таком остатке`);
+    }
+  }
+  const bank = (d.b || '').trim().toLowerCase(), b = balances();
+  const inBank = bank ? S.cfg.wallets.filter(x => x.dp && (x.dp.b || '').trim().toLowerCase() === bank && !x.arch).reduce((s, x) => s + Math.max(0, b[x.id] || 0), 0) : bal;
+  if (inBank > ASV_LIMIT) out.push(`<span class="neg">В ${bank ? 'одном банке' : 'этом вкладе'} больше 1,4 млн ₽ — это сверх лимита страхования вкладов. Сумму выше лимита можно разложить по разным банкам.</span>`);
+  return out;
+}
+function openWallet(id, type) {
   const w0 = id ? S.cfg.wallets.find(x => x.id === id) : null;
   if (w0 && w0.g) return openGoal(id);
   const w = w0, b = balances();
+  const t = w ? (w.t || (w.dp ? 'dep' : '')) : (type || 'card');
+  const dp = (w && w.dp) || { k: 'dep', r: '', e: '', b: '' };
+  let dk = dp.k || 'dep';
+  const defIc = { card: '💳', cash: '💵', dep: '🏦' }[t] || '💳';
+  const ph = { card: 'Например: Зарплатная карта', cash: 'Например: Наличные', dep: 'Например: Вклад в банке' }[t] || 'Например: Вторая карта';
   const used = w && allTx().some(t => t.w === w.id || t.w2 === w.id);
   const html = `
-    ${w ? `<div class="card c"><div class="sub">Остаток по журналу</div><div class="big ${b[w.id] < 0 ? 'neg' : ''}">${money(b[w.id])}</div><button class="btn wide ghost" data-s="adj">Сверить с фактом</button></div>` : ''}
+    ${w ? `<div class="card c"><div class="sub">Остаток по журналу</div><div class="big ${b[w.id] < 0 ? 'neg' : ''}">${money(b[w.id])}</div>${t === 'dep' ? depInfo(w, b[w.id] || 0).map(x => `<div class="sub mt">${x}</div>`).join('') : ''}<button class="btn wide ghost" data-s="adj">Сверить с фактом</button>${t === 'dep' ? '<button class="btn wide ghost" data-s="interest">Записать проценты</button>' : ''}</div>` : ''}
     <div class="cap">Иконка и название</div>
-    <div class="card"><div class="frow"><input class="inp emo" data-ref="ic" value="${esc(w ? w.ic : '💳')}" maxlength="8"><input class="inp" data-ref="n" value="${esc(w ? w.n : '')}" placeholder="Например: Вторая карта" maxlength="30"></div>${emoRow(WALLET_EMO)}</div>
+    <div class="card"><div class="frow"><input class="inp emo" data-ref="ic" value="${esc(w ? w.ic : defIc)}" maxlength="8"><input class="inp" data-ref="n" value="${esc(w ? w.n : '')}" placeholder="${ph}" maxlength="30"></div>${emoRow(WALLET_EMO)}</div>
+    ${t === 'dep' ? `<div class="cap">Накопления</div><div class="card">
+      <div class="seg dseg" data-ref="dk"><button class="${dk === 'dep' ? 'on' : ''}" data-s="dk" data-k="dep">Вклад</button><button class="${dk === 'sav' ? 'on' : ''}" data-s="dk" data-k="sav">Накопительный счёт</button></div>
+      <div class="fld mt"><label>Ставка, % годовых</label><input class="inp" data-ref="r" inputmode="decimal" placeholder="Например: 16,5" value="${dp.r ? fmtRate(dp.r) : ''}"></div>
+      <div class="fld" data-ref="ef" ${dk === 'sav' ? 'hidden' : ''}><label>Дата окончания вклада</label><input class="inp" type="date" data-ref="e" value="${esc(dp.e || '')}"></div>
+      <div class="fld" style="margin-bottom:0"><label>Банк (необязательно)</label><input class="inp" data-ref="b" placeholder="Для проверки лимита страхования" maxlength="40" value="${esc(dp.b || '')}"></div></div>` : ''}
     ${!w ? `<div class="cap">Сколько там сейчас</div><div class="card"><input class="inp" data-ref="s" inputmode="decimal" placeholder="0"></div>` : ''}
-    <button class="btn wide" data-s="save">${w ? 'Сохранить' : 'Добавить кошелёк'}</button>
+    <button class="btn wide" data-s="save">${w ? 'Сохранить' : 'Добавить'}</button>
     ${w ? `<button class="btn wide ghost" data-s="arch">${w.arch ? 'Вернуть кошелёк на главную' : 'Скрыть кошелёк'}</button>
       ${!used ? '<button class="btn wide ghost danger-t" data-s="del">Удалить кошелёк</button>' : '<div class="sub c small mt">Кошелёк с записями можно только скрыть: записи останутся в журнале.</div>'}` : ''}`;
   const sh = openSheet({
-    title: w ? 'Кошелёк' : 'Новый кошелёк', html,
+    title: w ? (t === 'dep' ? 'Накопления' : 'Кошелёк') : ({ card: 'Новая карта', cash: 'Наличные', dep: 'Новые накопления' }[t] || 'Новый кошелёк'), html,
     on: {
       emo: ds => { sh.ref('ic').value = ds.e; },
+      dk: ds => { dk = ds.k; sh.ref('dk').querySelectorAll('button').forEach(x => x.classList.toggle('on', x.dataset.k === dk)); sh.ref('ef').hidden = dk === 'sav'; haptic('sel'); },
+      interest: () => { sh.close(); openEntry(null, 'i', { w: w.id, c: 'interest', title: 'Проценты' }); },
       save: () => {
-        const n = sh.ref('n').value.trim(), ic = sh.ref('ic').value.trim() || '💳';
+        const n = sh.ref('n').value.trim(), ic = sh.ref('ic').value.trim() || defIc;
         if (!n) { sh.ref('n').classList.add('bad'); haptic('err'); return; }
-        if (w) { w.n = n; w.ic = ic; }
+        let ndp = null;
+        if (t === 'dep') {
+          const rv = sh.ref('r').value.trim().replace(',', '.'), r = rv ? parseFloat(rv) : 0;
+          if (rv && !(r >= 0 && r < 100)) { sh.ref('r').classList.add('bad'); haptic('err'); return; }
+          ndp = { k: dk, r, e: dk === 'sav' ? '' : (sh.ref('e').value || ''), b: sh.ref('b').value.trim() };
+        }
+        if (w) { w.n = n; w.ic = ic; if (ndp) { w.dp = ndp; w.t = 'dep'; } }
         else {
           const s = parseMoney(sh.ref('s').value);
           if (isNaN(s)) { sh.ref('s').classList.add('bad'); haptic('err'); return; }
-          S.cfg.wallets.push({ id: uid('w'), n, ic, s });
+          const nw = { id: uid('w'), n, ic, s, t };
+          if (ndp) nw.dp = ndp;
+          S.cfg.wallets.push(nw);
         }
         markDirty('cfg'); sh.close(); render(); haptic('ok');
       },
@@ -2113,12 +2833,13 @@ function smileyRects(grade, face) {
   return rects;
 }
 function smileySVG(grade, size) {
+  if (ST.game !== 'px') return `<span class="emo smi-e" role="img" aria-label="${GRADES[grade - 1].t}" style="font-size:${Math.round(size * 0.85)}px">${GRADES[grade - 1].e}</span>`;
   return `<svg class="smi" viewBox="0 0 12 12" width="${size}" height="${size}" shape-rendering="crispEdges" role="img" aria-label="${GRADES[grade - 1].t}">${smileyRects(grade)}</svg>`;
 }
 // Талисман семейства — смайлик в фирменном цвете бота (у журнала — лаймовый)
-const MASCOT_C = '#D4FF3A';
 function mascotSVG(size) {
-  return `<svg class="smi" viewBox="0 0 12 12" width="${size}" height="${size}" shape-rendering="crispEdges" role="img" aria-label="Талисман журнала">${smileyRects(4, MASCOT_C)}</svg>`;
+  if (ST.game !== 'px') return `<span class="emo smi-e" role="img" aria-label="Финансовый журнал" style="font-size:${Math.round(size * 0.8)}px">📒</span>`;
+  return `<svg class="smi" viewBox="0 0 12 12" width="${size}" height="${size}" shape-rendering="crispEdges" role="img" aria-label="Талисман журнала">${smileyRects(4, LOOK.acc)}</svg>`;
 }
 function drawSmiley(x, grade, ox, oy, px) {
   const g = smileyGrid(grade), face = GRADES[grade - 1].c;
@@ -2148,12 +2869,13 @@ function monthScore(mk) {
   const grade = score >= 0.85 ? 5 : score >= 0.65 ? 4 : score >= 0.45 ? 3 : score >= 0.25 ? 2 : 1;
   return { mk, isCur, grade, score, parts, ms, act, days };
 }
-const markOf = s => s >= 0.99 ? `<span class="mk ok" role="img" aria-label="выполнено">${pxSvg('check', 16)}</span>` : s >= 0.5 ? `<span class="mk half" role="img" aria-label="частично">${pxSvg('dash', 16)}</span>` : `<span class="mk no" role="img" aria-label="не выполнено">${pxSvg('cross', 12)}</span>`;
-const CONF = [[7, 12, '#D4FF3A', 10], [14, 70, '#B79CFF', 8], [86, 16, '#FF9F43', 10], [90, 70, '#5AA9FF', 8], [24, 36, '#FF6B9A', 6], [73, 46, '#D4FF3A', 6], [10, 88, '#FFD43B', 6], [80, 86, '#B79CFF', 10]];
+const markOf = s => s >= 0.99 ? `<span class="mk ok" role="img" aria-label="выполнено">${uic('check', 16)}</span>` : s >= 0.5 ? `<span class="mk half" role="img" aria-label="частично">${uic('dash', 16)}</span>` : `<span class="mk no" role="img" aria-label="не выполнено">${uic('cross', ST.icons === 'px' ? 12 : 16)}</span>`;
+const CONF_POS = [[7, 12, 'L', 10], [14, 70, 'V', 8], [86, 16, 'O', 10], [90, 70, 'B', 8], [24, 36, 'P', 6], [73, 46, 'L', 6], [10, 88, 'Y', 6], [80, 86, 'V', 10]];
+const confetti = () => CONF_POS.map(([l, t, k, z]) => [l, t, k === 'L' || k === 'V' || LOOK !== LOOKS.strict ? LOOK.pal[k] : LOOK.cats[(l + t) % 3], z]);
 function openSummary(mk) {
   const sc = monthScore(mk), gr = GRADES[sc.grade - 1];
   if (!sc.isCur && !G().sum[mk]) { G().sum[mk] = 1; markDirty('g'); }
-  const conf = sc.grade >= 4 ? CONF.map(([l, t, c, z]) => `<i class="cf" style="left:${l}%;top:${t}%;width:${z}px;height:${z}px;background:${c}"></i>`).join('') : '';
+  const conf = sc.grade >= 4 && ST.game === 'px' ? confetti().map(([l, t, c, z]) => `<i class="cf" style="left:${l}%;top:${t}%;width:${z}px;height:${z}px;background:${c}"></i>`).join('') : '';
   const html = `<div class="sum2"><div class="sum-hero" style="--gc:${gr.c}">${conf}${smileySVG(sc.grade, 120)}</div>
       <div class="sum-m">${sc.isCur ? 'Предварительные итоги' : 'Итоги'} · ${mTitle(mk, true)}</div>
       <div class="sum-t">${gr.t}</div><div class="sum-d">${gr.d}</div>
@@ -2175,7 +2897,8 @@ function openGradesInfo() {
     Если бюджет или копилки не заведены, они просто не участвуют в оценке.</div></div>`);
 }
 const FONT = "'Onest',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif";
-const FONTU = "'Unbounded'," + FONT;
+const FONTU0 = "'Unbounded'," + FONT;
+let FONTU = FONTU0;
 async function fontsReady() {
   try { await Promise.race([Promise.all(['700 64px Unbounded', '800 120px Unbounded', '400 36px Onest', '600 40px Onest'].map(f => document.fonts.load(f))), new Promise(r => setTimeout(r, 1500))]); } catch (e) {}
 }
@@ -2187,8 +2910,9 @@ function drawShareCard(sc) {
   const x = c.getContext('2d'), gr = GRADES[sc.grade - 1];
   x.fillStyle = '#0B0B0D'; x.fillRect(0, 0, W, H);
   x.globalAlpha = 0.16; x.fillStyle = gr.c; x.fillRect(60, 60, W - 120, 470); x.globalAlpha = 1;
-  if (sc.grade >= 4) for (const [l, t, col, z] of CONF) { x.fillStyle = col; x.fillRect(60 + (W - 120) * l / 100, 60 + 470 * t / 100, z * 2.4, z * 2.4); }
-  drawSmiley(x, sc.grade, W / 2 - 180, 115, 30);
+  if (sc.grade >= 4 && ST.game === 'px') for (const [l, t, col, z] of confetti()) { x.fillStyle = col; x.fillRect(60 + (W - 120) * l / 100, 60 + 470 * t / 100, z * 2.4, z * 2.4); }
+  if (ST.game === 'px') drawSmiley(x, sc.grade, W / 2 - 180, 115, 30);
+  else { x.textAlign = 'center'; x.font = '300px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif'; x.fillText(gr.e, W / 2, 410); }
   x.textAlign = 'center'; x.fillStyle = '#A1A1AA'; x.font = `600 32px ${FONT}`;
   x.fillText(`${sc.isCur ? 'ПРЕДВАРИТЕЛЬНЫЕ ИТОГИ' : 'ИТОГИ'} · ${mTitle(sc.mk, true).toUpperCase()}`, W / 2, 610);
   x.fillStyle = '#FFFFFF'; x.font = `700 60px ${FONTU}`; x.fillText(gr.t, W / 2, 695, W - 120);
@@ -2199,21 +2923,23 @@ function drawShareCard(sc) {
   x.fillStyle = '#FFFFFF'; x.font = `800 110px ${FONTU}`; x.fillText(sct, sx, 880);
   x.fillStyle = '#A1A1AA'; x.font = `500 38px ${FONT}`; x.fillText(' из 100', sx + w1, 880);
   const cells = 20, cw = (W - 240 - 19 * 8) / cells, on = Math.round(sc.score * cells);
-  for (let i = 0; i < cells; i++) { x.fillStyle = i < on ? gr.c : '#2E2E34'; x.fillRect(120 + i * (cw + 8), 915, cw, 26); }
+  if (ST.bars === 'smooth') { x.fillStyle = '#2E2E34'; x.fillRect(120, 915, W - 240, 22); x.fillStyle = gr.c; x.fillRect(120, 915, (W - 240) * sc.score, 22); }
+  else for (let i = 0; i < cells; i++) { x.fillStyle = i < on ? gr.c : '#2E2E34'; x.fillRect(120 + i * (cw + 8), 915, cw, 26); }
   let y = 1010;
   for (const p of sc.parts.slice(0, 4)) {
-    const m = p.s >= 0.99 ? ['check', '#D4FF3A'] : p.s >= 0.5 ? ['dash', '#FFB547'] : ['cross', '#FF6B5A'];
-    drawPx(x, m[0], 120, y - 34, 4.4, m[1]);
+    const m = p.s >= 0.99 ? ['check', LOOK.acc] : p.s >= 0.5 ? ['dash', LOOK.amber] : ['cross', LOOK.red];
+    if (ST.icons === 'px') drawPx(x, m[0], 120, y - 34, 4.4, m[1]); else { x.fillStyle = m[1]; x.font = `700 44px ${FONT}`; x.fillText({ check: '✓', dash: '–', cross: '✗' }[m[0]], 122, y); }
     x.fillStyle = '#FFFFFF'; x.font = `600 38px ${FONT}`;
     let line = `${p.label}: ${p.txt.replace(/ \(.*\)$/, '')}`;
     while (x.measureText(line).width > W - 300 && line.length > 4) line = line.slice(0, -2) + '…';
     x.fillText(line, 185, y); y += 64;
   }
-  x.textAlign = 'center'; x.fillStyle = '#D4FF3A'; x.font = `700 32px ${FONTU}`;
+  x.textAlign = 'center'; x.fillStyle = LOOK.acc; x.font = `700 32px ${FONTU}`;
   x.fillText(APP_NAME, W / 2, H - 56);
   return c;
 }
 async function shareSummary(sc) {
+  FONTU = ST.game === 'px' || ST.look !== 'strict' ? FONTU0 : FONT;
   await fontsReady();
   const c = drawShareCard(sc), gr = GRADES[sc.grade - 1];
   const blob = await new Promise(r => c.toBlob(r, 'image/png'));
@@ -2245,7 +2971,7 @@ function stairsSVG(L) {
     s += `<text class="${fill === n ? 'lon' : i === L.cur ? 'lcur' : 'loff'}" x="${x + BW / 2}" y="${ty}" text-anchor="middle">${n}</text>`;
   }
   const my = H - (cur + 1) * (BH + G2) + G2 - 26;
-  return `<svg class="stairs" viewBox="0 -10 318 ${H + 10}" role="img" aria-label="Финансовая лестница: пройдено ${L.done} из 6">${s}<g transform="translate(${cur * SW + 12.5} ${my}) scale(2)">${smileyRects(4, MASCOT_C)}</g></svg>`;
+  return `<svg class="stairs" viewBox="0 -10 318 ${H + 10}" role="img" aria-label="Финансовая лестница: пройдено ${L.done} из 6">${s}<g transform="translate(${cur * SW + 12.5} ${my}) scale(2)">${smileyRects(4, LOOK.acc)}</g></svg>`;
 }
 function vProgress() {
   const gm = game(), L = ladder(gm), g = G(), tk = todayKey();
@@ -2255,22 +2981,22 @@ function vProgress() {
   const w0 = weekOf(tk);
   const week = ['П', 'В', 'С', 'Ч', 'П', 'С', 'В'].map((d, i) => { const k = addDays(w0, i); return `<span class="${gm.active.has(k) ? 'on' : k === tk ? 'today' : k > tk ? 'fut' : ''}"><i></i>${d}</span>`; }).join('');
   const cs = L.cur >= 0 ? L.steps[L.cur] : null;
-  return `<div class="toprow"><div class="h1">Прогресс</div><button class="iconb" data-act="xprules" aria-label="Как начисляются очки">${pxSvg('help', 18)}</button></div>
+  return `<div class="toprow"><div class="h1">Прогресс</div><button class="iconb" data-act="xprules" aria-label="Как начисляются очки">${uic('help', 18)}</button></div>
   <div class="card"><div class="lvl-top"><div class="lvl-mas">${mascotSVG(44)}</div>
       <div class="grow"><div class="kick game">Уровень</div><div class="big">${gm.lv.lv}</div><div class="sub">${esc(L.rank)} · ${gm.xp} ${plural(gm.xp, 'очко', 'очка', 'очков')}</div></div></div>
     ${pxBar(p, 'game')}
     <div class="sub mt">До уровня ${gm.lv.lv + 1}: ${toNext} ${plural(toNext, 'очко', 'очка', 'очков')}</div>
     <div class="sepl"></div>
-    <div class="streak-row"><span class="game">${pxSvg('fire', 24)}</span><div class="grow"><div class="sk">${gm.streak} ${plural(gm.streak, 'неделя', 'недели', 'недель')}</div><div class="sub">Эта неделя: ${Math.min(gm.thisWeek, 7)} из ${STREAK_DAYS}${gm.thisWeek >= STREAK_DAYS ? ' ✓' : ''}</div></div>
+    <div class="streak-row"><span class="game">${gic('fire', '🔥', 24)}</span><div class="grow"><div class="sk">${gm.streak} ${plural(gm.streak, 'неделя', 'недели', 'недель')}</div><div class="sub">Эта неделя: ${Math.min(gm.thisWeek, 7)} из ${STREAK_DAYS}${gm.thisWeek >= STREAK_DAYS ? ' ✓' : ''}</div></div>
       <div class="week" role="img" aria-label="На этой неделе ${Math.min(gm.thisWeek, 7)} ${plural(Math.min(gm.thisWeek, 7), 'день', 'дня', 'дней')} с учётом">${week}</div></div></div>
   <div class="card"><div class="ch"><b>Финансовая лестница</b><span class="sub">${L.done} из 6</span></div>
-    ${stairsSVG(L)}
+    ${ST.game === 'px' ? stairsSVG(L) : ''}
     ${cs ? `<div class="curstep"><div class="ch"><b>Шаг ${L.cur + 1} · ${cs.n}</b><span class="pp">${Math.round(cs.p * 100)}%</span></div><div class="sub">${cs.d}</div>${pxBar(cs.p, 'sm')}<div class="sub mt">${esc(cs.txt)}</div></div>`
       : '<div class="curstep"><b>Все шесть ступеней пройдены!</b><div class="sub mt">Вы прошли путь от учёта до вложений. Держите привычки — и лестница останется за вами.</div></div>'}
-    <details class="steps"><summary>Все ступени</summary>${L.steps.map((st, i) => `<div class="step ${st.done ? 'done' : i === L.cur ? 'cur' : 'lock'}"><div class="num">${st.done ? '✓' : i + 1}</div><div class="grow"><div class="t">${st.n}</div><div class="sub">${st.d}</div><div class="sub small">${esc(st.txt)}</div></div></div>`).join('')}</details></div>
+    <details class="steps"${ST.game === 'px' ? '' : ' open'}><summary>Все ступени</summary>${L.steps.map((st, i) => `<div class="step ${st.done ? 'done' : i === L.cur ? 'cur' : 'lock'}"><div class="num">${st.done ? '✓' : i + 1}</div><div class="grow"><div class="t">${st.n}</div><div class="sub">${st.d}</div><div class="sub small">${esc(st.txt)}</div></div></div>`).join('')}</details></div>
   <div class="cap">Испытание</div>${chCard()}
   <div class="cap">Значки · ${earned} из ${BADGES.length}</div>
-  <div class="card badges">${BADGES.map(([id, , n]) => `<button class="bdg ${g.ach['b:' + id] ? '' : 'off'}" data-act="badge" data-id="${id}"><span class="e">${pxSvg(BADGE_PX[id] || 'star', 24)}</span>${n}</button>`).join('')}</div>
+  <div class="card badges">${BADGES.map(([id, ic, n]) => `<button class="bdg ${g.ach['b:' + id] ? '' : 'off'}" data-act="badge" data-id="${id}"><span class="e">${gic(BADGE_PX[id] || 'star', ic, 24)}</span>${n}</button>`).join('')}</div>
   ${months.length ? `<div class="cap">Итоги месяцев</div><div class="card list">${months.map(mk => { const sc = monthScore(mk); return `<div class="row" data-act="summary" data-m="${mk}">${smileySVG(sc.grade, 30)}<div class="grow"><div class="t">${mTitle(mk, true)}${mk === curM() ? ' · идёт' : ''}</div><div class="sub">${GRADES[sc.grade - 1].t} · ${Math.round(sc.score * 100)} из 100</div></div><div class="chev">›</div></div>`; }).join('')}</div>` : ''}
   <button class="linkbtn" data-act="xprules">Как начисляются очки</button>`;
 }
@@ -2278,12 +3004,12 @@ function chCard() {
   const g = G();
   if (g.ch && CH[g.ch.id]) {
     const c = CH[g.ch.id], r = evalCh(g.ch), n = c.id === 'save10' ? 20 : c.id === 'bud14' ? 14 : 7;
-    return `<div class="card"><div class="chx"><div class="ic gtile">${pxSvg(CH_PX[c.id], 22)}</div><div class="grow"><div class="kick game">Идёт испытание</div><div class="t"><b>${c.n}</b></div></div><span class="xp">+${c.xp}</span></div>
+    return `<div class="card"><div class="chx"><div class="ic gtile">${gic(CH_PX[c.id], c.ic, 22)}</div><div class="grow"><div class="kick game">Идёт испытание</div><div class="t"><b>${c.n}</b></div></div><span class="xp">+${c.xp}</span></div>
       ${pxBar(r.p || 0, 'game', n)}<div class="sub mt">${esc(r.txt || '')}</div><div class="sub small mt">${c.d}</div>
       <button class="linkbtn danger" data-act="chstop" style="padding:10px 0 0">Отказаться</button></div>`;
   }
   const done = new Set(g.chd.filter(x => x.ok).map(x => x.id));
-  return `<div class="card list">${CHALLENGES.map(c => `<div class="ch-row"><div class="ic gtile">${pxSvg(CH_PX[c.id], 20)}</div><div class="grow"><div class="t"><b>${c.n}</b>${done.has(c.id) ? ' <span class="kind-tag">пройдено</span>' : ''}</div><div class="sub">${c.d}</div><div class="sub small game">+${c.xp} очков</div></div><button class="btn sm" data-act="chstart" data-id="${c.id}" style="margin:0">Начать</button></div>`).join('')}</div>`;
+  return `<div class="card list">${CHALLENGES.map(c => `<div class="ch-row"><div class="ic gtile">${gic(CH_PX[c.id], c.ic, 20)}</div><div class="grow"><div class="t"><b>${c.n}</b>${done.has(c.id) ? ' <span class="kind-tag">пройдено</span>' : ''}</div><div class="sub">${c.d}</div><div class="sub small game">+${c.xp} очков</div></div><button class="btn sm" data-act="chstart" data-id="${c.id}" style="margin:0">Начать</button></div>`).join('')}</div>`;
 }
 function openXpRules() {
   info('Очки, уровни и серия', `<div class="card"><div class="sub" style="font-size:14px;line-height:1.55">Очки начисляются за привычки, которые улучшают финансы, а не за количество записей:<br><br>
@@ -2627,6 +3353,118 @@ function openEveSetting() {
   });
 }
 
+/* ====== Подсказки по разделам: затемнение и подсветка элементов ====== */
+const TOURS = {
+  home: [
+    ['.stories', 'Истории', 'Итоги месяца, квест дня, совет недели и обучение. Новое подсвечено рамкой.'],
+    ['.hero2', 'Всего денег', 'Сумма по всем кошелькам. Ниже — сами кошельки: нажмите на любой, чтобы сверить остаток с банком.'],
+    ['.qa4', 'Быстрые действия', '«Расход» — главная кнопка: сумма, категория, готово. Здесь же доход, перевод и чек по QR-коду.'],
+    ['.quest', 'Квест дня', 'Вечером закройте день: +10 очков и серия недель.'],
+    ['.goalc', 'Цель', 'Путь к цели копилки: сколько уже есть и сколько откладывать в месяц.'],
+    ['.spend', 'Траты месяца', 'Куда уходят деньги по категориям и сколько осталось по бюджету. Нажмите — откроется отчёт.'],
+    ['#tabs', 'Разделы', 'Журнал, отчёт, планы, прогресс и настройки — внизу экрана. В каждом разделе будут свои подсказки.'],
+  ],
+  journal: [
+    ['.mnav', 'Месяц', 'Листайте месяцы стрелками.'],
+    ['.fchips', 'Фильтры', 'Показать только расходы, доходы или переводы.'],
+    ['.tx', 'Запись', 'Нажмите на запись, чтобы исправить или удалить её. Удалённую можно вернуть кнопкой в подсказке.'],
+  ],
+  report: [
+    ['.mnav', 'Месяц', 'Отчёт за любой месяц — листайте стрелками.'],
+    ['.dchart', 'По дням', 'Каждый столбик — траты за день. Видно дни в норме бюджета, выше нормы и без трат.'],
+    ['.rrow', 'Категории', 'Куда ушли деньги. Нажмите на категорию — откроются её записи.'],
+    ['.chart', 'Полгода', 'Доходы и расходы за шесть месяцев. Нажмите на месяц, чтобы открыть его отчёт.'],
+  ],
+  plans: [
+    ['.pseg', 'Планы', 'Копилки, бюджет, долги и регулярные платежи — четыре вкладки.'],
+    ['[data-act=goalnew]', 'Копилка', 'Цель с суммой и сроком: журнал посчитает, сколько откладывать в месяц.'],
+  ],
+  progress: [
+    ['.lvl-top', 'Уровень', 'Очки за привычки: дни с учётом, закрытые дни, сверки, взносы в копилки.'],
+    ['.streak-row', 'Серия недель', 'Неделя засчитывается, если учёт был хотя бы 4 дня.'],
+    ['.stairs', 'Финансовая лестница', 'Шесть ступеней: от привычки вести учёт до подушки, жизни без долгов и вложений.'],
+    ['details.steps', 'Финансовая лестница', 'Шесть ступеней: от привычки вести учёт до подушки, жизни без долгов и вложений.'],
+    ['.badges', 'Значки', 'Награды за первые шаги и большие цели. Нажмите на значок — узнаете, за что он.'],
+  ],
+  more: [
+    ['[data-act=addwallet]', 'Кошельки', 'Карты, наличные и накопления. Расширенный учёт активов — скоро.'],
+    ['[data-act=look]', 'Стиль оформления', 'Пиксельный, сбалансированный или классический — как вам удобнее.'],
+    ['[data-act=tutorial]', 'Обучение', 'Слайды и подсказки по разделам можно открыть снова здесь.'],
+  ],
+};
+let tourEl = null, tourOpen = false;
+const tourShown = new Set();
+function tourSteps(tab) {
+  const seen = new Set();
+  return (TOURS[tab] || []).filter(([sel, t]) => {
+    const el = document.querySelector(sel);
+    if (!el || !el.getClientRects().length || seen.has(t)) return false;
+    seen.add(t); return true;
+  });
+}
+function endTour(all) {
+  if (!tourEl) return;
+  const tb = tourEl.dataset.tab;
+  if (S.cfg) { S.cfg.tour = S.cfg.tour || {}; S.cfg.tour[tb] = 1; if (all) S.cfg.tourOff = 1; markDirty('cfg'); }
+  const el = tourEl; tourEl = null; tourOpen = false;
+  el.classList.add('closing'); setTimeout(() => el.remove(), 180);
+  document.body.classList.remove('touring');
+}
+function startTour(tb) {
+  const steps = tourSteps(tb);
+  if (!steps.length) { if (S.cfg) { S.cfg.tour = S.cfg.tour || {}; S.cfg.tour[tb] = 1; markDirty('cfg'); } return; }
+  tourOpen = true; tourShown.add(tb);
+  const el = document.createElement('div');
+  el.id = 'tour'; el.className = 'tour'; el.dataset.tab = tb;
+  el.innerHTML = `<div class="tour-spot"></div><div class="tour-tip" role="dialog" aria-live="polite"><div class="tour-k"></div><div class="tour-t"></div><div class="tour-d"></div>
+    <div class="tour-nav"><button class="tour-skip">Пропустить</button><button class="btn sm tour-next">Далее</button></div><button class="tour-off">Больше не показывать подсказки</button></div>`;
+  document.body.appendChild(el); document.body.classList.add('touring');
+  tourEl = el;
+  const spot = el.querySelector('.tour-spot'), tip = el.querySelector('.tour-tip');
+  let i = 0;
+  const place = () => {
+    if (!tourEl) return;
+    const target = document.querySelector(steps[i][0]); if (!target) return;
+    const r = target.getBoundingClientRect(), pad = 6, vh = window.innerHeight;
+    spot.style.left = (r.left - pad) + 'px'; spot.style.top = (r.top - pad) + 'px';
+    spot.style.width = (r.width + pad * 2) + 'px'; spot.style.height = (r.height + pad * 2) + 'px';
+    const below = r.bottom + 16 + tip.offsetHeight < vh - 8;
+    tip.style.top = (below ? r.bottom + 16 : Math.max(12, r.top - 16 - tip.offsetHeight)) + 'px';
+  };
+  const show = n => {
+    i = n;
+    const [sel, t, d] = steps[i], target = document.querySelector(sel);
+    el.querySelector('.tour-k').textContent = `${i + 1} из ${steps.length}`;
+    el.querySelector('.tour-t').textContent = t; el.querySelector('.tour-d').textContent = d;
+    el.querySelector('.tour-next').textContent = i === steps.length - 1 ? 'Понятно' : 'Далее';
+    tip.classList.remove('in'); void tip.offsetWidth; tip.classList.add('in');
+    if (target && getComputedStyle(target).position !== 'fixed') {
+      const r = target.getBoundingClientRect(), vh = window.innerHeight;
+      if (r.top < 70 || r.bottom > vh - 200) window.scrollBy(0, r.top - Math.max(70, (vh - r.height) / 2 - 80));
+    }
+    setTimeout(place, 60);
+  };
+  el.querySelector('.tour-next').onclick = () => { haptic('sel'); if (i < steps.length - 1) show(i + 1); else endTour(); };
+  el.querySelector('.tour-skip').onclick = () => endTour();
+  el.querySelector('.tour-off').onclick = () => { endTour(true); toast('Подсказки выключены. Включить снова — «Ещё» → «Подсказки по разделам»'); };
+  window.addEventListener('scroll', place, { passive: true });
+  window.addEventListener('resize', place);
+  requestAnimationFrame(() => { el.classList.add('on'); show(0); });
+}
+// показать подсказки раздела при первом входе (после обучения, «Что нового» и других окон)
+function maybeTour(force) {
+  try { if (localStorage.getItem('__noTour')) return; } catch (e) {}
+  if (!S.cfg || tourOpen || stack.length || tutOpen || locked || phase !== 'ready') return;
+  if (HAS_CLOUD && !cloudLoaded) return;
+  if (!S.cfg.tut || (!force && S.cfg.tourOff)) return;
+  const tb = tab;
+  if ((S.cfg.tour || {})[tb] || tourShown.has(tb)) return;
+  setTimeout(() => {
+    if (tab !== tb || tourOpen || stack.length || locked || !S.cfg || (S.cfg.tour || {})[tb]) return;
+    startTour(tb);
+  }, 450);
+}
+
 /* ====== Обучение, вопросы, что нового ====== */
 const TUT = [
   { t: 'Ваш личный финансовый журнал', d: 'Учёт денег без привязки к банкам. Вы вносите доходы и расходы, а журнал считает остатки и показывает, куда уходят деньги. Записи видите только вы.',
@@ -2646,7 +3484,7 @@ const TUT = [
     art: () => `<div class="tm-card" aria-hidden="true"><div class="tm-row" style="border:0"><span><b>Уровень 4</b> · Учётчик</span><b class="game">${icn('🔥')} 3</b></div>${pxBar(0.6, 'sm game')}<div class="tm-row" style="margin-top:8px"><span>${icn('🌙')} Были ещё траты сегодня?</span></div></div>
       <div style="display:flex;gap:8px">${[1, 2, 3, 4, 5].map(g => smileySVG(g, 40)).join('')}</div>` },
   { t: 'Записи в сохранности', d: 'Всё хранится в облаке Telegram и видно на телефоне и компьютере. В «Ещё» можно включить вход по Face ID, шифрование и резервную копию. Это обучение всегда под рукой: в историях на Главной и в «Ещё».',
-    art: () => `<div class="tm-logo" style="color:var(--accent)">${pxSvg('cloud', 60)}</div><div class="tm-chips"><span class="tm-chip">${icn('📱')} Телефон</span><span class="tm-chip">${icn('💻')} Компьютер</span><span class="tm-chip">${icn('🔒')} Face ID</span><span class="tm-chip">${icn('💾')} Копия</span></div>` },
+    art: () => `<div class="tm-logo" style="color:var(--accent)">${uic('cloud', 60)}</div><div class="tm-chips"><span class="tm-chip">${icn('📱')} Телефон</span><span class="tm-chip">${icn('💻')} Компьютер</span><span class="tm-chip">${icn('🔒')} Face ID</span><span class="tm-chip">${icn('💾')} Копия</span></div>` },
 ];
 let tutSeen = false, tutOpen = false;
 function openTutorial(firstRun) {
@@ -2682,6 +3520,13 @@ function openTutorial(firstRun) {
 }
 // tv — значение TUT_VER, начиная с которого группа считается увиденной
 const NEWS = [
+  { v: '0.6', tv: 5, items: [
+    ['📷', 'Живой сканер чеков', 'Наведите камеру на QR-код — чек распознаётся сразу. На телефоне работает сканер Telegram, на компьютере — камера, а без камеры можно загрузить фото.'],
+    ['✨', 'Стиль оформления', 'Пиксельный, сбалансированный или классический — «Ещё» → «Стиль оформления». Записи и разделы не меняются.'],
+    ['🏦', 'Накопления', 'Новый вид кошелька: вклад или накопительный счёт со ставкой, сроком и расчётом процентов.'],
+    ['🔦', 'Подсказки по разделам', 'При первом входе в раздел журнал затемнит экран и покажет главное по шагам.'],
+    ['💡', '52 совета', 'Новый совет каждую неделю, год без повторов. Все советы — в «Ещё» → «Советы».'],
+  ] },
   { v: '0.4', tv: 3, items: [
     ['✨', 'Новый вид', 'Тёмная тема, крупные цифры и пиксельные иконки. Все ваши записи на месте — переносить ничего не нужно.'],
     ['📒', 'Истории на Главной', 'Вверху — итоги месяца, квест дня, совет недели и обучение.'],
@@ -2749,10 +3594,9 @@ function monthNav(w, mk) {
 }
 const eveHour = () => S.cfg.eve == null ? 18 : S.cfg.eve;
 // цвета категорий для полосы трат: по иконке, без повторов
-const CAT_PAL = ['#FF9F43', '#5AA9FF', '#FFD43B', '#FF6B9A', '#22D3EE', '#4ADE80', '#FF7A6B', '#FF8FB1'];
 function catColors(ids) {
   const used = new Set(), out = {};
-  for (const id of ids) { const m = pxOf(cat(id).ic); let c = m && m[1] !== PXC.N && m[1] !== PXC.W && m[1] !== PXC.L ? m[1] : null; if (!c || used.has(c)) c = CAT_PAL.find(x => !used.has(x)) || PXC.N; used.add(c); out[id] = c; }
+  for (const id of ids) { const m = pxOf(cat(id).ic); let c = LOOK !== LOOKS.strict && m && m[1] !== PXC.N && m[1] !== PXC.W && m[1] !== PXC.L ? m[1] : null; if (!c || used.has(c)) c = LOOK.cats.find(x => !used.has(x)) || PXC.N; used.add(c); out[id] = c; }
   return out;
 }
 // раскладка N клеток пропорционально суммам (метод наибольших остатков)
@@ -2764,24 +3608,92 @@ function cellsSplit(vals, n) {
 }
 function moneyBig(k) { return money(k).replace(/\s₽$/, '<span class="cur">&nbsp;₽</span>'); }
 // Совет недели
+// Советы недели: [тема, заголовок, текст]. Показываются по очереди, по одному в неделю — год без повторов.
+const TIP_GROUPS = { u: 'Учёт', b: 'Бюджет', s: 'Накопления', d: 'Долги и кредиты', p: 'Покупки', t: 'Налоги и защита', f: 'Семья и цели', i: 'Доход' };
 const TIPS = [
-  ['Сначала заплатите себе', 'В день зарплаты сразу переведите часть в копилку, а тратьте остаток. Так откладывать проще, чем «что останется в конце месяца».'],
-  ['Сверка раз в неделю', 'Сравните остаток кошелька с банком: «Ещё» → кошелёк → «Сверить с фактом». Забытые траты не будут копиться.'],
-  ['Правило 24 часов', 'Захотелось крупную незапланированную покупку — отложите решение на сутки. Если желание осталось, покупка, скорее всего, нужная.'],
-  ['Подушка безопасности', 'Обычно советуют запас на 3–6 месяцев расходов. Начните с одного месяца: это третья ступень финансовой лестницы.'],
-  ['Мелочи складываются', 'Откройте отчёт и посмотрите категорию «Кафе и еда» за месяц. Часто это самая неожиданная сумма.'],
-  ['Платежи по плану', 'Внесите аренду, связь и кредит в «Планы» → «Платежи». Вечером в день платежа журнал спросит о нём сам.'],
-  ['Лимиты вместо запретов', 'Лимит на категорию работает лучше, чем «больше не трачу». Задайте его в «Планы» → «Бюджет».'],
-  ['Сначала дорогой долг', 'Если долгов несколько, лишние деньги направляйте на тот, где самая высокая ставка: так переплата меньше.'],
-  ['Цель со сроком', 'Укажите у копилки дату — журнал посчитает, сколько откладывать в месяц, чтобы успеть.'],
-  ['Закрывайте день', 'Даже если трат не было, закройте день вечером. Это тоже учёт: +10 очков и сохранённая серия недель.'],
+  ['s', 'Сначала заплатите себе', 'В день зарплаты сразу переведите часть в копилку, а тратьте остаток. Так откладывать проще, чем «что останется в конце месяца».'],
+  ['u', 'Сверка раз в неделю', 'Сравните остаток кошелька с банком: «Ещё» → кошелёк → «Сверить с фактом». Забытые траты не будут копиться.'],
+  ['p', 'Правило 24 часов', 'Захотелось крупную незапланированную покупку — отложите решение на сутки. Если желание осталось, покупка, скорее всего, нужная.'],
+  ['s', 'Подушка безопасности', 'Обычно советуют запас на 3–6 месяцев расходов. Начните с одного месяца: это третья ступень финансовой лестницы.'],
+  ['u', 'Мелочи складываются', 'Откройте отчёт и посмотрите категорию «Кафе и еда» за месяц. Часто это самая неожиданная сумма.'],
+  ['b', 'Платежи по плану', 'Внесите аренду, связь и кредит в «Планы» → «Платежи». Вечером в день платежа журнал спросит о нём сам.'],
+  ['b', 'Лимиты вместо запретов', 'Лимит на категорию работает лучше, чем «больше не трачу». Задайте его в «Планы» → «Бюджет».'],
+  ['d', 'Сначала дорогой долг', 'Если долгов несколько, лишние деньги направляйте на тот, где самая высокая ставка: так переплата меньше.'],
+  ['s', 'Цель со сроком', 'Укажите у копилки дату — журнал посчитает, сколько откладывать в месяц, чтобы успеть.'],
+  ['u', 'Закрывайте день', 'Даже если трат не было, закройте день вечером. Это тоже учёт: +10 очков и сохранённая серия недель.'],
+  ['u', 'Записывайте сразу', 'Запись в момент покупки — три касания. Вечером половину мелких трат уже не вспомнить.'],
+  ['u', 'Наличные — тоже деньги', 'Снять наличные — это перевод между кошельками, а не трата. Записывайте, на что ушли сами купюры.'],
+  ['u', 'Чек вместо памяти', 'Отсканируйте QR-код чека камерой или выберите фото чека — сумма и дата подставятся сами.'],
+  ['u', 'Первые 30 дней', 'Месяц учёта без пропусков важнее любых таблиц: только тогда видна настоящая картина трат. Это первая ступень лестницы.'],
+  ['u', 'Подписки под контролем', 'Раз в квартал пролистайте траты в категории «Подписки». Отключите то, чем не пользовались месяц.'],
+  ['u', 'Итоги — не приговор', 'Тяжёлый месяц — повод выбрать одну цель на следующий, а не бросить учёт.'],
+  ['b', 'Ориентир 50/30/20', 'Популярное правило для начала: половина дохода — на обязательное, 30% — на желания, 20% — в накопления и долги. Подстройте под себя.'],
+  ['b', 'Сначала обязательное', 'В день зарплаты разложите деньги: жильё, кредиты, связь, еда. Остаток — свободные деньги.'],
+  ['b', 'Одно число на день', 'Смотрите на сумму «в день» в бюджете на Главной. Одно число проще держать в голове, чем десять лимитов.'],
+  ['b', 'Кошелёк-конверт', 'Для категории, где легко перерасходовать, заведите отдельный кошелёк. Закончились деньги в нём — закончился лимит.'],
+  ['b', 'Бюджет с запасом', 'Заложите в бюджет немного на непредвиденное. Иначе любая поломка рушит весь план.'],
+  ['b', 'Пересмотр раз в месяц', 'В начале месяца посмотрите итоги и поправьте лимиты: бюджет — живой план, а не приговор.'],
+  ['s', 'Автоперевод', 'Настройте в банке автоперевод на накопительный счёт в день зарплаты. Чего не видно, то не тратится.'],
+  ['s', 'Округляйте вверх', 'Сдачу до ровной сотни откладывайте в копилку. Мелочь не чувствуется, а за год складывается в заметную сумму.'],
+  ['s', 'Неожиданные деньги', 'Премию или возврат налога делите пополам: половина на радость, половина в цель.'],
+  ['s', 'Подушка — не в акциях', 'Подушка должна быть доступна за день: накопительный счёт или вклад с правом снятия, а не биржа.'],
+  ['s', 'Страхование вкладов', 'Вклады и счета в одном банке застрахованы до 1,4 млн ₽ на человека, вместе с процентами. Если больше — разложите по разным банкам.'],
+  ['s', 'Прибавка — в копилку', 'Когда растёт зарплата, увеличьте отчисления в копилку хотя бы на половину прибавки. Уровень жизни всё равно вырастет.'],
+  ['d', 'Кредитка — не доход', 'Лимит кредитной карты — чужие деньги. Гасите всю сумму в льготный период, иначе проценты съедят выгоду.'],
+  ['d', 'Стоп-сигнал', 'Если платежи по кредитам съедают заметную часть дохода — например, больше трети, — новые займы лучше не брать.'],
+  ['d', 'Самозапрет на кредиты', 'На Госуслугах можно бесплатно запретить оформлять на себя кредиты и займы. Это защита от мошенников; снять запрет тоже можно.'],
+  ['d', 'Кредитная история', 'На Госуслугах видно, в каких бюро хранится ваша история, а в самом бюро отчёт бесплатен два раза в год. Проверяйте, нет ли чужих кредитов.'],
+  ['d', 'Досрочно — с умом', 'При досрочном погашении уменьшение срока обычно экономит больше процентов, чем уменьшение платежа. Выбирайте, если платёж посильный.'],
+  ['d', 'Долги знакомым', 'Записывайте в «Долги» и то, что заняли у друзей или родных. Так не забудете и не испортите отношения.'],
+  ['p', 'Цена в часах', 'Переведите цену покупки в часы своей работы. Часто это лучший ответ на вопрос «а надо ли».'],
+  ['p', 'Список в магазин', 'Список и сытый желудок экономят на продуктах. Импульсные покупки живут у кассы.'],
+  ['p', 'Кешбэк — не повод', 'Кешбэк выгоден только на то, что вы купили бы и так. Покупка ради баллов — это трата.'],
+  ['p', 'Стоимость владения', 'Считайте не цену, а стоимость владения: машина — это ещё страховка, бензин, ремонт и налог.'],
+  ['p', 'Цена за килограмм', 'Сравнивайте цену за килограмм или литр: большая упаковка не всегда дешевле.'],
+  ['p', 'Рассрочка — тоже долг', 'Рассрочка «без переплаты» всё равно забирает будущие деньги. Внесите её в регулярные платежи.'],
+  ['t', 'Социальный вычет', 'За лечение, своё обучение и спорт можно вернуть 13% расходов; общий лимит — 150 000 ₽ в год. Вернуть налог можно за последние три года.'],
+  ['t', 'Вычет за жильё', 'При покупке жилья можно вернуть до 260 000 ₽ и ещё до 390 000 ₽ с процентов по ипотеке — при ставке НДФЛ 13%.'],
+  ['t', 'Код из СМС — никому', 'Банк никогда не спрашивает код из СМС и не просит перевести деньги на «безопасный счёт». Положите трубку и перезвоните в банк сами.'],
+  ['t', 'Карта для интернета', 'Для покупок в интернете держите отдельную карту с небольшим остатком. Утечка не заденет основные деньги.'],
+  ['t', 'Страховка — до беды', 'О страховке квартиры подумайте, пока всё хорошо. После пожара или потопа оформлять уже поздно.'],
+  ['t', 'Документы в одном месте', 'Храните договоры, чеки на крупные покупки и гарантии в одной папке. Пригодятся для вычета и возврата.'],
+  ['f', 'Общая цель', 'Поставьте с семьёй одну общую цель — отпуск или ремонт. Видеть прогресс вместе мотивирует сильнее.'],
+  ['f', 'Карманные деньги', 'Карманные деньги учат ребёнка бюджету лучше лекций. Пусть сам планирует и ошибается на малых суммах.'],
+  ['f', 'Разговор о деньгах', 'Раз в месяц обсуждайте с партнёром итоги месяца. Десять спокойных минут снимают многие ссоры.'],
+  ['f', 'Маленькие победы', 'Большую цель разбейте на шаги. Каждый закрытый шаг — повод отметить, не дожидаясь финиша.'],
+  ['i', 'Доход — тоже цель', 'Экономия имеет предел, доход — нет. Подумайте, какой навык или подработка поднимут ваш заработок.'],
+  ['i', 'Учёба с вычетом', 'Обучение в организации с лицензией входит в социальный вычет. Часть вложений в навыки вернёт государство.'],
 ];
+function tipIndex() { const d = kdate(weekOf(todayKey())); return Math.floor(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()) / 6048e5) % TIPS.length; }
 function tipWeek() { return weekOf(todayKey()); }
-function tipNow() { const w = tipWeek(); let h = 0; for (const ch of w) h = (h * 31 + ch.charCodeAt(0)) % 9973; return TIPS[h % TIPS.length]; }
-function openTip() {
-  const [t, d] = tipNow();
-  LS.set(LKEY + '_tip', tipWeek());
-  openSheet({ title: 'Совет недели', html: `<div class="tipc"><div style="display:flex;justify-content:center">${mascotSVG(72)}</div><div class="tipt">${t}</div><p>${d}</p></div><button class="btn wide" data-s="close">Понятно</button>`, onClose: () => render() });
+function tipNow() { return TIPS[tipIndex()]; }
+function openTip(i) {
+  const idx = i == null ? tipIndex() : i, [g, t, d] = TIPS[idx];
+  if (i == null) LS.set(LKEY + '_tip', tipWeek());
+  const sh = openSheet({ title: i == null ? 'Совет недели' : 'Совет', html: `<div class="tipc"><div style="display:flex;justify-content:center">${mascotSVG(72)}</div><div class="kick game" style="margin-top:14px">${TIP_GROUPS[g]} · ${idx + 1} из ${TIPS.length}</div><div class="tipt">${t}</div><p>${d}</p></div>
+    <button class="btn wide" data-s="close">Понятно</button><button class="btn wide ghost" data-s="all">Все советы</button>`,
+    on: { all: () => { sh.close(); openAllTips(); } }, onClose: () => render() });
+}
+function openAllTips() {
+  const cur = tipIndex();
+  const html = Object.keys(TIP_GROUPS).map(g => `<div class="cap">${TIP_GROUPS[g]}</div><div class="card list">${TIPS.map((x, i) => [x, i]).filter(([x]) => x[0] === g).map(([x, i]) => `<details class="tipd"${i === cur ? ' open' : ''}><summary>${esc(x[1])}${i === cur ? ' <span class="kind-tag">эта неделя</span>' : ''}</summary><p>${esc(x[2])}</p></details>`).join('')}</div>`).join('');
+  openSheet({ title: `Советы · ${TIPS.length}`, html });
+}
+// Выбор стиля: превью строки, полосы и значков в каждом стиле
+function openStyle() {
+  const cur = styleOf(S.cfg);
+  const prev = ST, prevK = stKey;
+  const card = k => {
+    setStyle(k);
+    const html = `<button class="lookc ${k === cur ? 'on' : ''}" data-s="pick" data-k="${k}" aria-pressed="${k === cur}">
+      <span class="lk-top"><span class="lk-m">${mascotSVG(34)}</span><span class="grow"><b>${ST.name}</b><span class="sub">${ST.d}</span></span>${k === cur ? `<span class="lk-ok">${uic('check', 18)}</span>` : ''}</span>
+      <span class="lk-demo" style="--accent:${LOOK.acc};--game:${LOOK.game}">${ict('🛒', 'sm')}${ict('☕', 'sm')}${ict('🚌', 'sm')}<span class="grow">${pxBar(0.64, '', 12, LOOK.acc)}</span><span class="game">${gic('fire', '🔥', 18)}</span></span></button>`;
+    return html;
+  };
+  const cards = Object.keys(STYLES).map(card).join('');
+  stKey = ''; setStyle(prevK || 'pixel'); ST = prev;
+  const sh = openSheet({ title: 'Стиль оформления', html: `<div class="sub" style="margin:0 4px 12px">Раскладка, разделы и записи одинаковые — меняются значки, полосы и цвета. Выбор сохраняется в облаке и виден на всех устройствах.</div>${cards}`,
+    on: { pick: ds => { S.cfg.style = ds.k; delete S.cfg.look; markDirty('cfg'); haptic('sel'); render(); sh.close(); openStyle(); } } });
 }
 function story(act, label, face, isNew, extra) {
   return `<button class="story ${isNew ? 'new' : ''}" data-act="${act}" ${extra || ''}><span class="ring"><span class="face">${face}</span></span><span>${label}</span></button>`;
@@ -2797,43 +3709,43 @@ function vHome() {
   const pm = mShift(mk, -1), sumMk = S.months[pm] ? pm : mk;
   // истории
   const stories = story('summary', 'Итоги', S.months[sumMk] ? smileySVG(monthScore(sumMk).grade, 40) : mascotSVG(40), !!S.months[pm] && !G().sum[pm], `data-m="${sumMk}"`)
-    + story('checkin', 'Квест', `<span class="game">${pxSvg('bolt', 30)}</span>`, !closed).replace('<span class="face">', '<span class="face game">')
-    + story('tip', 'Совет', `<span class="acc">${pxSvg('coin', 28)}</span>`, LS.get(LKEY + '_tip') !== tipWeek())
-    + story('tutorial', 'Обучение', pxSvg('book', 28), false);
+    + story('checkin', 'Квест', `<span class="game">${gic('bolt', '⚡', 30)}</span>`, !closed).replace('<span class="face">', '<span class="face game">')
+    + story('tip', 'Совет', `<span class="acc">${gic('coin', '💡', 28)}</span>`, LS.get(LKEY + '_tip') !== tipWeek())
+    + story('tutorial', 'Обучение', gic('book', '📚', 28), false);
   // быстрые действия
   const acts = [['add', 'e', 'minus', 'Расход', 1], ['add', 'i', 'plus', 'Доход']];
   if (activeWallets().length > 1) acts.push(['add', 't', 'xfer', 'Перевод']);
-  if (CAN_QR) acts.push(['qr', '', 'qr', 'Чек']);
+  acts.push(['qr', '', 'qr', 'Чек']);
   // траты месяца по категориям
   const eRows = Object.entries(ms.byE).sort((a, b) => b[1] - a[1]);
   const top = eRows.slice(0, eRows.length > 5 ? 4 : 5), restSum = eRows.slice(top.length).reduce((s, r) => s + r[1], 0);
   const cols = catColors(top.map(r => r[0]));
   const parts = top.map(([id, v]) => ({ c: cols[id], n: cat(id).n, v })).concat(restSum ? [{ c: '#5A5A62', n: 'Остальное', v: restSum }] : []);
   const split = cellsSplit(parts.map(x => x.v), 30);
-  const comp = parts.map((x, i) => `<i style="background:${x.c}"></i>`.repeat(split[i])).join('');
+  const comp = ST.bars === 'smooth' ? parts.map(x => `<i style="background:${x.c};flex:${x.v}"></i>`).join('') : parts.map((x, i) => `<i style="background:${x.c}"></i>`.repeat(split[i])).join('');
   const quest = closed
-    ? `<div class="quest done" data-act="checkin"><span class="qi">${pxSvg('check', 20)}</span><div class="grow"><div class="kick game">Квест дня</div><div class="qt">День закрыт — так держать</div></div><span class="qx">+10</span></div>`
-    : `<div class="quest" data-act="checkin"><span class="qi">${pxSvg('bolt', 20)}</span><div class="grow"><div class="kick game">${isEve ? 'Вечерний вопрос' : 'Квест дня'}</div><div class="qt">${isEve ? 'Отметьте траты и закройте день' : 'Вечером закройте день'}</div></div><span class="qx">+10</span></div>`;
+    ? `<div class="quest done" data-act="checkin"><span class="qi">${uic('check', 20)}</span><div class="grow"><div class="kick game">Квест дня</div><div class="qt">День закрыт — так держать</div></div><span class="qx">+10</span></div>`
+    : `<div class="quest" data-act="checkin"><span class="qi">${gic('bolt', '⚡', 20)}</span><div class="grow"><div class="kick game">${isEve ? 'Вечерний вопрос' : 'Квест дня'}</div><div class="qt">${isEve ? 'Отметьте траты и закройте день' : 'Вечером закройте день'}</div></div><span class="qx">+10</span></div>`;
   return `<div class="hhead"><button class="hmas" data-act="tab" data-tab="progress" aria-label="Прогресс">${mascotSVG(30)}</button>
     <div class="grow"><div class="hname">${APP_NAME}</div><div class="hlv" data-act="tab" data-tab="progress">Ур. ${gm.lv.lv} · ${esc(L.rank)}</div></div>
-    <button class="spill" data-act="tab" data-tab="progress" aria-label="Серия: ${gm.streak} ${plural(gm.streak, 'неделя', 'недели', 'недель')}">${pxSvg('fire', 14)}${gm.streak}&nbsp;нед</button></div>
+    <button class="spill" data-act="tab" data-tab="progress" aria-label="Серия: ${gm.streak} ${plural(gm.streak, 'неделя', 'недели', 'недель')}">${gic('fire', '🔥', 14)}${gm.streak}&nbsp;нед</button></div>
   ${syncState === 'error' ? `<div class="warn">${syncText()}</div>` : ''}
   <div class="stories">${stories}</div>
   <div class="hero2"><div class="hl"><span class="sub">Всего денег</span>${syncBadge()}</div><div class="big xl ${total < 0 ? 'neg' : ''}">${moneyBig(total)}</div></div>
-  <div class="wchips">${regs.map(w => `<button class="wchip" data-act="wallet" data-id="${esc(w.id)}">${ict(w.ic, 'sm')}<span class="wc-n">${esc(w.n)}</span><span class="wc-a ${b[w.id] < 0 ? 'neg' : ''}">${money(b[w.id])}</span></button>`).join('')}
+  <div class="wchips">${regs.map(w => `<button class="wchip" data-act="wallet" data-id="${esc(w.id)}">${ict(w.ic, 'sm')}<span class="wc-n">${esc(w.n)}${w.dp && w.dp.r ? ' · ' + fmtRate(w.dp.r) + '%' : ''}</span><span class="wc-a ${b[w.id] < 0 ? 'neg' : ''}">${money(b[w.id])}</span></button>`).join('')}
     ${goals.length ? `<button class="wchip" data-act="plans" data-k="goals">${ict('🐷', 'sm')}<span class="wc-n">Копилки</span><span class="wc-a">${money(goalSum)}</span></button>` : ''}</div>
-  <div class="qa4" style="grid-template-columns:repeat(${acts.length},minmax(0,1fr))">${acts.map(([a, k, ic, l, pri]) => `<button class="qbtn ${pri ? 'pri' : ''}" data-act="${a}"${k ? ` data-k="${k}"` : ''}>${pxSvg(ic, 20)}<span>${l}</span></button>`).join('')}</div>
+  <div class="qa4" style="grid-template-columns:repeat(${acts.length},minmax(0,1fr))">${acts.map(([a, k, ic, l, pri]) => `<button class="qbtn ${pri ? 'pri' : ''}" data-act="${a}"${k ? ` data-k="${k}"` : ''}>${uic(ic, 20)}<span>${l}</span></button>`).join('')}</div>
   ${pend.length ? `<div class="card tap" data-act="plan"><div class="due">${ict('📅')}<div class="grow"><div class="t">${esc(recName(pend[0].r))} — ${money(pend[0].r.a)}</div><div class="sub">${pend[0].k < tk ? 'с ' + keyLabelL(pend[0].k) : 'по плану сегодня'}${pend.length > 1 ? ` · и ещё ${pend.length - 1}` : ''}</div></div><button class="btn sm" data-act="plan" style="margin:0">Отметить</button></div></div>` : ''}
   ${quest}
   ${goals.filter(w => w.g.t > 0).slice(0, 2).map(w => {
       const bal = b[w.id] || 0, gi = goalInfo(w, bal), sub = [w.n !== GOAL_KIND[w.g.kind] ? GOAL_KIND[w.g.kind] || 'Цель' : '', w.g.dl ? 'к ' + monthDat(w.g.dl) : ''].filter(Boolean).join(' · ');
       return `<div class="card tap goalc" data-act="goal" data-id="${esc(w.id)}"><div class="gh">${ict(w.ic, 'sm')}<div class="grow"><div class="t"><b>${esc(w.n)}</b></div>${sub ? `<div class="sub">${sub}</div>` : ''}</div><span class="gp">${Math.round(gi.p * 100)}%</span></div>
-        <div class="gtrack">${pxBar(gi.p)}<span class="gflag">${pxSvg(gi.done ? 'trophy' : 'flag', 18)}</span></div>
+        <div class="gtrack">${pxBar(gi.p)}<span class="gflag">${gi.done ? gic('trophy', '🏆', 18) : uic('flag', 18)}</span></div>
         <div class="gfoot"><span><b>${money(bal)}</b> из ${money(gi.t)}</span><span>${gi.done ? 'цель достигнута' : gi.perMonth != null ? 'по ' + money(gi.perMonth) + ' в месяц' : ''}</span></div></div>`;
     }).join('')}
   <div class="card tap spend" data-act="tab" data-tab="report"><div class="ch"><b>Траты в ${MONTHS_P[+mk.slice(4) - 1]}</b><span class="sub">Отчёт ›</span></div>
     <div class="sp-amt"><span class="big md">${moneyBig(ms.exp)}</span>${ms.inc ? `<span class="sub">доходы ${money(ms.inc)}</span>` : ''}</div>
-    ${ms.exp ? `<div class="comp" role="img" aria-label="Траты по категориям">${comp}</div><div class="legend2">${parts.map(x => `<span><i style="background:${x.c}"></i><em>${esc(x.n)}</em><b>${money(x.v)}</b></span>`).join('')}</div>` : '<div class="sub">Трат в этом месяце пока нет</div>'}
+    ${ms.exp ? `<div class="comp${ST.bars === 'smooth' ? ' s' : ''}" role="img" aria-label="Траты по категориям">${comp}</div><div class="legend2">${parts.map(x => `<span><i style="background:${x.c}"></i><em>${esc(x.n)}</em><b>${money(x.v)}</b></span>`).join('')}</div>` : '<div class="sub">Трат в этом месяце пока нет</div>'}
     ${bud.limit ? `<button class="budl" data-act="plans" data-k="budget">Бюджет: ${money(bud.spent)} из ${money(bud.limit)} · ${bud.left >= 0 ? `<span class="acc">осталось ${money(bud.left)}</span>${bud.daysLeft && bud.left > 0 ? `, ${money(Math.floor(bud.perDay / 100) * 100)} в день` : ''}` : `<span class="neg">перерасход ${money(-bud.left)}</span>`} ›</button>` : ''}</div>
   <div class="cap">Последние записи</div>
   ${recent.length ? `<div class="card list">${recent.map(t => txRow(t, true)).join('')}</div><button class="linkbtn" data-act="tab" data-tab="journal">Весь журнал ›</button>`
@@ -2873,7 +3785,7 @@ function dayChart(mk) {
     if (!v) { cols += '<div class="dc zero"><i></i></div>'; continue; }
     const n = Math.min(CAP, Math.max(1, Math.round(v / unit)));
     if (v / unit > CAP && (!big || v > day[big])) big = d;
-    cols += `<div class="dc${norm && limd[d] > norm ? ' over' : ''}${v / unit > CAP ? ' cap' : ''}">${'<i></i>'.repeat(n)}</div>`;
+    cols += ST.bars === 'smooth' ? `<div class="dc s${norm && limd[d] > norm ? ' over' : ''}"><i style="height:${Math.min(CAP * 8, Math.max(4, v / unit * 8)).toFixed(1)}px"></i></div>` : `<div class="dc${norm && limd[d] > norm ? ' over' : ''}${v / unit > CAP ? ' cap' : ''}">${'<i></i>'.repeat(n)}</div>`;
   }
   const lim = norm ? `<span class="lim" style="bottom:${Math.min(CAP, Math.round(norm / unit)) * 8 - 1}px"></span>` : '';
   const lbl = [1, 10, 20, dim].map(d => `<span style="left:${((d - 0.5) / dim * 100).toFixed(2)}%">${d}</span>`).join('');
@@ -2969,7 +3881,7 @@ function vPlans() {
 function vMore() {
   const b = balances();
   const act = regWallets(), arch = S.cfg.wallets.filter(w => w.arch && !w.g);
-  const wrow = w => `<div class="row" data-act="wallet" data-id="${esc(w.id)}">${ict(w.ic)}<div class="grow t">${esc(w.n)}</div><div class="amt">${money(b[w.id])}</div><div class="chev">›</div></div>`;
+  const wrow = w => `<div class="row" data-act="wallet" data-id="${esc(w.id)}">${ict(w.ic)}<div class="grow"><div class="t">${esc(w.n)}</div>${w.dp ? `<div class="sub">${w.dp.k === 'sav' ? 'Накопительный счёт' : 'Вклад'}${w.dp.r ? ' · ' + fmtRate(w.dp.r) + '%' : ''}${w.dp.e && w.dp.k !== 'sav' ? ' · до ' + w.dp.e.split('-').reverse().join('.') : ''}</div>` : ''}</div><div class="amt">${money(b[w.id])}</div><div class="chev">›</div></div>`;
   const sw = on => `<span class="sw ${on ? 'on' : ''}"></span>`;
   return `<div class="h1">Ещё</div>
   <div class="cap">Кошельки</div>
@@ -2978,6 +3890,8 @@ function vMore() {
   <div class="cap">Категории</div>
   <div class="card list"><div class="row" data-act="cats" data-k="e">${ict('🛒')}<div class="grow">Категории расходов</div><div class="sub">${catsOf('e').length}</div><div class="chev">›</div></div>
     <div class="row" data-act="cats" data-k="i">${ict('💼')}<div class="grow">Категории доходов</div><div class="sub">${catsOf('i').length}</div><div class="chev">›</div></div></div>
+  <div class="cap">Оформление</div>
+  <div class="card list"><div class="row" data-act="look"><div class="ic" style="background:var(--acc-bg);color:var(--accent)">${uic('spark', 20)}</div><div class="grow"><div class="t">Стиль оформления</div><div class="sub">${ST.name}</div></div><div class="chev">›</div></div></div>
   <div class="cap">Безопасность</div>
   <div class="card list">${bioAvail ? `<div class="row" data-act="bio">${ict('🔒')}<div class="grow"><div class="t">Вход по ${bioName()}</div><div class="sub">На этом устройстве</div></div>${sw(bioIsOn())}</div>` : ''}
     <div class="row" data-act="encrypt">${ict('🔐')}<div class="grow"><div class="t">Шифрование паролем</div><div class="sub">${encMeta ? 'Включено' : 'Записи в облаке под паролем'}</div></div>${sw(!!encMeta)}</div></div>
@@ -2992,24 +3906,32 @@ function vMore() {
   <div class="cap">Помощь</div>
   <div class="card list"><div class="row" data-act="tutorial">${ict('🎓')}<div class="grow">Как пользоваться</div><div class="sub">${TUT.length} шагов</div><div class="chev">›</div></div>
     <div class="row" data-act="faq">${ict('❓')}<div class="grow">Вопросы и ответы</div><div class="chev">›</div></div>
+    <div class="row" data-act="tours">${ict('🔦')}<div class="grow">Подсказки по разделам</div><div class="sub">заново</div><div class="chev">›</div></div>
+    <div class="row" data-act="tips">${ict('💡')}<div class="grow">Советы</div><div class="sub">${TIPS.length}</div><div class="chev">›</div></div>
     <div class="row" data-act="news">${ict('✨')}<div class="grow">Что нового</div><div class="chev">›</div></div></div>
   <div class="cap">Где хранятся записи</div>
   <div class="card"><div id="syncInfo">${syncText()}</div><div class="sub mt">${HAS_CLOUD ? 'Облако привязано к вашему аккаунту Telegram и этому боту: записи видны на телефоне и компьютере. Своего сервера у бота нет, записи никуда больше не отправляются.' : 'Откройте приложение через бота в Telegram, чтобы записи сохранялись в облаке.'}</div></div>
   <button class="linkbtn danger" data-act="reset">Удалить все данные</button>
   <div class="foot">${APP_NAME} · версия ${VERSION}${ENV ? ' · ' + esc(ENV) : ''}</div>`;
 }
+let obMode = 'simple';
 function vOnboarding() {
   return `<div class="ob"><div class="ob-logo">${mascotSVG(72)}</div><div class="h1 c">${APP_NAME}</div>
   <p class="sub c">Личная бухгалтерия без привязки к банкам. Вносите доходы и расходы, а журнал покажет остатки, куда уходят деньги и сколько можно тратить до конца месяца.</p>
+  <div class="cap">Как вести учёт денег?</div>
+  <div class="seg aseg"><button class="${obMode === 'simple' ? 'on' : ''}" data-act="obmode" data-k="simple">Упрощённо</button><button class="${obMode === 'adv' ? 'on' : ''}" data-act="obmode" data-k="adv">Расширенно <span class="soon">скоро</span></button></div>
+  ${obMode === 'adv' ? '<div class="card"><b>Скоро</b><div class="sub mt">Валюта, золото, ценные бумаги, недвижимость — с ценой из сети. Появится вместе с серверной версией. Пока начните с упрощённого учёта: позже его можно расширить без переноса записей.</div></div>' : ''}
   <div class="cap">Сколько денег у вас сейчас?</div>
   <div class="card list"><div class="row">${ict('💳')}<div class="grow">Карта</div><input class="inp" id="ob_card" inputmode="decimal" placeholder="0"></div>
-    <div class="row">${ict('💵')}<div class="grow">Наличные</div><input class="inp" id="ob_cash" inputmode="decimal" placeholder="0"></div></div>
-  <p class="sub">Можно оставить пустым и указать позже. Названия кошельков и новые кошельки — в разделе «Ещё».</p>
+    <div class="row">${ict('💵')}<div class="grow">Наличные</div><input class="inp" id="ob_cash" inputmode="decimal" placeholder="0"></div>
+    <div class="row">${ict('🏦')}<div class="grow">Накопления<div class="sub small">вклады, накопительные счета</div></div><input class="inp" id="ob_sav" inputmode="decimal" placeholder="0"></div></div>
+  <p class="sub">Можно оставить пустым и указать позже. Ставку и срок вклада, новые карты и кошельки — в разделе «Ещё».</p>
   <button class="btn wide" data-act="obstart">Начать</button>
   <button class="linkbtn" data-act="restore">Восстановить из резервной копии</button>
   <p class="sub c small">${HAS_CLOUD ? 'Записи хранятся в облаке Telegram в вашем аккаунте. У бота нет своего сервера.' : 'Сейчас приложение открыто не в Telegram: записи сохранятся только в этом браузере.'}</p></div>`;
 }
 function render() {
+  if (S.cfg) setStyle(styleOf(S.cfg));
   const el = $('#screen');
   let html;
   if (phase === 'loading' && !S.cfg) html = '<div class="loading"><div class="spin"></div>Загружаю записи…</div>';
@@ -3039,6 +3961,7 @@ function maybePopups() {
   if (eveHour() && new Date().getHours() >= eveHour() && !G().cd.includes(tk) && LS.get(LKEY + '_eve') !== tk && !shownPop.has('eve')) {
     shownPop.add('eve'); LS.set(LKEY + '_eve', tk); openCheckin('evening'); return;
   }
+  maybeTour();
 }
 
 /* ====== Действия ====== */
@@ -3050,7 +3973,9 @@ const ACT = {
   qr: () => scanReceipt(),
   edit: ds => { const t = findTx(ds.m, ds.id); if (t) openEntry(t); },
   wallet: ds => openWallet(ds.id),
-  addwallet: () => openWallet(null),
+  addwallet: () => openAddAsset(),
+  obmode: ds => { obMode = ds.k; if (ds.k === 'adv') toast('Расширенный учёт появится в одной из следующих версий'); render(); },
+  tours: () => { S.cfg.tour = {}; delete S.cfg.tourOff; markDirty('cfg'); toast('Подсказки снова покажутся в каждом разделе'); tourShown.clear(); maybeTour(true); },
   goal: ds => openGoal(ds.id),
   goalnew: () => openGoalEdit(null),
   goalput: ds => openEntry(null, 't', { w: defWallet(), w2: ds.id, title: 'Отложить в копилку' }),
@@ -3089,16 +4014,20 @@ const ACT = {
   faq: () => openFAQ(),
   news: () => openWhatsNew(false),
   tip: () => openTip(),
+  tips: () => openAllTips(),
+  look: () => openStyle(),
   csv: () => exportCSV(),
   backup: () => openBackup(),
   restore: () => openRestore(),
   reset: () => resetAll(),
   retry: () => { phase = 'loading'; render(); syncFromCloud(); },
   obstart: () => {
-    const a = parseMoney($('#ob_card').value), b = parseMoney($('#ob_cash').value);
+    const a = parseMoney($('#ob_card').value), b = parseMoney($('#ob_cash').value), sv = parseMoney(($('#ob_sav') || {}).value || '');
     if (isNaN(a)) { $('#ob_card').classList.add('bad'); haptic('err'); return; }
     if (isNaN(b)) { $('#ob_cash').classList.add('bad'); haptic('err'); return; }
-    const c = defaultCfg(); c.wallets[0].s = a; c.wallets[1].s = b; c.tut = TUT_VER;
+    if (isNaN(sv)) { $('#ob_sav').classList.add('bad'); haptic('err'); return; }
+    const c = defaultCfg(); c.wallets[0].s = a; c.wallets[1].s = b; c.wallets[0].t = 'card'; c.wallets[1].t = 'cash'; c.tut = TUT_VER;
+    if (sv > 0) c.wallets.push({ id: 'sav', n: 'Накопления', ic: '🏦', s: sv, t: 'dep', dp: { k: 'sav', r: 0, e: '', b: '' } });
     S.cfg = c; S.g = defaultG(); markDirty('cfg'); markDirty('g'); tab = 'home'; haptic('ok'); render();
   },
 };
@@ -3134,7 +4063,8 @@ function setupTG() {
   } catch (e) {}
 }
 (async function boot() {
-  document.querySelectorAll('[data-px]').forEach(el => { el.outerHTML = pxSvg(el.dataset.px, +el.dataset.size || 22); });
+  setStyle((() => { try { return localStorage.getItem('fj_style'); } catch (e) { return null; } })() || 'pixel');
+  document.querySelectorAll('[data-px]').forEach(el => { el.outerHTML = uic(el.dataset.px, +el.dataset.size || 22); });
   setupTG();
   const raw = readLocalRaw();
   encMeta = raw.enc || null;
