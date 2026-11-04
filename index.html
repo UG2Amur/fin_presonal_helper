@@ -6,6 +6,11 @@
 <meta name="format-detection" content="telephone=no">
 <title>Финансовый журнал</title>
 <meta name="theme-color" content="#0B0B0D">
+<!-- Сервер журнала: впишите адрес, например https://fj.example.ru. Пусто — только облако Telegram.
+     data-only="test" — включить сервер только в тестовом боте; уберите атрибут, чтобы включить всем. -->
+<meta name="fj-api" content="" data-only="test">
+<!-- Ссылка на политику обработки персональных данных (нужна до включения сервера) -->
+<meta name="fj-policy" content="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Unbounded:wght@500;600;700;800&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -183,10 +188,11 @@ textarea.inp{resize:vertical;display:block}
 .ob .row .grow{font-size:15.5px}
 .ob .inp{width:130px;text-align:right}
 #toast{position:fixed;left:12px;right:12px;bottom:calc(76px + env(safe-area-inset-bottom));display:flex;align-items:center;gap:10px;background:rgba(30,32,36,.94);color:#fff;border-radius:12px;padding:11px 14px;font-size:14.5px;z-index:50;transform:translateY(20px);opacity:0;pointer-events:none;transition:all .2s;max-width:616px;margin:0 auto}
-#toast.on{transform:none;opacity:1;pointer-events:auto}
+#toast.on{transform:none;opacity:1;pointer-events:none}
+#toast.on button{pointer-events:auto}
 #toast span{flex:1}
 #toast button{border:0;background:none;color:#7fc1ff;font-weight:600;padding:2px 4px}
-body.modal #toast{bottom:calc(16px + env(safe-area-inset-bottom))}
+body.modal #toast{bottom:auto;top:calc(12px + env(safe-area-inset-top))}
 .loading{text-align:center;color:var(--hint);padding-top:35vh}
 .spin{width:28px;height:28px;border:3px solid var(--sep);border-top-color:var(--btn);border-radius:50%;margin:0 auto 12px;animation:sp 0.8s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
@@ -661,6 +667,32 @@ body[data-style="classic"] .scan-frame i{border-radius:10px}
 .tour-skip,.tour-off{border:0;background:none;color:var(--hint);font-size:14px;padding:8px 0}
 .tour-off{display:block;margin:6px auto 0;font-size:12.5px;text-decoration:underline;text-underline-offset:3px}
 @media (prefers-reduced-motion:reduce){.tour-spot,.tour-tip{transition:none}.tour-spot::after{animation:none}}
+/* ====== v0.7: сервер и семья ====== */
+.fava{display:inline-flex;align-items:center;justify-content:center;border-radius:50%;color:#0B0B0D;font-family:var(--fu);font-weight:700;flex:none;vertical-align:middle;box-shadow:0 0 0 2px var(--sec)}
+.sub .fava{box-shadow:none;margin-right:2px}
+.fam-hero{text-align:center;padding:22px 18px}
+.fam-hero .ic{width:56px;height:56px;margin:0 auto 10px;border-radius:18px}
+.fam-hero h2{font-family:var(--fu);font-size:22px;margin:0 0 6px}
+.fam-head .fh-top{display:flex;align-items:flex-start;gap:10px}
+.fh-name{font-family:var(--fu);font-weight:700;font-size:22px;margin-top:2px;word-break:break-word}
+.fh-mem{display:flex;align-items:center;margin:12px 0 4px;cursor:pointer}
+.fh-mem .fava+.fava{margin-left:-8px}
+.fh-mem .sub{margin-left:10px}
+.fam-inv{margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px}
+.wchip.fam .wc-n{color:var(--accent)}
+.inv-card{padding:20px 16px}
+.inv-code{font-family:var(--fu);font-weight:700;font-size:34px;letter-spacing:.08em;margin:8px 0 6px;color:var(--accent);user-select:all}
+.inv-link{word-break:break-all;margin:6px 8px 12px;user-select:all}
+.inp.code{font-family:var(--fu);font-size:22px;letter-spacing:.08em;text-transform:uppercase;text-align:center}
+.cons-top{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.cons-list{display:flex;flex-direction:column;gap:10px;font-size:14px;line-height:1.45;color:var(--hint)}
+.cons-list b{color:var(--text)}
+.cons-list a{color:var(--link)}
+.cons-ok{gap:12px;min-height:0;align-items:center}
+.cons-ok input{width:22px;height:22px;flex:none;accent-color:var(--accent)}
+.fam-how .row{align-items:flex-start}
+.fam-mnav{margin-top:18px}
+.chip.on .cl{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -689,8 +721,23 @@ body[data-style="classic"] .scan-frame i{border-radius:10px}
 'use strict';
 /* ====== Настройки ====== */
 const APP_NAME = 'Финансовый журнал';
-const VERSION = '0.6';
-const TUT_VER = 5;      // 2 = v0.3 (планы и прогресс), 3 = v0.4 (новый вид), 5 = v0.6 (стили, живой сканер, накопления, подсказки). Показ «Что нового» тем, кто видел меньше
+const VERSION = '0.7';
+// адрес сервера журнала: <meta name="fj-api" content="https://…"> в index.html (пусто — только облако Telegram)
+const API_URL = (() => {
+  let u = '';
+  try { const q = new URLSearchParams(location.search).get('api') || ''; if (/^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(q)) u = q; } catch (e) {}
+  if (!u) {
+    const m = document.querySelector('meta[name="fj-api"]');
+    u = m ? (m.getAttribute('content') || '') : '';
+    // data-only="test" — сервер только для тестового бота (?env=test): сначала проверить там, потом убрать атрибут
+    const only = m ? (m.getAttribute('data-only') || '').trim().toLowerCase() : '';
+    let env = ''; try { env = (new URLSearchParams(location.search).get('env') || '').toLowerCase(); } catch (e) {}
+    if (only && only !== (env || 'prod')) u = '';
+  }
+  u = u.trim().replace(/\/+$/, '');
+  return /^https:\/\/[a-z0-9.-]+(:\d+)?(\/[\w./-]*)?$/i.test(u) || /^http:\/\/(127\.0\.0\.1|localhost)(:\d+)?$/.test(u) ? u : '';
+})();
+const TUT_VER = API_URL ? 6 : 5;      // 2 = v0.3 (планы и прогресс), 3 = v0.4 (новый вид), 5 = v0.6 (стили, живой сканер, накопления, подсказки), 6 = v0.7 (сервер и семья). Показ «Что нового» тем, кто видел меньше
 const PART = 2000;      // длина одного куска в облаке Telegram (лимит 4096)
 const META_KEYS = new Set(['xenc']);
 
@@ -841,33 +888,46 @@ function G() { if (!S.g) S.g = defaultG(); return S.g; }
 
 const catsOf = k => S.cfg.cats[k] || [];
 function cat(id) { return S.cfg.cats.e.find(c => c.id === id) || S.cfg.cats.i.find(c => c.id === id) || { id, n: 'Без категории', ic: '❔' }; }
-function wal(id) { return S.cfg.wallets.find(w => w.id === id) || { id, n: 'Кошелёк удалён', ic: '❔', s: 0 }; }
+// кошельки: свои (S.cfg.wallets) + общие кошельки семьи (id 'f:…', только с сервером)
+function allW() { const f = typeof famWallets === 'function' ? famWallets() : []; return f.length ? S.cfg.wallets.concat(f) : S.cfg.wallets; }
+function wal(id) { return allW().find(w => w.id === id) || (String(id).slice(0, 2) === 'f:' ? { id, n: 'Семейный кошелёк', ic: '👪', s: 0, fam: 1, gone: 1 } : { id, n: 'Кошелёк удалён', ic: '❔', s: 0 }); }
 const isGoal = w => !!(w && w.g);
-const activeWallets = () => S.cfg.wallets.filter(w => !w.arch);
-const regWallets = () => S.cfg.wallets.filter(w => !w.arch && !w.g);
-const goalWallets = () => S.cfg.wallets.filter(w => !w.arch && w.g);
-function defWallet() { const l = LS.get(LKEY + '_lastw'); const a = regWallets(); return (a.find(w => w.id === l) || a[0] || activeWallets()[0] || S.cfg.wallets[0] || {}).id; }
+const activeWallets = () => allW().filter(w => !w.arch);
+const regWallets = () => allW().filter(w => !w.arch && !w.g);
+const goalWallets = () => allW().filter(w => !w.arch && w.g);
+const myWallets = () => S.cfg.wallets.filter(w => !w.arch);
+// по умолчанию — свой кошелёк: общий семейный выбирается только явно (личное — личное)
+function defWallet() { const l = LS.get(LKEY + '_lastw'); const a = regWallets().filter(w => !w.fam); return (a.find(w => w.id === l) || a[0] || activeWallets()[0] || S.cfg.wallets[0] || {}).id; }
 function otherWallet(id) { const o = regWallets().find(w => w.id !== id) || activeWallets().find(w => w.id !== id); return o ? o.id : null; }
-function allTx() { const out = []; for (const mk in S.months) for (const t of S.months[mk]) out.push(t); return out; }
+// свои записи: личный журнал + свои записи на общих кошельках семьи
+function famMine(mk) { return (typeof FAMC !== 'undefined' && FAMC.mine[mk]) || null; }
+function monthTx(mk) { const a = S.months[mk] || [], b = famMine(mk); return b ? a.concat(b) : a; }
+function hasMonth(mk) { return !!(S.months[mk] || famMine(mk)); }
+function monthKeys() { const k = Object.keys(S.months); if (typeof FAMC !== 'undefined') for (const m in FAMC.mine) if (!S.months[m]) k.push(m); return k; }
+function allTx() { const out = []; for (const mk in S.months) for (const t of S.months[mk]) out.push(t); if (typeof FAMC !== 'undefined') for (const mk in FAMC.mine) for (const t of FAMC.mine[mk]) out.push(t); return out; }
 function sortTx(a) { return a.sort((x, y) => (y.m + pad(y.d)).localeCompare(x.m + pad(x.d)) || (y.id < x.id ? -1 : y.id > x.id ? 1 : 0)); }
-function findTx(mk, id) { return (S.months[mk] || []).find(t => t.id === id); }
+function findTx(mk, id) { return monthTx(mk).find(t => t.id === id); }
 function balancesAt(endKey) {
   const b = {};
-  for (const w of S.cfg.wallets) b[w.id] = w.s || 0;
+  for (const w of allW()) b[w.id] = w.s || 0;
   const add = (id, v) => { b[id] = (b[id] || 0) + v; };
-  for (const t of allTx()) {
-    if (endKey && txKey(t) > endKey) continue;
-    if (t.k === 'e') add(t.w, -t.a);
-    else if (t.k === 'i') add(t.w, t.a);
-    else if (t.k === 't') { add(t.w, -t.a); add(t.w2, t.a); }
-    else if (t.k === 'a') add(t.w, t.a);
-  }
+  const apply = (t, famOnly) => {
+    if (endKey && txKey(t) > endKey) return;
+    const A = famOnly ? (id, v) => { if (isFamW(id)) add(id, v); } : add;
+    if (t.k === 'e') A(t.w, -t.a);
+    else if (t.k === 'i') A(t.w, t.a);
+    else if (t.k === 't') { A(t.w, -t.a); A(t.w2, t.a); }
+    else if (t.k === 'a') A(t.w, t.a);
+  };
+  for (const t of allTx()) apply(t, false);
+  // записи других участников меняют только общие кошельки
+  if (typeof FAM !== 'undefined' && FAM) for (const mk in FAMC.byM) for (const t of FAMC.byM[mk]) if (t.u !== FAM.me && !t.p) apply(t, true);
   return b;
 }
 const balances = () => balancesAt(null);
 function monthStats(mk, uptoDay) {
   const r = { inc: 0, exp: 0, saved: 0, byE: {}, byI: {} };
-  for (const t of S.months[mk] || []) {
+  for (const t of monthTx(mk)) {
     if (uptoDay && t.d > uptoDay) continue;
     if (t.k === 'e') { r.exp += t.a; r.byE[t.c] = (r.byE[t.c] || 0) + t.a; }
     else if (t.k === 'i') { r.inc += t.a; r.byI[t.c] = (r.byI[t.c] || 0) + t.a; }
@@ -887,12 +947,12 @@ function budgetInfo(mk) {
 }
 function sortByFreq(list) {
   const from = mShift(curM(), -3), cnt = {};
-  for (const mk in S.months) if (mk >= from) for (const t of S.months[mk]) if (t.c) cnt[t.c] = (cnt[t.c] || 0) + 1;
+  for (const mk of monthKeys()) if (mk >= from) for (const t of monthTx(mk)) if (t.c) cnt[t.c] = (cnt[t.c] || 0) + 1;
   return list.map((c, i) => [c, i]).sort((a, b) => ((cnt[b[0].id] || 0) - (cnt[a[0].id] || 0)) || a[1] - b[1]).map(x => x[0]);
 }
 function avgMonthlyExp() {
   const cm = curM();
-  const ms = Object.keys(S.months).filter(m => m < cm).sort().slice(-3);
+  const ms = monthKeys().filter(m => m < cm).sort().slice(-3);
   const vals = ms.map(m => monthStats(m).exp).filter(v => v > 0);
   if (vals.length) return Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
   const cur = monthStats(cm).exp, d = now().d;
@@ -951,12 +1011,23 @@ function pendingRec() {
 const recName = r => r.n || cat(r.c).n;
 
 /* ====== Изменения ====== */
-function addTx(t, quiet) { (S.months[t.m] = S.months[t.m] || []).push(t); if (!quiet) markDirty('m' + t.m); }
+// запись с общим кошельком семьи хранится у семьи; личная — в месяце журнала (и копией в семье, если «Показать семье»)
+function addTx(t, quiet) {
+  const fam = typeof FAM !== 'undefined' && FAM;
+  if (fam && (isFamW(t.w) || isFamW(t.w2))) { delete t.s; famPutTx(t); return; }
+  delete t._f; delete t.u; delete t.cn; delete t.ci; delete t.r; delete t.p; delete t.h;
+  if (!fam) delete t.s;
+  (S.months[t.m] = S.months[t.m] || []).push(t); if (!quiet) markDirty('m' + t.m);
+  if (t.s) famShareTx(t);
+}
 function removeTx(t) {
+  if (t._f) { famDelTx(t.id); return; }
   const a = S.months[t.m]; if (!a) return;
   const i = a.findIndex(x => x.id === t.id); if (i >= 0) a.splice(i, 1);
   if (!a.length) delete S.months[t.m];
   markDirty('m' + t.m);
+  if (typeof srvTomb === 'function') srvTomb(t.m, t.id);
+  if (t.s && typeof FAM !== 'undefined' && FAM) famDelTx(t.id);
 }
 function updateTx(old, nu) { removeTx(old); addTx(nu); }
 
@@ -997,7 +1068,8 @@ function serialize(name) {
   if (name === 'g') return S.g ? JSON.stringify(S.g) : null;
   const a = S.months[name.slice(1)];
   if (!a || !a.length) return null;
-  return JSON.stringify(a.map(t => { const r = [t.id, t.k, t.a, t.c || '', t.w, t.w2 || '', t.d, t.n || '']; if (t.x) r.push(t.x); return r; }));
+  // [id, вид, сумма в копейках, категория, кошелёк, кошелёк2, день, заметка, (связь), (1 — показана семье)]
+  return JSON.stringify(a.map(t => { const r = [t.id, t.k, t.a, t.c || '', t.w, t.w2 || '', t.d, t.n || '']; if (t.x || t.s) r.push(t.x || ''); if (t.s) r.push(1); return r; }));
 }
 function parseBlob(name, str) {
   if (name === 'cfg') return fixCfg(JSON.parse(str));
@@ -1005,7 +1077,7 @@ function parseBlob(name, str) {
   const mk = name.slice(1);
   const arr = JSON.parse(str);
   if (!Array.isArray(arr)) throw new Error('bad month');
-  return arr.map(r => ({ id: String(r[0]), k: r[1], a: Math.round(+r[2] || 0), c: r[3] || null, w: r[4], w2: r[5] || null, d: +r[6], n: r[7] || '', x: r[8] || null, m: mk }));
+  return arr.map(r => { const t = { id: String(r[0]), k: r[1], a: Math.round(+r[2] || 0), c: r[3] || null, w: r[4], w2: r[5] || null, d: +r[6], n: r[7] || '', x: r[8] || null, m: mk }; if (r[9]) t.s = 1; return t; });
 }
 function setBlob(name, v) {
   dataVer++;
@@ -1095,13 +1167,16 @@ async function cloudWrite(name) {
 let flushing = false, flushTimer = null;
 function markDirty(n) {
   dataVer++;
-  dirty.add(n); saveLocal();
+  dirty.add(n);
+  if (typeof SRV !== 'undefined' && SRV.on) { SRV.st.md.add(n); srvSaveSt(); }
+  saveLocal();
   clearTimeout(flushTimer); flushTimer = setTimeout(flush, 300);
-  if (HAS_CLOUD && cloudLoaded) setSync('saving');
+  if ((HAS_CLOUD && cloudLoaded) || (typeof SRV !== 'undefined' && SRV.ready)) setSync('saving');
 }
 function flushSoon() { clearTimeout(flushTimer); flushTimer = setTimeout(flush, 100); }
 async function flush() {
   flushTimer = null;
+  if (typeof SRV !== 'undefined' && SRV.on) return srvFlush();
   if (!HAS_CLOUD) { dirty.clear(); saveLocal(); setPendingMeta(null); return; }
   if (flushing || !cloudLoaded) return;
   flushing = true; setSync('saving');
@@ -1124,18 +1199,7 @@ async function syncFromCloud() {
   setSync('loading');
   try {
     const { result, enc, orphans } = await withTimeout(cloudLoad(), 20000);
-    if (enc) {
-      let m = null; try { m = JSON.parse(enc); } catch (e) {}
-      if (m && m.s) {
-        const same = encMeta && encMeta.s === m.s && cryptoKey && await verifyKey(cryptoKey, m);
-        if (!same) {
-          encMeta = m; LS.set(LKEY + '_enc', enc);
-          if (!(cryptoKey && await verifyKey(cryptoKey, m))) { cryptoKey = null; rawKeyB64 = null; await requireUnlock(bioIsOn()); }
-        }
-      }
-    } else if (encMeta && pendingMeta !== 'set') {
-      encMeta = null; LS.del(LKEY + '_enc');
-    }
+    await applyEncMeta(enc);
     const localNames = blobNames();
     for (const n in result) {
       if (!VALID_BLOB.test(n) || dirty.has(n)) continue;
@@ -1161,6 +1225,13 @@ function syncBadge() {
   return `<div class="sync s-${syncState}" id="syncBadge">${m ? '<i></i>' + m : ''}</div>`;
 }
 function syncText() {
+  if (typeof SRV !== 'undefined' && SRV.on) return {
+    ok: 'Все записи сохранены на сервере журнала и копией — в облаке Telegram.',
+    saving: 'Сохраняю на сервер журнала…',
+    loading: 'Загружаю записи с сервера журнала…',
+    error: srvErrText({ status: SRV.err === 'auth' ? 401 : 0 }),
+    local: '',
+  }[syncState] || '';
   return {
     ok: 'Все записи сохранены в облаке Telegram.',
     saving: 'Сохраняю в облако Telegram…',
@@ -1245,6 +1316,11 @@ const PXG = {
   fire: ['....#....', '...##....', '...###...', '..####.#.', '..######.', '.#######.', '.###.###.', '.##...##.', '..#####..'],
   snow: ['....#....', '.#..#..#.', '..#.#.#..', '...###...', '#########', '...###...', '..#.#.#..', '.#..#..#.', '....#....'],
   book: ['.........', '####.####', '#...#...#', '#.#.#.#.#', '#...#...#', '#.#.#.#.#', '#...#...#', '#########', '.........'],
+  fam: ['.##...##.', '.##...##.', '.........', '####.####', '####.####', '####.####', '.##...##.', '.##...##.', '.##...##.'],
+  eye: ['.........', '..#####..', '.#.....#.', '#..###..#', '#..###..#', '.#.....#.', '..#####..', '.........', '.........'],
+  eyeoff: ['#........', '.######..', '.##....#.', '#..###..#', '#..###..#', '.#...#.#.', '..#####..', '.......#.', '........#'],
+  user: ['...###...', '..#####..', '..#####..', '...###...', '.........', '.#######.', '#########', '#########', '#########'],
+  srv: ['#########', '#.#.....#', '#########', '.........', '#########', '#.#.....#', '#########', '.........', '....#....'],
   lock: ['..#####..', '.#.....#.', '.#.....#.', '#########', '#.......#', '#...#...#', '#...#...#', '#.......#', '#########'],
   check: ['.........', '........#', '.......##', '#.....##.', '##...##..', '.##.##...', '..###....', '...#.....', '.........'],
   dash: ['.........', '.........', '.........', '.........', '.#######.', '.#######.', '.........', '.........', '.........'],
@@ -1296,6 +1372,8 @@ const LN = {
   flag: '<path d="M6 21V4M6 4h11l-2 4 2 4H6"/>',
   spark: '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M18 6l-2.5 2.5M8.5 15.5 6 18"/>',
   cloud: '<path d="M7 18a4 4 0 0 1-.5-8A5.5 5.5 0 0 1 17 9a4.5 4.5 0 0 1 .5 9z"/>',
+  fam: '<circle cx="7.5" cy="6.5" r="2.5"/><circle cx="16.5" cy="6.5" r="2.5"/><path d="M3.5 19.5v-5a4 4 0 0 1 8 0"/><path d="M12.5 14.5a4 4 0 0 1 8 0v5"/><circle cx="12" cy="14" r="1.6"/><path d="M9.5 20.5a2.5 2.5 0 0 1 5 0"/>',
+  srv: '<rect x="3.5" y="4" width="17" height="6.5" rx="1.5"/><rect x="3.5" y="13.5" width="17" height="6.5" rx="1.5"/><path d="M7 7.2h.01M7 16.7h.01"/>',
   lock: '<rect x="5" y="10.5" width="14" height="10" rx="2"/><path d="M8 10.5V8a4 4 0 0 1 8 0v2.5"/>',
   camera: '<path d="M4 8h3l2-2.5h6L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/>',
   file: '<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
@@ -1319,7 +1397,8 @@ const PXE = {};
  ['🧾', 'receipt', 'N'], ['🏖', 'beach', 'Y'], ['🛟', 'buoy', 'O'], ['💍', 'ring', 'C'], ['📅', 'cal', 'B'], ['🌙', 'moon', 'V'], ['⚖', 'scales', 'W'], ['⇄', 'xfer', 'W'],
  ['🔐', 'lock', 'W'], ['🔒', 'lock', 'W'], ['📊', 'chart', 'W'], ['♻', 'repeat', 'W'], ['❓', 'help', 'W'], ['✨', 'spark', 'V'], ['＋', 'plus', 'L'], ['📥', 'inbox', 'W'],
  ['💾', 'disk', 'W'], ['🔦', 'spark', 'V'], ['💱', 'coin', 'Y'], ['📒', 'book', 'W'], ['☁', 'cloud', 'W'], ['💻', 'laptop', 'W'], ['📷', 'camera', 'W'], ['✏', 'pencil', 'W'], ['🏆', 'trophy', 'Y'], ['🤝', 'hand', 'W'],
- ['⚡', 'bolt', 'V'], ['💯', 'cent', 'W'], ['🔥', 'fire', 'V'], ['🎉', 'spark', 'V'], ['🍕', 'burger', 'O'], ['🚇', 'bus', 'Y'], ['🛍', 'gift', 'P'], ['🏥', 'med', 'G']]
+ ['⚡', 'bolt', 'V'], ['💯', 'cent', 'W'], ['🔥', 'fire', 'V'], ['🎉', 'spark', 'V'], ['🍕', 'burger', 'O'], ['🚇', 'bus', 'Y'], ['🛍', 'gift', 'P'], ['🏥', 'med', 'G'],
+ ['👪', 'fam', 'K'], ['🙈', 'eyeoff', 'W'], ['👁', 'eye', 'W'], ['👤', 'user', 'W'], ['🖥', 'srv', 'W']]
   .forEach(([e, g, c]) => { PXE[e] = [g, c]; });
 const pxKey = e => String(e == null ? '' : e).replace(/[️‍]/g, '').trim();
 const pxOf = ic => { const m = PXE[pxKey(ic)]; return m ? [m[0], LOOK.pal[m[1]]] : null; };
@@ -1795,6 +1874,488 @@ const QR = (() => {
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = QR;
 
+/* ====== Сервер журнала (с v0.7) ======
+   Адрес сервера задаётся в index.html: <meta name="fj-api" content="https://…">. Пусто — журнал работает как раньше,
+   только с облаком Telegram. С сервером: личные блобы синхронизируются с номерами версий, облако Telegram остаётся
+   запасной копией, появляется семья. Переход — только после согласия пользователя. */
+const CAN_SRV = !!(API_URL && IN_TG);
+const CONSENT_V = 1;
+// копия в облаке Telegram при работе с сервером. false — только сервер (если юрист скажет, что копия за рубежом недопустима)
+const MIRROR = true;
+const POLICY_URL = (() => { const m = document.querySelector('meta[name="fj-policy"]'); const u = m ? (m.getAttribute('content') || '').trim() : ''; return /^https:\/\//.test(u) ? u : ''; })();
+
+// постоянное состояние синхронизации — отдельно для каждого бота и пользователя
+const SRV = { on: false, ready: false, me: null, ask: false, err: '', st: null, flushing: false, pulling: false };
+function srvLoadSt() {
+  let s = null; try { s = JSON.parse(LS.get(LKEY + '_srv') || 'null'); } catch (e) {}
+  s = s && typeof s === 'object' ? s : {};
+  SRV.st = { on: !!s.on, rev: +s.rev || 0, br: s.br || {}, md: new Set(s.md || []), tomb: s.tomb || {}, ids: s.ids || {}, mm: s.mm || null, no: +s.no || 0 };
+  SRV.on = CAN_SRV && SRV.st.on;
+}
+function srvSaveSt() {
+  const s = SRV.st;
+  const mk = Object.keys(s.ids).sort(); if (mk.length > 40) mk.slice(0, mk.length - 40).forEach(k => delete s.ids[k]);
+  LS.set(LKEY + '_srv', JSON.stringify({ on: s.on ? 1 : 0, rev: s.rev, br: s.br, md: [...s.md], tomb: s.tomb, ids: s.ids, mm: s.mm, no: s.no }));
+}
+// какие записи месяца были в последней общей с сервером версии — для слияния «на троих»
+function srvBase(n, list) { if (n[0] === 'm') SRV.st.ids[n.slice(1)] = (list || []).map(t => t.id); }
+srvLoadSt();
+
+class ApiErr extends Error { constructor(status, code, msg) { super(code || ('http ' + status)); this.status = status; this.code = code; this.msg = msg; } }
+async function api(method, path, body, ms) {
+  const ctl = typeof AbortController === 'function' ? new AbortController() : null;
+  const timer = setTimeout(() => { try { ctl && ctl.abort(); } catch (e) {} }, ms || 20000);
+  try {
+    const h = { Authorization: 'tma ' + TG.initData };
+    if (ENV) h['X-FJ-Env'] = ENV;
+    if (body !== undefined) h['Content-Type'] = 'application/json';
+    const r = await fetch(API_URL + path, { method, headers: h, body: body !== undefined ? JSON.stringify(body) : undefined, signal: ctl ? ctl.signal : undefined, cache: 'no-store', credentials: 'omit' });
+    let j = null; try { j = await r.json(); } catch (e) {}
+    if (!r.ok) throw new ApiErr(r.status, j && j.error, j && j.msg);
+    return j || {};
+  } catch (e) {
+    if (e instanceof ApiErr) throw e;
+    throw new ApiErr(0, 'network', String(e && e.message || e));
+  } finally { clearTimeout(timer); }
+}
+function srvErrText(e) {
+  if (!e) return '';
+  if (e.status === 401) return 'Сервер не принял вход: закройте журнал и откройте его заново из бота.';
+  if (e.status === 413) return 'На сервере закончилось место для ваших записей. Напишите в поддержку бота.';
+  if (e.status === 429) return 'Слишком много запросов — повторю чуть позже.';
+  return 'Нет связи с сервером журнала. Записи сохранены на этом устройстве и отправятся, когда связь появится.';
+}
+
+/* --- шифрование: общий разбор ключа xenc для облака и сервера --- */
+async function applyEncMeta(enc) {
+  if (enc) {
+    let m = null; try { m = JSON.parse(enc); } catch (e) {}
+    if (m && m.s) {
+      const same = encMeta && encMeta.s === m.s && cryptoKey && await verifyKey(cryptoKey, m);
+      if (!same) {
+        encMeta = m; LS.set(LKEY + '_enc', enc);
+        if (!(cryptoKey && await verifyKey(cryptoKey, m))) { cryptoKey = null; rawKeyB64 = null; await requireUnlock(bioIsOn()); }
+      }
+    }
+  } else if (encMeta && pendingMeta !== 'set') {
+    encMeta = null; LS.del(LKEY + '_enc');
+  }
+}
+
+/* --- запуск: проверить сервер, при необходимости спросить согласие --- */
+let srvRetry = null;
+function srvRetrySoon(ms) { clearTimeout(srvRetry); srvRetry = setTimeout(() => { if (SRV.on && !SRV.ready) srvStart(); else if (SRV.on) flush(); }, ms || 10000); }
+async function srvProbe() {
+  // режим облака Telegram. До согласия журнал ничего не отправляет на сервер.
+  // Если согласие уже дано на другом устройстве, в настройках (они есть и в облаке Telegram) стоит отметка cfg.srv.
+  if (!CAN_SRV || SRV.on) return;
+  if (S.cfg && S.cfg.srv) {
+    try {
+      const me = await api('GET', '/api/me', undefined, 12000);
+      SRV.me = me;
+      if (me.consent) { await srvSwitchOn(false); return; }
+      delete S.cfg.srv; markDirty('cfg');      // сервер отключили на другом устройстве
+    } catch (e) { SRV.err = e.status === 401 ? 'auth' : 'net'; return; }
+  }
+  const fresh = Date.now() - (SRV.st.no || 0) > 30 * 864e5;
+  SRV.ask = fresh || !!famStartCode();
+  maybePopups();
+}
+async function srvStart() {
+  if (!SRV.on) return;
+  setSync('loading');
+  try {
+    const me = await api('GET', '/api/me');
+    SRV.me = me; SRV.err = '';
+    if (!me.consent) {   // данные на сервере удалены с другого устройства — вернуться к облаку Telegram
+      srvLocalOff(); if (S.cfg && S.cfg.srv) { delete S.cfg.srv; markDirty('cfg'); }
+      toast('Сервер отключён на другом устройстве. Записи — в облаке Telegram.');
+      if (HAS_CLOUD) { cloudLoaded = false; syncFromCloud(); }
+      return;
+    }
+    await srvPull(SRV.st.rev === 0);
+    SRV.ready = true; cloudLoaded = true; phase = 'ready';
+    setSync(dirty.size || pendingMeta ? 'saving' : 'ok');
+    render();
+    if (dirty.size || pendingMeta) flush();
+    mirrorFlush();
+    if (me.family || FAM) famSync(true);
+    famHandleStart();
+  } catch (e) {
+    console.warn('server start', e);
+    SRV.err = e.status === 401 ? 'auth' : 'net';
+    setSync('error');
+    if (!S.cfg && HAS_CLOUD && !SRV.cloudTried) {   // новое устройство и сервер недоступен — показать копию из облака
+      SRV.cloudTried = true;
+      try { const { result, enc } = await withTimeout(cloudLoad(), 20000); await applyEncMeta(enc); for (const n in result) if (VALID_BLOB.test(n)) { try { setBlob(n, parseBlob(n, await decodeStr(result[n]))); } catch (er) {} } saveLocal(); } catch (er) {}
+    }
+    if (S.cfg) phase = 'ready'; else if (phase === 'loading') phase = 'error';
+    render();
+    if (e.status !== 401) srvRetrySoon(10000);
+  }
+}
+// подтянуть изменения с других устройств; full — с нуля (при запуске после переноса)
+async function srvPull(full) {
+  if (SRV.pulling) return;
+  SRV.pulling = true;
+  try {
+    const st = SRV.st;
+    const r = await api('GET', '/api/blobs?since=' + (full ? 0 : st.rev));
+    full = full || !!r.full;
+    let changed = false;
+    if ('xenc' in r.blobs || 'xenc' in r.del) {
+      const x = r.blobs.xenc;
+      if (!pendingMeta) await applyEncMeta(x ? x.d : null);
+      st.br.xenc = x ? x.r : r.del.xenc;
+    }
+    for (const n in r.blobs) {
+      if (n === 'xenc' || !VALID_BLOB.test(n)) continue;
+      const b = r.blobs[n];
+      if (!full && st.br[n] === b.r && hasLocal(n)) continue;
+      if (dirty.has(n)) continue;           // своё изменение отправится с номером версии, при споре — слияние
+      try {
+        const v = parseBlob(n, await decodeStr(b.d));
+        st.br[n] = b.r; srvBase(n, v);
+        if (full && n[0] === 'm' && S.months[n.slice(1)]) {
+          // первая встреча с сервером: месяц есть и тут, и там — объединить записи, ничего не теряя
+          const loc = S.months[n.slice(1)], ids = new Set(v.map(t => t.id)), extra = loc.filter(t => !ids.has(t.id));
+          setBlob(n, v.concat(extra)); if (extra.length) dirty.add(n);
+        } else setBlob(n, v);
+        st.md.add(n); changed = true;
+      } catch (e) { console.warn('blob', n, e); }
+    }
+    for (const n in r.del) {
+      if (n === 'xenc' || dirty.has(n)) continue;
+      if (hasLocal(n)) { setBlob(n, null); st.md.add(n); changed = true; }
+      st.br[n] = r.del[n]; srvBase(n, []);
+    }
+    if (full) for (const n of blobNames()) if (!(n in r.blobs) && !dirty.has(n)) { dirty.add(n); st.md.add(n); }   // есть только здесь — отправить (перенос)
+    if (full && encMeta && !('xenc' in r.blobs)) setPendingMeta('set');
+    st.rev = Math.max(st.rev, r.rev);
+    srvSaveSt();
+    if (changed) { saveLocal(); if (SRV.ready) render(); }
+    return changed;
+  } finally { SRV.pulling = false; }
+}
+// отправить изменения; при споре версий — слить записи месяца и отправить снова
+async function srvFlush() {
+  if (SRV.flushing || !SRV.ready) return;
+  SRV.flushing = true; setSync('saving');
+  const st = SRV.st;
+  try {
+    if (pendingMeta === 'set' && !encMeta) setPendingMeta(null);
+    for (let round = 0; round < 5 && (dirty.size || pendingMeta); round++) {
+      const names = [...dirty]; dirty.clear(); LS.set(LKEY + '_dirty', '[]');
+      const ops = [];
+      try {
+        if (pendingMeta === 'set' && encMeta) ops.push({ n: 'xenc', d: JSON.stringify(encMeta), b: st.br.xenc || 0 });
+        else if (pendingMeta === 'remove') ops.push({ n: 'xenc', d: null, b: st.br.xenc || 0 });
+        const sent = {};
+        for (const n of names) { const p = serialize(n); if (n[0] === 'm') sent[n] = (S.months[n.slice(1)] || []).slice(); ops.push({ n, d: p == null ? null : await encodeStr(p), b: st.br[n] || 0 }); }
+        // пачки до ~1,5 МБ
+        const packs = []; let cur = [], size = 0;
+        for (const o of ops) { const l = (o.d || '').length + 64; if (cur.length && size + l > 1500000) { packs.push(cur); cur = []; size = 0; } cur.push(o); size += l; }
+        if (cur.length) packs.push(cur);
+        for (const pk of packs) {
+          const r = await api('PUT', '/api/blobs', { ops: pk });
+          for (const n in r.ok) {
+            st.br[n] = r.ok[n];
+            if (n !== 'xenc') st.md.add(n);   // копия в облаке Telegram повторяет то, что принял сервер
+            if (n === 'xenc') { st.mm = pendingMeta; setPendingMeta(null); }
+            else if (n[0] === 'm') { delete st.tomb[n.slice(1)]; srvBase(n, sent[n]); }
+            const i = names.indexOf(n); if (i >= 0) names.splice(i, 1);
+          }
+          for (const n in r.conflict) { await srvMerge(n, r.conflict[n]); const i = names.indexOf(n); if (i >= 0) names.splice(i, 1); }
+          srvSaveSt();
+        }
+      } catch (e) { names.forEach(n => dirty.add(n)); LS.set(LKEY + '_dirty', JSON.stringify([...dirty])); throw e; }
+    }
+    LS.set(LKEY + '_dirty', JSON.stringify([...dirty]));
+    SRV.err = '';
+    setSync(dirty.size ? 'saving' : 'ok');
+    if (dirty.size) flushSoon();
+  } catch (e) {
+    console.warn('server sync', e);
+    SRV.err = e.status === 401 ? 'auth' : 'net';
+    setSync('error');
+    if (e.status !== 401) { clearTimeout(flushTimer); flushTimer = setTimeout(flush, e.status === 429 ? 20000 : 7000); }
+  } finally { SRV.flushing = false; mirrorFlush(); }
+}
+async function srvMerge(n, c) {
+  const st = SRV.st, never = !st.br[n];
+  st.br[n] = c.r;
+  if (n === 'xenc') { if (pendingMeta) return; await applyEncMeta(c.d); return; }
+  if (n[0] === 'm') {
+    // слияние «на троих»: база — записи последней общей версии. Удалённое там не воскресает, добавленное тут не теряется.
+    let srv = null; try { srv = c.d == null ? [] : parseBlob(n, await decodeStr(c.d)); } catch (e) {}
+    if (srv) {
+      const mk = n.slice(1), loc = S.months[mk] || [], sIds = new Set(srv.map(t => t.id)), lIds = new Set(loc.map(t => t.id));
+      const base = new Set(st.ids[mk] || []), tomb = new Set(st.tomb[mk] || []);
+      const keep = loc.filter(t => sIds.has(t.id) || !base.has(t.id));
+      const add = srv.filter(t => !lIds.has(t.id) && !base.has(t.id) && !tomb.has(t.id));
+      if (keep.length !== loc.length || add.length) { setBlob(n, keep.concat(add)); saveLocal(); if (SRV.ready) render(); }
+      srvBase(n, srv);
+    }
+  }
+  else if (never && c.d != null) {
+    // настройки и прогресс, которые этот телефон ещё ни разу не сверял с сервером, уступают серверной версии
+    try { setBlob(n, parseBlob(n, await decodeStr(c.d))); saveLocal(); st.md.add(n); if (SRV.ready) render(); return; } catch (e) {}
+  }
+  dirty.add(n); st.md.add(n);   // своя версия (с добавленными записями с другого устройства) уходит поверх
+}
+function srvTomb(mk, id) {
+  if (!SRV.on) return;
+  const a = SRV.st.tomb[mk] = SRV.st.tomb[mk] || [];
+  a.push(id); if (a.length > 500) a.splice(0, a.length - 500);
+  srvSaveSt();
+}
+
+/* --- копия в облаке Telegram --- */
+let mirrorInited = false, mirroring = false;
+async function mirrorInit() {
+  if (mirrorInited) return;
+  const keys = await CS.keys();
+  const heads = keys.filter(k => !k.includes('_') && !META_KEYS.has(k));
+  const vals = heads.length ? await CS.items(heads) : {};
+  cloudParts = {}; lastParts = {};
+  for (const h of heads) { const n = parseInt(vals[h], 10); if (n >= 0) cloudParts[h] = n; }
+  // в облаке есть то, чего нет здесь (удалено при работе с сервером) — тоже в очередь, чтобы удалить
+  for (const h in cloudParts) if (VALID_BLOB.test(h) && !hasLocal(h)) SRV.st.md.add(h);
+  mirrorInited = true;
+}
+async function mirrorFlush(strict) {
+  if (!MIRROR || !HAS_CLOUD || !SRV.on || mirroring) { if (strict && mirroring) throw new Error('busy'); return; }
+  mirroring = true;
+  const st = SRV.st;
+  try {
+    await withTimeout(mirrorInit(), 20000);
+    if (st.mm === 'set' && encMeta) { await withTimeout(CS.set('xenc', JSON.stringify(encMeta)), 20000); st.mm = null; srvSaveSt(); }
+    else if (st.mm === 'remove') { await withTimeout(CS.remove(['xenc']), 20000); st.mm = null; srvSaveSt(); }
+    for (const n of [...st.md]) {
+      if (!VALID_BLOB.test(n)) { st.md.delete(n); continue; }
+      await withTimeout(cloudWrite(n), 20000);
+      st.md.delete(n); srvSaveSt();
+    }
+  } catch (e) { if (strict) throw e; console.warn('mirror', e); }
+  finally { mirroring = false; }
+}
+
+/* --- включение и выключение --- */
+async function srvSwitchOn(first) {
+  // first — человек только что дал согласие на этом устройстве: всё, что есть здесь и в облаке, уходит на сервер
+  const st = SRV.st;
+  st.on = true; st.rev = 0; st.br = {}; st.tomb = {}; st.ids = {}; st.md = new Set(); st.no = 0; st.mm = encMeta ? 'set' : null;
+  srvSaveSt();
+  SRV.on = true; SRV.ready = false; mirrorInited = false;
+  // отправлять всё не нужно: полная загрузка при первом запуске сама отправит то, чего нет на сервере, и сольёт месяцы
+  if (first && S.cfg) { st.md.add('cfg'); srvSaveSt(); }
+  await srvStart();
+}
+function srvLocalOff() {
+  const st = SRV.st;
+  st.on = false; st.rev = 0; st.br = {}; st.tomb = {}; st.ids = {}; st.md = new Set(); st.mm = null;
+  srvSaveSt();
+  SRV.on = false; SRV.ready = false;
+  famSetNull();
+}
+async function srvConsent() {
+  const me = await api('POST', '/api/consent', { v: CONSENT_V });
+  SRV.me = me; SRV.ask = false;
+  if (HAS_CLOUD && !cloudLoaded) { await syncFromCloud(); }
+  if (S.cfg) S.cfg.srv = CONSENT_V;     // отметка для других устройств (дойдёт и до облака Telegram)
+  await srvSwitchOn(true);
+}
+// отключить сервер: всё — в облако Telegram, затем стереть данные на сервере
+async function srvDisconnect() {
+  if (FAM) famCopyMineToJournal();
+  if (S.cfg && S.cfg.srv) { delete S.cfg.srv; saveLocal(); }
+  for (const n of blobNames()) SRV.st.md.add(n);
+  for (const n in SRV.st.br) if (n !== 'xenc' && !hasLocal(n)) SRV.st.md.add(n);
+  SRV.st.mm = encMeta ? 'set' : 'remove';
+  if (HAS_CLOUD) await mirrorFlush(true);
+  await api('DELETE', '/api/me');
+  dirty.clear(); saveLocal();
+  srvLocalOff();
+  SRV.st.no = Date.now(); srvSaveSt();
+  if (!MIRROR && HAS_CLOUD) { for (const n of blobNames()) dirty.add(n); saveLocal(); flush(); }   // копии не было — записать облако целиком
+  setSync(HAS_CLOUD ? 'ok' : 'local');
+}
+
+/* ====== Семья: данные (с v0.7, только с сервером) ======
+   Общие кошельки (id 'f:…') и их записи живут на сервере, у каждого участника — копия.
+   Свои записи на общих кошельках входят в личную статистику; записи других — только в семейный экран и остатки общих кошельков.
+   Личная запись с «Показать семье» остаётся в личном журнале, а её копия (p:1) уходит в семейную ленту.
+   «Скрыть от семьи» на общем кошельке: другим участникам сервер отдаёт только сумму. */
+let FAM = null;   // { id, name, role, me, seq, members: [{u, n, r, j, left}], w: {id: данные}, r: {id: запись}, inv }
+let FQ = [];      // очередь изменений для сервера
+const FAMC = { wl: [], mine: {}, byM: {} };
+const isFamW = id => typeof id === 'string' && id.slice(0, 2) === 'f:';
+function famLoadLocal() {
+  try { FAM = JSON.parse(LS.get(LKEY + '_fam') || 'null'); FQ = JSON.parse(LS.get(LKEY + '_fq') || '[]'); } catch (e) { FAM = null; FQ = []; }
+  if (!SRV.on) { FAM = null; FQ = []; }
+  if (!Array.isArray(FQ)) FQ = [];
+  famDerive();
+}
+function famSaveLocal() {
+  if (FAM) LS.set(LKEY + '_fam', JSON.stringify(FAM)); else LS.del(LKEY + '_fam');
+  LS.set(LKEY + '_fq', JSON.stringify(FQ));
+}
+function famTx(d) { return { id: d.id, k: d.k, a: d.a, c: d.c || null, w: d.w, w2: d.w2 || null, m: d.m, d: d.d, n: d.n || '', x: d.x || null, h: d.h ? 1 : 0, p: d.p ? 1 : 0, u: d.u || '', cn: d.cn || '', ci: d.ci || '', r: d.r ? 1 : 0, _f: 1 }; }
+function famDerive() {
+  FAMC.wl = []; FAMC.mine = {}; FAMC.byM = {};
+  dataVer++;
+  if (!FAM) return;
+  for (const id in FAM.w) { const d = FAM.w[id]; FAMC.wl.push({ id, n: d.n, ic: d.ic || '👪', s: d.s || 0, g: d.g || undefined, arch: !!d.arch, fam: 1, by: d.by }); }
+  for (const id in FAM.r) {
+    const t = famTx(FAM.r[id]);
+    (FAMC.byM[t.m] = FAMC.byM[t.m] || []).push(t);
+    if (t.u === FAM.me && !t.p) (FAMC.mine[t.m] = FAMC.mine[t.m] || []).push(t);
+  }
+}
+const famWallets = () => FAMC.wl;
+function famMember(u) { const m = FAM && FAM.members.find(x => x.u === u); return m || { u, n: u ? 'Участник' : 'Бывший участник', r: '', left: 1 }; }
+const famIsMe = u => !!FAM && u === FAM.me;
+const famActive = () => FAM ? FAM.members.filter(m => !m.left) : [];
+const FAM_COLORS = ['#7C9CFF', '#FFB547', '#5BD6A0', '#FF7A9C', '#B98CFF', '#4FC3F7', '#FFD54F', '#A1887F', '#90A4AE', '#F06292'];
+function famColor(u) { if (!FAM) return FAM_COLORS[0]; const i = FAM.members.findIndex(m => m.u === u); return i < 0 ? '#6B6B73' : FAM_COLORS[i % FAM_COLORS.length]; }
+
+/* --- изменения --- */
+function famQueue(op) {
+  const key = (o) => (o.t === 'w' || o.t === 'wd' ? 'w:' : 'r:') + (o.d ? o.d.id : o.id);
+  const k = key(op);
+  FQ = FQ.filter(o => key(o) !== k);
+  FQ.push(op);
+  famSaveLocal(); famSyncSoon();
+}
+function famRecOf(t, personal) {
+  const c = t.c ? cat(t.c) : null;
+  const d = { id: t.id, k: t.k, a: t.a, w: t.w, m: t.m, d: t.d };
+  if (t.w2) d.w2 = t.w2;
+  if (t.c) { d.c = t.c; d.cn = c.n; d.ci = c.ic; }
+  if (t.n) d.n = t.n;
+  if (t.x) d.x = t.x;
+  if (personal) d.p = 1; else if (t.h) d.h = 1;
+  return d;
+}
+function famPutTx(t) {
+  const d = famRecOf(t, false);
+  FAM.r[t.id] = Object.assign({}, d, { u: FAM.me });
+  famQueue({ t: 'r', d }); famDerive(); famSaveLocal();
+}
+function famDelTx(id) {
+  if (!FAM) return;
+  delete FAM.r[id];
+  famQueue({ t: 'rd', id }); famDerive(); famSaveLocal();
+}
+function famShareTx(t) {
+  if (!FAM) return;
+  const d = famRecOf(t, true);
+  FAM.r[t.id] = Object.assign({}, d, { u: FAM.me });
+  famQueue({ t: 'r', d }); famDerive(); famSaveLocal();
+}
+function famPutWallet(w) {
+  const d = { id: w.id, n: w.n, ic: w.ic, s: w.s || 0 };
+  if (w.g) d.g = w.g;
+  if (w.arch) d.arch = 1;
+  FAM.w[w.id] = Object.assign({}, d, { by: (FAM.w[w.id] || {}).by || FAM.me });
+  famQueue({ t: 'w', d }); famDerive(); famSaveLocal();
+}
+function famDelWallet(id) { delete FAM.w[id]; famQueue({ t: 'wd', id }); famDerive(); famSaveLocal(); }
+// при выходе из семьи свои записи с общих кошельков переносятся в личный журнал — история и остатки личных кошельков не меняются
+function famCopyMineToJournal() {
+  if (!FAM) return 0;
+  let n = 0;
+  for (const mk in FAMC.mine) for (const t of FAMC.mine[mk]) {
+    if (t.k === 'a') continue;
+    if ((S.months[mk] || []).some(x => x.id === t.id)) continue;
+    const c = Object.assign({}, t); delete c._f; delete c.u; delete c.cn; delete c.ci; delete c.r; delete c.p; delete c.h;
+    (S.months[mk] = S.months[mk] || []).push(c); markDirty('m' + mk); n++;
+  }
+  // личные записи, показанные семье, перестают быть «общими»
+  for (const mk in S.months) for (const t of S.months[mk]) if (t.s) { delete t.s; markDirty('m' + mk); }
+  return n;
+}
+function famSetNull() { FAM = null; FQ = []; famDerive(); famSaveLocal(); }
+
+/* --- синхронизация --- */
+let famSyncing = false, famTimer = null, famAgain = false;
+function famSyncSoon(ms) { clearTimeout(famTimer); famTimer = setTimeout(() => famSync(), ms || 400); }
+async function famSync(force) {
+  if (!SRV.on || !SRV.ready) return;
+  if (famSyncing) { famAgain = true; return; }
+  if (!FAM && !force && !(SRV.me && SRV.me.family)) return;
+  famSyncing = true;
+  const prevSeq = FAM ? FAM.seq : -1;
+  try {
+    let st, rejected = [];
+    if (!FAM) {
+      st = (await api('GET', '/api/family?since=0')).family;
+    } else {
+      const ops = FQ.slice();
+      const r = await api('POST', '/api/family/sync?since=' + (FAM.seq || 0), { ops });
+      FQ = FQ.slice(ops.length);
+      st = r.family; rejected = r.rejected || [];
+      if (rejected.length && st) {          // что-то не прошло — взять полную картину с сервера
+        st = (await api('GET', '/api/family?since=0')).family;
+        toast(rejected.some(x => x.code === 'wallet_used') ? 'Кошелёк с записями нельзя удалить — его можно скрыть' : 'Часть семейных изменений не сохранилась: их уже изменил или удалил другой участник');
+      }
+    }
+    famApply(st);
+    if (SRV.me) SRV.me.family = FAM ? { id: FAM.id } : null;
+    if (syncState === 'error' && !dirty.size && !SRV.flushing) setSync('ok');
+    if (FAM && FAM.seq !== prevSeq) { if (typeof famRefresh === 'function') famRefresh(); if (!stack.length || tab === 'home') render(); }
+  } catch (e) {
+    if (e.status === 404 && e.code === 'no_family') { famGone(); }
+    else { console.warn('family sync', e); if (FQ.length) setSync('error'); famSyncSoon(e.status === 429 ? 20000 : 8000); }
+  } finally {
+    famSyncing = false;
+    if (famAgain || (FQ.length && FAM)) { famAgain = false; famSyncSoon(300); }
+  }
+}
+function famApply(st) {
+  if (!st) { if (FAM) famGone(); return; }
+  if (st.full || !FAM || FAM.id !== st.id) FAM = { id: st.id, w: {}, r: {} };
+  Object.assign(FAM, { name: st.name, role: st.role, me: st.me, seq: st.seq, members: st.members || [], inv: st.inv || null });
+  for (const w of st.wallets || []) { if (w.del) delete FAM.w[w.id]; else FAM.w[w.id] = w; }
+  for (const r of st.recs || []) { if (r.del) delete FAM.r[r.id]; else FAM.r[r.id] = r; }
+  // свои неотправленные изменения поверх серверной картины
+  for (const o of FQ) {
+    if (o.t === 'r') FAM.r[o.d.id] = Object.assign({}, o.d, { u: FAM.me });
+    else if (o.t === 'rd') delete FAM.r[o.id];
+    else if (o.t === 'w') FAM.w[o.d.id] = Object.assign({}, FAM.w[o.d.id] || {}, o.d);
+    else if (o.t === 'wd') delete FAM.w[o.id];
+  }
+  famDerive(); famSaveLocal();
+}
+// семьи больше нет (исключили или распустили): свои записи остаются в журнале
+function famGone() {
+  if (!FAM) return;
+  const name = FAM.name, n = famCopyMineToJournal();
+  famSetNull();
+  if (SRV.me) SRV.me.family = null;
+  render();
+  toast(`Вы больше не в семье «${name}».${n ? ' Ваши записи с общих кошельков сохранены в журнале.' : ''}`);
+}
+// приглашение из ссылки: t.me/бот/приложение?startapp=fam_КОД
+function famStartCode() {
+  try { const sp = TG && TG.initDataUnsafe && TG.initDataUnsafe.start_param; const m = /^fam_([A-Za-z0-9]{8})$/.exec(sp || ''); return m ? m[1].toUpperCase() : ''; } catch (e) { return ''; }
+}
+let famStartDone = false;
+function famHandleStart() {
+  const code = famStartCode();
+  if (!code || famStartDone || !SRV.on || !SRV.ready) return;
+  famStartDone = true;
+  if (FAM) { if (typeof openFamily === 'function') setTimeout(openFamily, 300); return; }
+  if (typeof openJoin === 'function') setTimeout(() => openJoin(code), 300);
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && SRV.on && SRV.ready) { srvPull(false).catch(() => {}); famSync(); } });
+setInterval(() => {
+  if (document.visibilityState !== 'visible' || !SRV.on || !SRV.ready || locked) return;
+  if (FAM || (SRV.me && SRV.me.family)) famSync();
+}, 30000);
+setInterval(() => { if (document.visibilityState === 'visible' && SRV.on && SRV.ready && !locked && !dirty.size) srvPull(false).catch(() => {}); }, 90000);
+famLoadLocal();
+
 /* ====== Биометрия и экран блокировки ====== */
 let bioAvail = false, bioType = '';
 let locked = false, lockH = {};
@@ -1869,7 +2430,8 @@ $('#lockAlt').onclick = () => lockH.alt && lockH.alt();
 $('#lockForgot').onclick = () => lockH.forgot && lockH.forgot();
 $('#lockPw').addEventListener('keydown', e => { if (e.key === 'Enter' && lockH.btn) lockH.btn(); });
 async function wipeEverything() {
-  ['_data', '_dirty', '_enc', '_pm', '_bio', '_lastw', '_eve'].forEach(s => LS.del(LKEY + s));
+  if (SRV.on) { try { await api('DELETE', '/api/blobs'); } catch (e) {} }
+  ['_data', '_dirty', '_enc', '_pm', '_bio', '_lastw', '_eve', '_srv'].forEach(s => LS.del(LKEY + s));
   if (HAS_CLOUD) { try { await CS.remove(await CS.keys()); } catch (e) {} }
   if (bioIsOn()) await bioSetToken('');
   location.reload();
@@ -1972,14 +2534,16 @@ function fail(el, msg) {
 function openEntry(tx, kind, preset) {
   if (tx && tx.k === 'a') return openAdjView(tx);
   const edit = !!tx, P = preset || {};
-  const okW = id => id && S.cfg.wallets.some(x => x.id === id && !x.arch);
+  const okW = id => id && allW().some(x => x.id === id && !x.arch);
   if (P.w && !okW(P.w)) P.w = null;
   if (P.w2 && !okW(P.w2)) P.w2 = null;
   const st = {
     k: edit ? tx.k : (kind || 'e'), expr: edit ? kopToExpr(tx.a) : (P.a ? kopToExpr(P.a) : ''), c: edit ? tx.c : (P.c || null),
     w: edit ? tx.w : (P.w || defWallet()), w2: edit ? tx.w2 : (P.w2 || null),
     m: edit ? tx.m : (P.m || curM()), d: edit ? tx.d : (P.d || now().d), n: edit ? tx.n : (P.n || ''), x: edit ? tx.x : (P.x || null),
+    s: edit ? !!tx.s : !!(FAM && S.cfg.fsd), h: edit ? !!tx.h : false,
   };
+  const famRec = () => !!FAM && (isFamW(st.w) || (st.k === 't' && isFamW(st.w2)));
   if (!st.w2 || st.w2 === st.w) st.w2 = otherWallet(st.w);
   const html = `<div class="entry-wrap">
     <div class="seg">${[['e','Расход'],['i','Доход'],['t','Перевод']].map(([k, l]) => `<button data-s="kind" data-k="${k}">${l}</button>`).join('')}</div>
@@ -2001,7 +2565,11 @@ function openEntry(tx, kind, preset) {
       const b = st.w2 ? wal(st.w2) : null;
       h += `<button class="chip icb" data-s="swap" aria-label="Поменять местами">→</button><button class="chip" data-s="wal" data-which="to">${b ? icn(b.ic) + ' <span class="cl">' + esc(b.n) + '</span>' : 'Куда?'}</button>`;
     }
-    sh.ref('chips').innerHTML = h + date + note + qr;
+    let vis = '';
+    if (FAM) vis = famRec()
+      ? `<button class="chip${st.h ? ' on' : ''}" data-s="vis">${icn(st.h ? '🙈' : '👪')} <span class="cl">${st.h ? 'Скрыто' : 'Видно семье'}</span></button>`
+      : `<button class="chip${st.s ? ' on' : ''}" data-s="vis">${icn(st.s ? '👪' : '🔒')} <span class="cl">${st.s ? 'Семье' : 'Только мне'}</span></button>`;
+    sh.ref('chips').innerHTML = h + date + note + qr + vis;
   };
   const updCats = () => {
     const el = sh.ref('cats');
@@ -2036,8 +2604,9 @@ function openEntry(tx, kind, preset) {
     if (st.k === 't') { if (!st.w2 || st.w === st.w2) return fail(h, 'Выберите два разных кошелька'); }
     else if (!st.c) return fail(h, 'Выберите категорию');
     const t = { id: edit ? tx.id : uid(), k: st.k, a, c: st.k === 't' ? null : st.c, w: st.w, w2: st.k === 't' ? st.w2 : null, m: st.m, d: st.d, n: (st.n || '').trim().slice(0, 140), x: st.x || null };
+    if (FAM) { if (famRec()) { if (st.h) t.h = 1; } else if (st.s) t.s = 1; }
     if (edit) updateTx(tx, t); else addTx(t);
-    if (st.k !== 't' && !isGoal(wal(st.w))) LS.set(LKEY + '_lastw', st.w);
+    if (st.k !== 't' && !isGoal(wal(st.w)) && !isFamW(st.w)) LS.set(LKEY + '_lastw', st.w);
     haptic('ok'); sh.close(); render();
     if (P.onSaved) P.onSaved(t);
     if (edit) toast('Сохранено');
@@ -2067,6 +2636,12 @@ function openEntry(tx, kind, preset) {
       }),
       swap: () => { if (!st.w2) return; const x = st.w; st.w = st.w2; st.w2 = x; haptic('sel'); updChips(); updCats(); },
       note: () => openNote(st.n, v => { st.n = v; updChips(); }),
+      vis: () => {
+        haptic('sel');
+        if (famRec()) { st.h = !st.h; toast(st.h ? 'Семья увидит только сумму, без категории и заметки' : 'Запись видна семье полностью'); }
+        else { st.s = !st.s; toast(st.s ? 'Запись появится в семейной ленте' : 'Запись видна только вам'); }
+        updChips();
+      },
       qr: () => scanReceipt(r => {
         st.expr = kopToExpr(r.a); st.m = r.m; st.d = r.d; st.x = r.x; if (!st.n) st.n = r.note;
         if (r.k !== st.k) { st.k = r.k; st.c = r.k === 'i' ? 'refund' : null; updSeg(); updCats(); }
@@ -2090,10 +2665,10 @@ function openEntry(tx, kind, preset) {
 function pickWallet(cur, cb) {
   const b = balances();
   const row = w => `<div class="row" data-s="pick" data-id="${esc(w.id)}">${ict(w.ic)}<div class="grow t">${esc(w.n)}${w.id === cur ? ' ✓' : ''}</div><div class="amt">${money(b[w.id])}</div></div>`;
-  const gs = goalWallets();
+  const gs = goalWallets().filter(w => !w.fam), fw = activeWallets().filter(w => w.fam);
   const sh = openSheet({
     title: 'Кошелёк',
-    html: `<div class="card list">${regWallets().map(row).join('')}</div>${gs.length ? `<div class="cap">Копилки</div><div class="card list">${gs.map(row).join('')}</div>` : ''}`,
+    html: `<div class="card list">${regWallets().filter(w => !w.fam).map(row).join('')}</div>${fw.length ? `<div class="cap">Семья — общие</div><div class="card list">${fw.map(row).join('')}</div>` : ''}${gs.length ? `<div class="cap">Копилки</div><div class="card list">${gs.map(row).join('')}</div>` : ''}`,
     on: { pick: ds => { sh.close(); cb(ds.id); } },
   });
 }
@@ -2402,6 +2977,7 @@ function openCatEdit(kind, id, cb) {
 
 /* ====== Копилки ====== */
 function openGoal(id) {
+  if (isFamW(id)) return openFamWallet(id);
   const w = S.cfg.wallets.find(x => x.id === id); if (!w) return;
   const bal = balances()[w.id] || 0, gi = goalInfo(w, bal);
   const hist = sortTx(allTx().filter(t => t.k === 't' && (t.w2 === w.id || t.w === w.id))).slice(0, 6);
@@ -2445,6 +3021,7 @@ function openGoalEdit(id) {
       ${avg ? `<button class="linkbtn" data-s="cush" style="padding:10px 0 2px">Подставить 3 месяца расходов: ${money(avg * 3)}</button>` : ''}</div>
     <div class="cap">К какому сроку</div>
     <div class="card"><input class="inp" data-ref="dl" type="month" value="${esc(g.dl || '')}" min="${todayISO().slice(0, 7)}"><div class="sub mt">Необязательно. Если указать, журнал посчитает, сколько откладывать в месяц.</div></div>
+    ${!w && FAM ? `<label class="row card" style="min-height:0;margin-top:10px"><div class="grow"><div class="t">Общая копилка семьи</div><div class="sub">Видна всем участникам, откладывать может каждый</div></div><input type="checkbox" data-ref="fam" style="width:22px;height:22px"></label>` : ''}
     ${!w ? `<div class="cap">Уже накоплено</div><div class="card"><input class="inp" data-ref="s" inputmode="decimal" placeholder="0"><div class="sub mt">Деньги, которые уже лежат отдельно. Если копите с нуля — оставьте пустым.</div></div>` : ''}
     <button class="btn wide" data-s="save">${w ? 'Сохранить' : 'Создать копилку'}</button>`;
   const hints = { goal: 'Копите на что-то конкретное: отпуск, ремонт, телефон.', cushion: 'Запас на непредвиденное. Хороший ориентир — 3–6 месяцев расходов.', invest: 'Деньги, которые вы вкладываете: вклад, брокерский счёт, ИИС.' };
@@ -2467,6 +3044,7 @@ function openGoalEdit(id) {
         else {
           const s = sh.ref('s') ? parseMoney(sh.ref('s').value) : 0;
           if (isNaN(s)) { sh.ref('s').classList.add('bad'); haptic('err'); return; }
+          if (FAM && sh.ref('fam') && sh.ref('fam').checked) { famPutWallet({ id: 'f:' + uid(), n, ic, s, g: { kind, t, dl, c: curM() } }); sh.close(); render(); haptic('ok'); toast('Общая копилка создана'); return; }
           S.cfg.wallets.push({ id: uid('g'), n, ic, s, g: { kind, t, dl, c: curM() } });
         }
         markDirty('cfg'); sh.close(); render(); haptic('ok'); toast(w ? 'Сохранено' : 'Копилка создана');
@@ -2593,7 +3171,7 @@ function openCheckin(mode) {
   let sh;
   const tk = todayKey();
   const body = () => {
-    const td = (S.months[curM()] || []).filter(t => t.d === now().d && t.k === 'e');
+    const td = monthTx(curM()).filter(t => t.d === now().d && t.k === 'e');
     const sum = td.reduce((s, t) => s + t.a, 0);
     const pend = pendingRec();
     const closed = G().cd.includes(tk);
@@ -2777,7 +3355,7 @@ function gameTick() {
   const g = G(), silent = !g.init, fresh = []; let changed = false;
   const add = (k, label) => { if (g.ach[k]) return; g.ach[k] = todayKey(); changed = true; if (label) fresh.push(label); };
   const cm = curM();
-  for (const mk of Object.keys(S.months)) {
+  for (const mk of monthKeys()) {
     if (mk >= cm) continue;
     const bi = budgetInfo(mk);
     if (bi.ms.inc > 0 && bi.ms.inc > bi.ms.exp) add('plus:' + mk, `Месяц в плюсе: ${MONTHS[+mk.slice(4) - 1]} (+${XP.plus})`);
@@ -2977,7 +3555,7 @@ function vProgress() {
   const gm = game(), L = ladder(gm), g = G(), tk = todayKey();
   const p = (gm.xp - gm.lv.from) / (gm.lv.to - gm.lv.from), toNext = gm.lv.to - gm.xp;
   const earned = BADGES.filter(([id]) => g.ach['b:' + id]).length;
-  const months = Object.keys(S.months).sort().reverse().slice(0, 6);
+  const months = monthKeys().sort().reverse().slice(0, 6);
   const w0 = weekOf(tk);
   const week = ['П', 'В', 'С', 'Ч', 'П', 'С', 'В'].map((d, i) => { const k = addDays(w0, i); return `<span class="${gm.active.has(k) ? 'on' : k === tk ? 'today' : k > tk ? 'fut' : ''}"><i></i>${d}</span>`; }).join('');
   const cs = L.cur >= 0 ? L.steps[L.cur] : null;
@@ -3253,7 +3831,12 @@ function openRestore() {
   });
 }
 function resetAll() {
-  confirmBox('Удалить все записи, кошельки, копилки и прогресс? Это нельзя отменить.', 'Удалить всё', async () => {
+  confirmBox(`Удалить все записи, кошельки, копилки и прогресс?${SRV.on ? ' Они удалятся и на сервере журнала.' : ''}${FAM ? ' Семья и общие кошельки останутся.' : ''} Это нельзя отменить.`, 'Удалить всё', async () => {
+    if (SRV.on) {
+      try { await api('DELETE', '/api/blobs'); } catch (e) { toast('Нет связи с сервером — попробуйте позже'); return; }
+      SRV.st.br = {}; SRV.st.tomb = {}; SRV.st.md = new Set(); srvSaveSt();
+      try { SRV.st.rev = (await api('GET', '/api/me')).rev || SRV.st.rev; srvSaveSt(); } catch (e) {}
+    }
     S = { cfg: null, months: {}, g: null };
     dirty.clear(); saveLocal(); LS.del(LKEY + '_lastw');
     if (HAS_CLOUD) {
@@ -3386,7 +3969,14 @@ const TOURS = {
     ['details.steps', 'Финансовая лестница', 'Шесть ступеней: от привычки вести учёт до подушки, жизни без долгов и вложений.'],
     ['.badges', 'Значки', 'Награды за первые шаги и большие цели. Нажмите на значок — узнаете, за что он.'],
   ],
+  family: [
+    ['.fam-head', 'Ваша семья', 'Участники и приглашение. Позвать близких можно ссылкой в Telegram или кодом.'],
+    ['.fam-wallets', 'Общие кошельки', 'Совместная карта, деньги на хозяйство, общая копилка. Их записи и остаток видят все участники.'],
+    ['.fam-month', 'Траты семьи', 'Сколько семья потратила за месяц: по людям и по категориям. Листайте месяцы стрелками.'],
+    ['.fam-feed', 'Лента', 'Записи на общих кошельках и личные записи, которые участники показали семье. Свою запись можно открыть и исправить.'],
+  ],
   more: [
+    ['.fam-entry, [data-act=family]', 'Семейный бюджет', 'Создайте семью или вступите по коду — здесь же общие кошельки и копилки.'],
     ['[data-act=addwallet]', 'Кошельки', 'Карты, наличные и накопления. Расширенный учёт активов — скоро.'],
     ['[data-act=look]', 'Стиль оформления', 'Пиксельный, сбалансированный или классический — как вам удобнее.'],
     ['[data-act=tutorial]', 'Обучение', 'Слайды и подсказки по разделам можно открыть снова здесь.'],
@@ -3438,7 +4028,10 @@ function startTour(tb) {
     el.querySelector('.tour-t').textContent = t; el.querySelector('.tour-d').textContent = d;
     el.querySelector('.tour-next').textContent = i === steps.length - 1 ? 'Понятно' : 'Далее';
     tip.classList.remove('in'); void tip.offsetWidth; tip.classList.add('in');
-    if (target && getComputedStyle(target).position !== 'fixed') {
+    if (target && target.closest('.sh-body')) {   // внутри панели прокручивается сама панель
+      const r = target.getBoundingClientRect(), vh = window.innerHeight;
+      if (r.top < 90 || r.bottom > vh - 220) target.closest('.sh-body').scrollBy(0, r.top - Math.max(90, (vh - r.height) / 2 - 80));
+    } else if (target && getComputedStyle(target).position !== 'fixed') {
       const r = target.getBoundingClientRect(), vh = window.innerHeight;
       if (r.top < 70 || r.bottom > vh - 200) window.scrollBy(0, r.top - Math.max(70, (vh - r.height) / 2 - 80));
     }
@@ -3447,7 +4040,7 @@ function startTour(tb) {
   el.querySelector('.tour-next').onclick = () => { haptic('sel'); if (i < steps.length - 1) show(i + 1); else endTour(); };
   el.querySelector('.tour-skip').onclick = () => endTour();
   el.querySelector('.tour-off').onclick = () => { endTour(true); toast('Подсказки выключены. Включить снова — «Ещё» → «Подсказки по разделам»'); };
-  window.addEventListener('scroll', place, { passive: true });
+  window.addEventListener('scroll', place, { passive: true, capture: true });
   window.addEventListener('resize', place);
   requestAnimationFrame(() => { el.classList.add('on'); show(0); });
 }
@@ -3463,6 +4056,371 @@ function maybeTour(force) {
     if (tab !== tb || tourOpen || stack.length || locked || !S.cfg || (S.cfg.tour || {})[tb]) return;
     startTour(tb);
   }, 450);
+}
+
+/* ====== Сервер и семья: экраны ====== */
+const famInitial = n => (String(n || '?').trim()[0] || '?').toUpperCase();
+const famAva = (u, size) => { const m = famMember(u); return `<span class="fava" style="background:${famColor(u)};width:${size || 28}px;height:${size || 28}px;font-size:${Math.round((size || 28) * 0.46)}px" title="${esc(m.n)}">${esc(famInitial(m.n))}</span>`; };
+const famWho = u => famIsMe(u) ? 'Вы' : famMember(u).n;
+const fmtCode = c => c ? c.slice(0, 4) + '-' + c.slice(4) : '';
+const famLink = code => (SRV.me && SRV.me.link) ? SRV.me.link + '?startapp=fam_' + code : '';
+
+/* --- согласие на сервер --- */
+function openConsent(reason, after) {
+  const why = reason === 'join' ? 'Вас пригласили в семейный бюджет. Для семьи нужен сервер журнала.' : reason === 'family' ? 'Семейный бюджет работает через сервер журнала.' : 'У журнала появился свой сервер: семейный бюджет и надёжная синхронизация между устройствами.';
+  let busy = false;
+  const sh = openSheet({
+    title: 'Сервер журнала', cls: 'consent',
+    html: `<div class="card"><div class="cons-top">${ict('🖥')}<div class="grow sub">${why} Прежде чем подключить, прочитайте, что изменится.</div></div>
+      <div class="cons-list">
+        <div><b>Где хранятся записи.</b> На сервере журнала в России. Там будут ваши записи, Telegram ID и имя из профиля Telegram.</div>
+        <div><b>Шифрование.</b> ${encMeta ? 'У вас включено шифрование паролем: личные записи лягут на сервер зашифрованными, прочитать их без пароля нельзя.' : 'Если включить шифрование паролем («Ещё» → «Безопасность»), личные записи будут лежать на сервере зашифрованными.'} Семейные записи не шифруются — их видят участники семьи.</div>
+        <div><b>Запасная копия.</b> Облако Telegram остаётся копией, как сейчас. Переносить ничего не нужно — журнал всё сделает сам.</div>
+        <div><b>Как отказаться.</b> «Ещё» → «Где хранятся записи» → «Отключить сервер». Записи вернутся в облако Telegram, а на сервере будут удалены.</div>
+        ${POLICY_URL ? `<div><a href="${esc(POLICY_URL)}" target="_blank" rel="noopener" data-s="policy">Политика обработки персональных данных</a></div>` : ''}
+      </div></div>
+      <label class="row card cons-ok"><input type="checkbox" data-ref="ok"><span class="grow">Согласен на хранение и обработку моих данных на сервере журнала</span></label>
+      <div class="hint" data-ref="hint" style="display:none"></div>
+      <button class="btn wide" data-s="go" data-ref="go">Подключить</button>
+      <button class="btn wide ghost" data-s="later">Не сейчас — остаться в облаке Telegram</button>`,
+    on: {
+      policy: () => { try { if (IN_TG && TG.openLink) TG.openLink(POLICY_URL); else window.open(POLICY_URL, '_blank'); } catch (e) {} },
+      later: () => { SRV.st.no = Date.now(); srvSaveSt(); SRV.ask = false; sh.close(); },
+      go: async () => {
+        if (busy) return;
+        if (!sh.ref('ok').checked) return fail(sh.ref('hint'), 'Отметьте согласие, чтобы подключить сервер');
+        busy = true; sh.ref('go').textContent = 'Переношу записи…'; sh.ref('go').disabled = true;
+        try {
+          await srvConsent();
+          sh.close(); haptic('ok');
+          toast(dirty.size ? 'Сервер подключён, отправляю записи…' : 'Готово: записи на сервере журнала');
+          if (after) after();
+        } catch (e) {
+          busy = false; sh.ref('go').textContent = 'Подключить'; sh.ref('go').disabled = false;
+          fail(sh.ref('hint'), srvErrText(e));
+        }
+      },
+    },
+  });
+  // ссылки внутри data-s перехватываются — без перехода по href
+  sh.el.querySelectorAll('a[data-s]').forEach(a => a.addEventListener('click', e => e.preventDefault()));
+}
+function srvOffConfirm() {
+  confirmBox(`Отключить сервер? Записи останутся в облаке Telegram и на этом устройстве, а на сервере будут удалены.${FAM ? ` Вы выйдете из семьи «${FAM.name}», свои записи с общих кошельков сохранятся в журнале.` : ''}`, 'Отключить', async () => {
+    toast('Сохраняю копию в облако Telegram…');
+    try { await srvDisconnect(); render(); haptic('ok'); toast('Сервер отключён. Записи — в облаке Telegram'); }
+    catch (e) { toast('Не получилось: ' + srvErrText(e.status != null ? e : { status: 0 })); }
+  });
+}
+
+/* --- семья: главный экран --- */
+let famSheet = null, famMonth = curM();
+function famRefresh() { if (famSheet && stack.includes(famSheet)) famSheet.set(famBody()); }
+function famStats(mk) {
+  const r = { exp: 0, inc: 0, byU: {}, byC: {} };
+  for (const t of (FAMC.byM[mk] || [])) {
+    if (t.k === 'i') { r.inc += t.a; continue; }
+    if (t.k !== 'e') continue;
+    r.exp += t.a; r.byU[t.u] = (r.byU[t.u] || 0) + t.a;
+    const key = t.r ? '__h' : (t.cn || 'Без категории');
+    const o = r.byC[key] = r.byC[key] || { n: t.r ? 'Скрытые записи' : (t.cn || 'Без категории'), ic: t.r ? '🙈' : (t.ci || '📦'), v: 0 };
+    o.v += t.a;
+  }
+  return r;
+}
+function famRow(t) {
+  let ic, title, amt, cls = '';
+  const wn = id => isFamW(id) ? wal(id).n : 'личные';
+  if (t.k === 't') { ic = isGoal(wal(t.w2)) ? '🐷' : '⇄'; title = isFamW(t.w2) ? (isGoal(wal(t.w2)) ? 'В копилку «' + wal(t.w2).n + '»' : 'Пополнение «' + wal(t.w2).n + '»') : 'Перевод'; amt = money(t.a); cls = 'acc'; }
+  else if (t.k === 'a') { ic = '⚖️'; title = 'Сверка остатка'; amt = money(t.a, true); }
+  else if (t.r) { ic = '🙈'; title = 'Скрытая запись'; amt = (t.k === 'i' ? '+' : '−') + money(t.a); cls = t.k === 'i' ? 'inc' : ''; }
+  else { ic = t.ci || '📦'; title = t.cn || 'Без категории'; amt = t.k === 'i' ? money(t.a, true) : '−' + money(t.a); cls = t.k === 'i' ? 'inc' : ''; }
+  const sub = [famWho(t.u), dayLabel(t.m, t.d), t.p ? 'личная запись' : wn(t.w), t.n && !t.r ? esc(t.n) : ''].filter(Boolean);
+  return `<div class="row tx" data-s="frec" data-id="${esc(t.id)}">${ict(ic)}<div class="grow"><div class="t">${esc(title)}${t.h && !t.r ? ' ' + icn('🙈', 12) : ''}</div><div class="sub t">${famAva(t.u, 14)} ${sub.join(' · ')}</div></div><div class="amt ${cls}">${amt}</div></div>`;
+}
+function famBody() {
+  if (!SRV.on) return `<div class="card fam-hero">${ict('👪')}<h2>Семейный бюджет</h2><div class="sub">Общие кошельки и копилки, траты семьи за месяц и общая лента. Личное остаётся личным. Для семьи нужен сервер журнала.</div></div>
+    <button class="btn wide" data-s="consent">Подключить сервер</button>`;
+  if (!SRV.ready) return `<div class="loading"><div class="spin"></div>Связываюсь с сервером…</div>`;
+  if (!FAM) return `<div class="card fam-hero">${ict('👪')}<h2>Семейный бюджет</h2><div class="sub">Общие кошельки и копилки, траты семьи за месяц и общая лента записей.</div></div>
+    <button class="btn wide" data-s="create">Создать семью</button><button class="btn wide ghost" data-s="join">Вступить по коду</button>
+    <div class="cap">Как это устроено</div>
+    <div class="card list fam-how">
+      <div class="row">${ict('💳')}<div class="grow"><div class="t">Общие кошельки</div><div class="sub">Совместная карта, конверт на продукты, общая копилка. Их записи видят все участники.</div></div></div>
+      <div class="row">${ict('🔒')}<div class="grow"><div class="t">Личное — личное</div><div class="sub">Ваши кошельки и записи семья не видит. Отдельную трату можно показать: в записи нажмите «Только мне» → «Семье».</div></div></div>
+      <div class="row">${ict('🙈')}<div class="grow"><div class="t">Скрыть от семьи</div><div class="sub">Подарок с общей карты? В записи нажмите «Видно семье» → «Скрыто» — остальные увидят только сумму.</div></div></div>
+    </div>`;
+  const b = balances(), fw = FAMC.wl.filter(w => !w.arch), hid = FAMC.wl.filter(w => w.arch);
+  const mem = famActive(), mk = famMonth, fs = famStats(mk);
+  const total = fw.reduce((s, w) => s + (b[w.id] || 0), 0);
+  const feed = sortTx((FAMC.byM[mk] || []).slice()).slice(0, 30);
+  const uRows = Object.entries(fs.byU).sort((a, c) => c[1] - a[1]);
+  const cRows = Object.values(fs.byC).sort((a, c) => c.v - a.v).slice(0, 6);
+  const maxC = cRows.length ? cRows[0].v : 1;
+  const wrow = w => { const bal = b[w.id] || 0, gi = w.g ? goalInfo(w, bal) : null; return `<div class="row" data-s="fwal" data-id="${esc(w.id)}">${ict(w.ic)}<div class="grow"><div class="t">${esc(w.n)}</div><div class="sub">${w.g ? (gi.t ? `копилка · ${Math.round(gi.p * 100)}% из ${money(gi.t)}` : 'копилка') : 'общий кошелёк'}</div></div><div class="amt ${bal < 0 ? 'neg' : ''}">${money(bal)}</div><div class="chev">›</div></div>`; };
+  return `<div class="card fam-head">
+      <div class="fh-top"><div class="grow"><div class="kick">Семья</div><div class="fh-name">${esc(FAM.name)}</div></div>${FAM.role === 'owner' ? `<button class="iconb" data-s="rename" aria-label="Переименовать">${uic('pencil', 16)}</button>` : ''}</div>
+      <div class="fh-mem" data-s="members">${mem.map(m => famAva(m.u, 34)).join('')}<span class="sub">${mem.length} ${plural(mem.length, 'участник', 'участника', 'участников')} ›</span></div>
+      <button class="btn wide fam-inv" data-s="invite">${icn('👤')} Пригласить в семью</button></div>
+    <div class="cap">Общие кошельки${fw.length ? ' · ' + money(total) : ''}</div>
+    <div class="card list fam-wallets">${fw.map(wrow).join('')}<div class="row" data-s="fwnew">${ict('＋')}<div class="grow acc">Общий кошелёк или копилка</div></div></div>
+    ${hid.length ? `<div class="sub c">Скрытых: ${hid.length} · <button class="linkbtn" data-s="fwhid" style="display:inline;padding:0">показать</button></div>` : ''}
+    <div class="mnav fam-mnav"><button data-s="fm" data-d="-1" aria-label="Предыдущий месяц">‹</button><div class="mt">${mTitle(mk, true)}</div><button data-s="fm" data-d="1" ${mk >= curM() ? 'disabled' : ''} aria-label="Следующий месяц">›</button></div>
+    <div class="card fam-month"><div class="tri" style="grid-template-columns:1fr 1fr"><div><div class="sub">Траты семьи</div><div class="amt">${money(fs.exp)}</div></div><div><div class="sub">Доходы</div><div class="amt inc">${money(fs.inc)}</div></div></div>
+      ${fs.exp ? `<div class="comp${ST.bars === 'smooth' ? ' s' : ''} mt" role="img" aria-label="Кто сколько потратил">${uRows.map(([u, v]) => ST.bars === 'smooth' ? `<i style="background:${famColor(u)};flex:${v}"></i>` : `<i style="background:${famColor(u)}"></i>`.repeat(Math.max(1, Math.round(v / fs.exp * 30)))).join('')}</div>
+        <div class="legend2">${uRows.map(([u, v]) => `<span><i style="background:${famColor(u)}"></i><em>${esc(famWho(u))}</em><b>${money(v)}</b></span>`).join('')}</div>
+        <div class="cap" style="margin-left:0">Категории</div>${cRows.map(c => `<div class="rrow"><div class="rtop">${ict(c.ic, 'sm')}<div class="grow t">${esc(c.n)}</div><div class="amt">${money(c.v)}</div></div>${pxBar(c.v / maxC, 'sm', 20)}</div>`).join('')}`
+      : '<div class="sub mt">В этом месяце общих трат пока нет. Записывайте траты с общего кошелька или показывайте семье личные.</div>'}</div>
+    <div class="cap">Лента</div>
+    ${feed.length ? `<div class="card list fam-feed">${feed.map(famRow).join('')}</div>` : '<div class="card empty fam-feed">Записей за месяц пока нет</div>'}
+    <div class="cap">Настройки</div>
+    <div class="card list"><div class="row" data-s="fsd">${ict('👪')}<div class="grow"><div class="t">Показывать семье мои новые записи</div><div class="sub">Можно поменять в каждой записи</div></div><span class="sw ${S.cfg.fsd ? 'on' : ''}"></span></div>
+      <div class="row" data-s="members">${ict('👤')}<div class="grow">Участники</div><div class="chev">›</div></div>
+      <div class="row" data-s="leave">${ict('↩️')}<div class="grow danger-t">Выйти из семьи</div></div></div>
+    <div class="sub small c" style="margin:10px 8px 24px">Семейные записи хранятся на сервере журнала без шифрования паролем — их видят участники семьи. Записи с пометкой «Скрыто» другие видят только суммой.</div>`;
+}
+function openFamily() {
+  if (famSheet && stack.includes(famSheet)) return;
+  famMonth = curM();
+  const sh = famSheet = openSheet({
+    title: 'Семья', cls: 'full fam', html: famBody(),
+    onClose: () => { famSheet = null; },
+    on: {
+      consent: () => openConsent('family', () => famRefresh()),
+      create: () => openFamCreate(),
+      join: () => openJoin(''),
+      rename: () => openFamName(),
+      invite: () => openInvite(),
+      members: () => openMembers(),
+      fwnew: () => openFamWalletEdit(null),
+      fwal: ds => openFamWallet(ds.id),
+      fwhid: () => openFamHidden(),
+      fm: ds => { const n = mShift(famMonth, +ds.d); if (n > curM()) return; famMonth = n; haptic('sel'); famRefresh(); },
+      frec: ds => { const t = (FAMC.byM[famMonth] || []).find(x => x.id === ds.id); if (t) openFamRec(t); },
+      fsd: () => { S.cfg.fsd = S.cfg.fsd ? 0 : 1; if (!S.cfg.fsd) delete S.cfg.fsd; markDirty('cfg'); haptic('sel'); famRefresh(); toast(S.cfg.fsd ? 'Новые личные записи будут видны семье' : 'Новые личные записи — только вам'); },
+      leave: () => famLeave(),
+    },
+  });
+  if (SRV.on && SRV.ready) famSync(true);
+  setTimeout(() => famTourMaybe(), 500);
+}
+function famTourMaybe() {
+  if (!FAM || !famSheet || stack[stack.length - 1] !== famSheet || tourOpen || !S.cfg || !S.cfg.tut) return;
+  try { if (localStorage.getItem('__noTour')) return; } catch (e) {}
+  if (S.cfg.tourOff || (S.cfg.tour || {}).family) return;
+  startTour('family');
+}
+function openFamCreate() {
+  const sh = openSheet({
+    title: 'Новая семья',
+    html: `<div class="fld"><label>Название</label><input class="inp" data-ref="n" maxlength="40" placeholder="Наша семья"></div>
+      <div class="sub" style="margin:0 4px 12px">Вы станете главой семьи: сможете приглашать и исключать участников. Пригласить можно ссылкой или кодом.</div>
+      <div class="hint" data-ref="hint" style="display:none"></div><button class="btn wide" data-s="ok" data-ref="ok">Создать</button>`,
+    on: { ok: async () => {
+      sh.ref('ok').disabled = true;
+      try { const r = await api('POST', '/api/family', { name: sh.ref('n').value.trim() || 'Наша семья' }); famApply(r.family); SRV.me.family = { id: FAM.id }; sh.close(); haptic('ok'); render(); famRefresh(); toast('Семья создана. Пригласите близких'); }
+      catch (e) { sh.ref('ok').disabled = false; fail(sh.ref('hint'), e.code === 'already_in_family' ? 'Вы уже в семье' : srvErrText(e)); }
+    } },
+  });
+  try { sh.ref('n').focus(); } catch (e) {}
+}
+function openFamName() {
+  const sh = openSheet({
+    title: 'Название семьи',
+    html: `<input class="inp" data-ref="n" maxlength="40" value="${esc(FAM.name)}"><button class="btn wide" data-s="ok" style="margin-top:12px">Сохранить</button>`,
+    on: { ok: async () => { const n = sh.ref('n').value.trim(); if (!n) return; try { await api('POST', '/api/family/rename', { name: n }); FAM.name = n; famSaveLocal(); sh.close(); famRefresh(); famSync(); } catch (e) { toast(srvErrText(e)); } } },
+  });
+}
+/* --- приглашение --- */
+async function openInvite() {
+  let inv = FAM.inv && FAM.inv.exp * 1000 > Date.now() + 3600e3 ? FAM.inv : null;
+  const sh = openSheet({ title: 'Пригласить в семью', html: '<div class="loading"><div class="spin"></div>Готовлю приглашение…</div>',
+    on: {
+      share: () => {
+        const link = famLink(inv.code), text = `Присоединяйся к семейному бюджету «${FAM.name}» в Финансовом журнале. Код приглашения: ${fmtCode(inv.code)}`;
+        const url = 'https://t.me/share/url?url=' + encodeURIComponent(link || text) + (link ? '&text=' + encodeURIComponent(text) : '');
+        try { if (IN_TG && TG.openTelegramLink) TG.openTelegramLink(url); else window.open(url, '_blank'); } catch (e) {}
+      },
+      copy: async () => { try { await navigator.clipboard.writeText(fmtCode(inv.code)); toast('Код скопирован'); } catch (e) { toast('Код: ' + fmtCode(inv.code)); } },
+      copyl: async () => { try { await navigator.clipboard.writeText(famLink(inv.code)); toast('Ссылка скопирована'); } catch (e) { toast('Не удалось скопировать — выделите ссылку вручную'); } },
+      revoke: () => confirmBox('Отозвать приглашение? По этому коду и ссылке больше никто не вступит.', 'Отозвать', async () => { try { await api('DELETE', '/api/family/invite'); FAM.inv = null; famSaveLocal(); sh.close(); toast('Приглашение отозвано'); } catch (e) { toast(srvErrText(e)); } }),
+    } });
+  if (!inv) {
+    try { const r = await api('POST', '/api/family/invite'); inv = { code: r.code, exp: r.exp }; FAM.inv = inv; if (r.link && SRV.me) SRV.me.link = r.link; famSaveLocal(); }
+    catch (e) { sh.set(`<div class="card empty">${e.code === 'family_full' ? 'В семье уже максимум участников.' : esc(srvErrText(e))}</div>`); return; }
+  }
+  const d = new Date(inv.exp * 1000), link = famLink(inv.code);
+  sh.set(`<div class="card c inv-card"><div class="sub">Код приглашения</div><div class="inv-code">${fmtCode(inv.code)}</div><div class="sub">действует до ${d.getDate()} ${MONTHS_G[d.getMonth()]}, до 10 человек</div></div>
+    <button class="btn wide" data-s="share">Отправить в Telegram</button>
+    <div class="row2"><button class="btn ghost" data-s="copy">Скопировать код</button>${link ? '<button class="btn ghost" data-s="copyl">Скопировать ссылку</button>' : ''}</div>
+    ${link ? `<div class="sub small c inv-link">${esc(link)}</div>` : '<div class="sub small c">Ссылка на бота пока не настроена — отправьте код: «Ещё» → «Семейный бюджет» → «Вступить по коду».</div>'}
+    <div class="card"><b>Как вступить</b><div class="sub mt">Человек открывает ссылку — журнал сам предложит вступить. Или вводит код: «Ещё» → «Семейный бюджет» → «Вступить по коду». Перед этим он подключит сервер журнала.</div></div>
+    <button class="linkbtn danger" data-s="revoke">Отозвать приглашение</button>`);
+}
+let joinSheet = null;
+function openJoin(code) {
+  if (!SRV.on) { openConsent('join', () => openJoin(code)); return; }
+  if (joinSheet && stack.includes(joinSheet)) return;
+  let prev = null;
+  const sh = joinSheet = openSheet({
+    title: 'Вступить в семью',
+    html: `<div class="fld"><label>Код приглашения</label><input class="inp code" data-ref="c" maxlength="9" autocapitalize="characters" autocomplete="off" placeholder="XXXX-XXXX" value="${esc(fmtCode(code))}"></div>
+      <div data-ref="pv"></div><div class="hint" data-ref="hint" style="display:none"></div>
+      <button class="btn wide" data-s="ok" data-ref="ok">Найти семью</button>`,
+    on: {
+      ok: async () => {
+        const c = sh.ref('c').value.replace(/[\s-]/g, '').toUpperCase();
+        if (!/^[A-Z0-9]{8}$/.test(c)) return fail(sh.ref('hint'), 'Код — 8 букв и цифр, например K7MP-2QXA');
+        sh.ref('ok').disabled = true; sh.ref('hint').style.display = 'none';
+        try {
+          if (!prev || prev.code !== c) {
+            const r = await api('GET', '/api/family/join?code=' + c);
+            prev = Object.assign(r, { code: c });
+            sh.ref('pv').innerHTML = `<div class="card"><div class="kick">Семья</div><div class="fh-name">${esc(r.name)}</div><div class="sub mt">Участники: ${r.members.map(esc).join(', ')}${r.by ? `<br>Пригласил(а): ${esc(r.by)}` : ''}</div>
+              <div class="sub mt">Семья увидит записи на общих кошельках и личные записи, которые вы покажете сами. Остальное — только ваше.</div></div>`;
+            sh.ref('ok').textContent = 'Вступить'; sh.ref('ok').disabled = false; return;
+          }
+          const r = await api('POST', '/api/family/join', { code: c });
+          famApply(r.family); SRV.me.family = { id: FAM.id };
+          sh.close(); haptic('ok'); render();
+          toast(`Вы в семье «${FAM.name}»`);
+          if (famSheet) famRefresh(); else openFamily();
+        } catch (e) {
+          sh.ref('ok').disabled = false;
+          fail(sh.ref('hint'), e.code === 'bad_code' ? 'Код не найден или устарел. Попросите новое приглашение' : e.code === 'already_in_family' ? 'Вы уже в другой семье. Сначала выйдите из неё' : e.code === 'family_full' ? 'В семье уже максимум участников' : e.code === 'slow_down' ? 'Слишком много попыток. Подождите минуту' : srvErrText(e));
+        }
+      },
+    },
+    onChange: () => {},
+  });
+  sh.ref('c').addEventListener('input', () => { prev = null; sh.ref('pv').innerHTML = ''; sh.ref('ok').textContent = 'Найти семью'; });
+  if (code) setTimeout(() => { const b = sh.ref('ok'); if (b) b.click(); }, 50);
+}
+/* --- участники --- */
+function openMembers() {
+  const owner = FAM.role === 'owner';
+  const body = () => `<div class="card list">${famActive().map(m => `<div class="row" ${owner && !famIsMe(m.u) ? `data-s="mem" data-u="${esc(m.u)}"` : ''}>${famAva(m.u, 36)}<div class="grow"><div class="t">${esc(m.n)}${famIsMe(m.u) ? ' (вы)' : ''}</div><div class="sub">${m.r === 'owner' ? 'глава семьи' : 'взрослый'}</div></div>${owner && !famIsMe(m.u) ? '<div class="chev">›</div>' : ''}</div>`).join('')}</div>
+    <div class="sub" style="margin:4px 8px">Глава семьи приглашает и исключает участников, может удалить любую запись. Остальные правят только свои записи. Роли «подросток» и «наблюдатель» появятся позже.</div>`;
+  const sh = openSheet({
+    title: 'Участники', html: body(),
+    on: { mem: ds => {
+      const m = famMember(ds.u);
+      const s2 = openSheet({ title: m.n, html: `<button class="btn wide ghost" data-s="own">Сделать главой семьи</button><button class="btn wide ghost danger-t" data-s="rm">Исключить из семьи</button>`,
+        on: {
+          own: () => confirmBox(`Передать ${m.n} права главы семьи? Вы станете обычным участником.`, 'Передать', async () => { try { await api('POST', '/api/family/member', { u: m.u, role: 'owner' }); s2.close(); await famSync(true); sh.set(body()); famRefresh(); } catch (e) { toast(srvErrText(e)); } }, true),
+          rm: () => confirmBox(`Исключить ${m.n}? Его записи на общих кошельках останутся у семьи.`, 'Исключить', async () => { try { await api('POST', '/api/family/member', { u: m.u, remove: true }); s2.close(); await famSync(true); sh.set(body()); famRefresh(); } catch (e) { toast(srvErrText(e)); } }),
+        } });
+    } },
+  });
+}
+function famLeave() {
+  const last = famActive().length <= 1;
+  confirmBox(last ? `Вы последний участник. Выйти и удалить семью «${FAM.name}»? Ваши записи с общих кошельков сохранятся в журнале.` : `Выйти из семьи «${FAM.name}»? Записи на общих кошельках останутся у семьи, а ваши — сохранятся и в журнале. Личные записи, показанные семье, из ленты исчезнут.`, 'Выйти', async () => {
+    try {
+      await api('POST', '/api/family/leave');
+      const name = FAM.name, n = famCopyMineToJournal();
+      famSetNull(); SRV.me.family = null;
+      if (famSheet) famSheet.close();
+      render(); toast(`Вы вышли из семьи «${name}»${n ? '. Ваши записи сохранены в журнале' : ''}`);
+    } catch (e) { toast('Не получилось: ' + srvErrText(e)); }
+  });
+}
+/* --- общие кошельки --- */
+function openFamWallet(id) {
+  const w = FAMC.wl.find(x => x.id === id); if (!w) return;
+  const b = balances(), bal = b[w.id] || 0, gi = w.g ? goalInfo(w, bal) : null;
+  const recs = sortTx(Object.values(FAMC.byM).flat().filter(t => t.w === id || t.w2 === id));
+  const contrib = {};
+  if (w.g) for (const t of recs) if (t.k === 't') { if (t.w2 === id) contrib[t.u] = (contrib[t.u] || 0) + t.a; else if (t.w === id) contrib[t.u] = (contrib[t.u] || 0) - t.a; }
+  const can = FAM.role === 'owner' || w.by === FAM.me;
+  const cRows = Object.entries(contrib).filter(([, v]) => v).sort((a, c) => c[1] - a[1]);
+  const html = `<div class="card c"><div style="display:flex;justify-content:center;margin:4px 0 6px">${ict(w.ic)}</div><div class="sub">${w.g ? 'Общая копилка' : 'Общий кошелёк'} · создал(а) ${esc(famWho(w.by))}</div><div class="big ${bal < 0 ? 'neg' : ''}">${money(bal)}</div>
+      ${gi && gi.t ? `${barHTMLp(gi.p)}<div class="sub mt">${gi.done ? 'Цель достигнута!' : `${Math.round(gi.p * 100)}% из ${money(gi.t)} · осталось ${money(gi.t - bal)}`}</div>` : ''}</div>
+    ${cRows.length ? `<div class="cap">Кто сколько отложил</div><div class="card list">${cRows.map(([u, v]) => `<div class="row">${famAva(u, 28)}<div class="grow t">${esc(famWho(u))}</div><div class="amt">${money(v)}</div></div>`).join('')}</div>` : ''}
+    <div class="row2">${w.g ? '<button class="btn" data-s="put">Отложить</button><button class="btn ghost" data-s="take">Взять</button>' : '<button class="btn" data-s="exp">Расход</button><button class="btn ghost" data-s="put">Пополнить</button>'}</div>
+    ${recs.length ? `<div class="cap">Последние записи</div><div class="card list">${recs.slice(0, 8).map(famRow).join('')}</div>` : ''}
+    <button class="btn wide ghost" data-s="edit">Изменить</button>
+    <button class="btn wide ghost" data-s="adj">Сверить остаток</button>
+    ${can ? `<button class="btn wide ghost danger-t" data-s="arch">${recs.length || bal ? (w.arch ? 'Вернуть из скрытых' : 'Скрыть') : 'Удалить'}</button>` : ''}`;
+  const sh = openSheet({
+    title: w.n, html,
+    on: {
+      exp: () => { sh.close(); openEntry(null, 'e', { w: id }); },
+      put: () => { sh.close(); const pw = myWallets().filter(x => !x.g)[0]; openEntry(null, 't', { w: pw ? pw.id : defWallet(), w2: id, title: w.g ? 'Отложить в общую копилку' : 'Пополнить общий кошелёк' }); },
+      take: () => { sh.close(); const pw = myWallets().filter(x => !x.g)[0]; openEntry(null, 't', { w: id, w2: pw ? pw.id : defWallet(), title: 'Взять из общей копилки' }); },
+      edit: () => { sh.close(); openFamWalletEdit(id); },
+      adj: () => { sh.close(); openAdjust(id); },
+      frec: ds => { const t = recs.find(x => x.id === ds.id); if (t) openFamRec(t); },
+      arch: () => {
+        if (!recs.length && !bal) return confirmBox(`Удалить «${w.n}»?`, 'Удалить', () => { famDelWallet(id); sh.close(); famRefresh(); render(); });
+        if (w.arch) { famPutWallet(Object.assign({}, w, { arch: 0 })); sh.close(); famRefresh(); render(); return; }
+        confirmBox(`Скрыть «${w.n}»? Записи и остаток сохранятся, кошелёк пропадёт из списков у всей семьи.`, 'Скрыть', () => { famPutWallet(Object.assign({}, w, { arch: 1 })); sh.close(); famRefresh(); render(); });
+      },
+    },
+  });
+}
+function openFamHidden() {
+  const b = balances(), hid = FAMC.wl.filter(w => w.arch);
+  const sh = openSheet({ title: 'Скрытые общие', html: `<div class="card list">${hid.map(w => `<div class="row" data-s="o" data-id="${esc(w.id)}">${ict(w.ic)}<div class="grow t">${esc(w.n)}</div><div class="amt">${money(b[w.id] || 0)}</div><div class="chev">›</div></div>`).join('')}</div>`,
+    on: { o: ds => { sh.close(); openFamWallet(ds.id); } } });
+}
+function openFamWalletEdit(id) {
+  const w = id ? FAMC.wl.find(x => x.id === id) : null;
+  let goal = !!(w && w.g);
+  const html = `${!w ? `<div class="seg" data-ref="kseg"><button data-s="kind" data-k="w">Кошелёк</button><button data-s="kind" data-k="g">Копилка</button></div><div class="sub mt" data-ref="khint" style="margin:8px 4px 0"></div>` : ''}
+    <div class="cap">Иконка и название</div>
+    <div class="card"><div class="frow"><input class="inp emo" data-ref="ic" value="${esc(w ? w.ic : '💳')}" maxlength="8"><input class="inp" data-ref="n" value="${esc(w ? w.n : '')}" placeholder="Например: Общая карта" maxlength="30"></div>${emoRow(WALLET_EMO.concat(['👪', '🛒', '🏖️', '🚗']))}</div>
+    <div data-ref="gbox" ${goal ? '' : 'hidden'}><div class="cap">Цель копилки</div><div class="card"><input class="inp" data-ref="t" inputmode="decimal" placeholder="Можно не указывать" value="${w && w.g ? kopToInput(w.g.t) : ''}"><input class="inp mt" data-ref="dl" type="month" value="${esc(w && w.g ? w.g.dl || '' : '')}" min="${todayISO().slice(0, 7)}"></div></div>
+    ${!w ? `<div class="cap">Сколько там сейчас</div><div class="card"><input class="inp" data-ref="s" inputmode="decimal" placeholder="0"><div class="sub mt">Остаток на сегодня. Дальше он меняется записями участников.</div></div>` : ''}
+    <button class="btn wide" data-s="save">${w ? 'Сохранить' : 'Создать'}</button>`;
+  let sh;
+  const updK = () => {
+    sh.el.querySelectorAll('[data-s="kind"]').forEach(b => b.classList.toggle('on', (b.dataset.k === 'g') === goal));
+    if (sh.ref('khint')) sh.ref('khint').textContent = goal ? 'Общая цель: отпуск, ремонт, подушка. Каждый откладывает, журнал покажет, кто сколько.' : 'Совместная карта, наличные на хозяйство, конверт на продукты.';
+    sh.ref('gbox').hidden = !goal;
+  };
+  sh = openSheet({
+    title: w ? 'Изменить' : 'Общий кошелёк', html,
+    on: {
+      kind: ds => { goal = ds.k === 'g'; if (!w) { sh.ref('ic').value = goal ? '🐷' : '💳'; sh.ref('n').placeholder = goal ? 'Например: Отпуск' : 'Например: Общая карта'; } updK(); },
+      emo: ds => { sh.ref('ic').value = ds.e; },
+      save: () => {
+        const n = sh.ref('n').value.trim();
+        if (!n) { sh.ref('n').classList.add('bad'); haptic('err'); return; }
+        const ic = sh.ref('ic').value.trim() || (goal ? '🐷' : '💳');
+        let g;
+        if (goal) {
+          const t = parseMoney(sh.ref('t').value); if (isNaN(t)) { sh.ref('t').classList.add('bad'); haptic('err'); return; }
+          g = Object.assign({ kind: 'goal', c: curM() }, w && w.g ? w.g : {}, { t, dl: sh.ref('dl').value || '' });
+        }
+        if (w) famPutWallet(Object.assign({}, w, { n, ic, g }));
+        else {
+          const s = parseMoney(sh.ref('s').value); if (isNaN(s)) { sh.ref('s').classList.add('bad'); haptic('err'); return; }
+          famPutWallet({ id: 'f:' + uid(), n, ic, s, g });
+        }
+        sh.close(); haptic('ok'); famRefresh(); render(); toast(w ? 'Сохранено' : goal ? 'Общая копилка создана' : 'Общий кошелёк создан');
+      },
+    },
+  });
+  updK();
+}
+/* --- чужая запись (только просмотр) --- */
+function openFamRec(t) {
+  if (famIsMe(t.u)) {   // своя — открыть редактор
+    if (t.p) { const own = findTx(t.m, t.id); if (own) return openEntry(own); }
+    else return openEntry(t);
+  }
+  const w = t.p ? null : wal(t.w), w2 = t.w2 && isFamW(t.w2) ? wal(t.w2) : null;
+  const title = t.k === 't' ? 'Перевод' : t.r ? 'Скрытая запись' : (t.cn || 'Запись');
+  const sh = openSheet({
+    title,
+    html: `<div class="card c"><div style="display:flex;justify-content:center;margin:4px 0 6px">${famAva(t.u, 40)}</div><div class="sub">${esc(famWho(t.u))} · ${dayLabel(t.m, t.d)}</div>
+      <div class="big ${t.k === 'i' ? 'inc' : ''}">${t.k === 'e' ? '−' : t.k === 'i' ? '+' : ''}${money(t.a)}</div>
+      <div class="sub mt">${t.r ? 'Автор скрыл подробности — видна только сумма.' : [t.ci ? icn(t.ci) + ' ' + esc(t.cn) : '', t.n ? esc(t.n) : ''].filter(Boolean).join(' · ')}</div>
+      <div class="sub">${t.p ? 'Личная запись, показанная семье' : esc(w.n) + (w2 ? ' → ' + esc(w2.n) : '')}</div></div>
+      ${FAM.role === 'owner' ? '<button class="btn wide ghost danger-t" data-s="del">Удалить запись</button><div class="sub small c">Как глава семьи вы можете удалить чужую запись, например ошибочную.</div>' : '<div class="sub small c">Исправить запись может только её автор.</div>'}`,
+    on: { del: () => confirmBox('Удалить чужую запись? Автор увидит, что она пропала.', 'Удалить', () => { famDelTx(t.id); sh.close(); famRefresh(); render(); }) },
+  });
 }
 
 /* ====== Обучение, вопросы, что нового ====== */
@@ -3483,9 +4441,15 @@ const TUT = [
   { t: 'Вечер, прогресс и итоги', d: 'Вечером журнал спросит про траты и платежи. За хорошие привычки начисляются очки, растёт уровень и серия недель. В начале месяца — итоги со смайликом.',
     art: () => `<div class="tm-card" aria-hidden="true"><div class="tm-row" style="border:0"><span><b>Уровень 4</b> · Учётчик</span><b class="game">${icn('🔥')} 3</b></div>${pxBar(0.6, 'sm game')}<div class="tm-row" style="margin-top:8px"><span>${icn('🌙')} Были ещё траты сегодня?</span></div></div>
       <div style="display:flex;gap:8px">${[1, 2, 3, 4, 5].map(g => smileySVG(g, 40)).join('')}</div>` },
-  { t: 'Записи в сохранности', d: 'Всё хранится в облаке Telegram и видно на телефоне и компьютере. В «Ещё» можно включить вход по Face ID, шифрование и резервную копию. Это обучение всегда под рукой: в историях на Главной и в «Ещё».',
+].concat(API_URL ? [
+  { t: 'Семейный бюджет', d: 'Общие кошельки и копилки, траты семьи за месяц и общая лента. Личное остаётся личным: в каждой записи есть переключатель «Только мне» / «Семье», а трату с общей карты можно скрыть — семья увидит только сумму. «Ещё» → «Семейный бюджет».',
+    art: () => `<div class="tm-card" aria-hidden="true"><div class="tm-row" style="border:0"><span>${icn('👪')} Наша семья</span><b>3 участника</b></div>
+      <div class="tm-row"><span>${icn('💳')} Общая карта</span><b>18 400 ₽</b></div><div class="tm-row"><span>${icn('🐷')} Отпуск вместе</span><b>64%</b></div>${pxBar(0.64, 'sm')}</div>
+      <div class="tm-chips"><span class="tm-chip">${icn('🔒')} Только мне</span><span class="tm-chip">${icn('👪')} Семье</span><span class="tm-chip">${icn('🙈')} Скрыто</span></div>` },
+] : []).concat([
+  { t: 'Записи в сохранности', d: API_URL ? 'Записи хранятся в облаке Telegram, а после подключения сервера журнала — на сервере, с копией в облаке. В «Ещё» можно включить вход по Face ID, шифрование и резервную копию. Это обучение всегда под рукой: в историях на Главной и в «Ещё».' : 'Всё хранится в облаке Telegram и видно на телефоне и компьютере. В «Ещё» можно включить вход по Face ID, шифрование и резервную копию. Это обучение всегда под рукой: в историях на Главной и в «Ещё».',
     art: () => `<div class="tm-logo" style="color:var(--accent)">${uic('cloud', 60)}</div><div class="tm-chips"><span class="tm-chip">${icn('📱')} Телефон</span><span class="tm-chip">${icn('💻')} Компьютер</span><span class="tm-chip">${icn('🔒')} Face ID</span><span class="tm-chip">${icn('💾')} Копия</span></div>` },
-];
+]);
 let tutSeen = false, tutOpen = false;
 function openTutorial(firstRun) {
   tutOpen = true;
@@ -3519,7 +4483,14 @@ function openTutorial(firstRun) {
   go(0);
 }
 // tv — значение TUT_VER, начиная с которого группа считается увиденной
-const NEWS = [
+const NEWS = (API_URL ? [
+  { v: '0.7', tv: 6, items: [
+    ['👪', 'Семейный бюджет', 'Создайте семью и пригласите близких ссылкой или кодом. Общие кошельки и копилки, траты семьи за месяц, общая лента. «Ещё» → «Семейный бюджет».'],
+    ['🔒', 'Личное — личное', 'Семья видит только общие кошельки. Свою запись можно показать семье, а трату с общей карты — скрыть: останется только сумма.'],
+    ['🐷', 'Общая копилка', 'Откладывайте вместе на отпуск или ремонт — видно, кто сколько внёс.'],
+    ['🖥', 'Сервер журнала', 'Записи синхронизируются через сервер журнала в России, облако Telegram остаётся копией. Подключение — только с вашего согласия, отключить можно в «Ещё».'],
+  ] },
+] : []).concat([
   { v: '0.6', tv: 5, items: [
     ['📷', 'Живой сканер чеков', 'Наведите камеру на QR-код — чек распознаётся сразу. На телефоне работает сканер Telegram, на компьютере — камера, а без камеры можно загрузить фото.'],
     ['✨', 'Стиль оформления', 'Пиксельный, сбалансированный или классический — «Ещё» → «Стиль оформления». Записи и разделы не меняются.'],
@@ -3544,7 +4515,7 @@ const NEWS = [
     ['🔒', 'Face ID и шифрование', 'Вход по биометрии и пароль на записи — в разделе «Ещё».'],
     ['📥', 'Импорт выписки', 'Загрузите CSV из банка, и операции попадут в журнал.'],
   ] },
-];
+]);
 function openWhatsNew(auto) {
   const seen = (S.cfg && S.cfg.tut) || 0;
   const groups = auto ? NEWS.filter(g => g.tv > seen) : NEWS;
@@ -3563,11 +4534,17 @@ const FAQ = [
   ['Что такое вечерний вопрос?', 'Если открыть журнал вечером, он спросит, были ли ещё траты, и предложит отметить регулярные платежи. Закрытый день приносит очки и держит серию недель. Время можно поменять в «Ещё».'],
   ['Как начисляются очки?', 'За дни с записями, закрытые вечером дни, сверки, взносы в копилки, месяц в плюсе или в бюджете, закрытые долги и испытания. Подробно — в «Прогрессе», внизу экрана.'],
   ['Как считаются итоги месяца?', 'Из целей месяца: регулярность учёта, бюджет, баланс доходов и расходов и продвижение к целям копилок. Большая цель оценивается по тому, насколько вы к ней приблизились.'],
-  ['Где хранятся записи и кто их видит?', 'В облаке Telegram, привязанном к вашему аккаунту и этому боту. У бота нет своего сервера, поэтому записи видите только вы. Можно дополнительно включить шифрование паролем.'],
+  ['Где хранятся записи и кто их видит?', () => SRV.on ? 'На сервере журнала в России и копией — в облаке Telegram. Личные записи видите только вы; с шифрованием паролем они лежат на сервере зашифрованными. Семья видит общие кошельки и записи, которые вы показали сами. Отключить сервер: «Ещё» → «Где хранятся записи».' : API_URL ? 'Сейчас — в облаке Telegram, привязанном к вашему аккаунту и этому боту. Если подключить сервер журнала (нужен для семьи), записи будут храниться на сервере в России, а облако останется копией. Можно дополнительно включить шифрование паролем.' : 'В облаке Telegram, привязанном к вашему аккаунту и этому боту. У бота нет своего сервера, поэтому записи видите только вы. Можно дополнительно включить шифрование паролем.'],
+  ...(API_URL ? [
+    ['Как работает семейный бюджет?', 'Один человек создаёт семью и приглашает остальных ссылкой или кодом. Общие кошельки и копилки видят все, их остаток складывается из записей всех участников. Свои траты с общего кошелька попадают и в ваш личный отчёт.'],
+    ['Что видит семья из моих записей?', 'Только записи на общих кошельках и личные записи, где вы переключили «Только мне» на «Семье». Трату с общего кошелька можно отметить «Скрыто» — остальные увидят только сумму, без категории и заметки.'],
+    ['Можно ли поправить чужую запись?', 'Нет, запись правит только её автор. Глава семьи может удалить ошибочную запись.'],
+    ['Что будет, если выйти из семьи?', 'Ваши записи на общих кошельках останутся у семьи — на них держится общий остаток — и скопируются в ваш журнал. Личные записи, показанные семье, из семейной ленты пропадут. Личный журнал не меняется.'],
+  ] : []),
   ['Что будет, если забыть пароль шифрования?', 'Записи не восстановить — так устроено шифрование. Поэтому храните резервную копию. Журнал можно будет начать заново.'],
   ['Что будет, если сменить телефон?', 'Ничего не потеряется: войдите в тот же аккаунт Telegram и откройте бота. На всякий случай храните резервную копию («Ещё» → «Резервная копия»).'],
 ];
-function openFAQ() { openSheet({ title: 'Вопросы и ответы', html: FAQ.map(([q, a]) => `<details class="faq"><summary>${esc(q)}</summary><p>${esc(a)}</p></details>`).join('') }); }
+function openFAQ() { openSheet({ title: 'Вопросы и ответы', html: FAQ.map(([q, a]) => `<details class="faq"><summary>${esc(q)}</summary><p>${esc(typeof a === 'function' ? a() : a)}</p></details>`).join('') }); }
 
 /* ====== Экраны ====== */
 function txRow(t, showDate) {
@@ -3581,6 +4558,7 @@ function txRow(t, showDate) {
   else { const c = cat(t.c); ic = c.ic; title = c.n; sub = esc(wal(t.w).n); amt = t.k === 'i' ? money(t.a, true) : '−' + money(t.a); cls = t.k === 'i' ? 'inc' : ''; }
   if (t.n) sub = esc(t.n) + ' · ' + sub;
   if (t.x && t.x[0] === 'q') sub = icn('🧾', 12) + ' ' + sub;
+  if (t._f || t.s) sub = icn(t.h ? '🙈' : '👪', 12) + ' ' + sub;
   if (showDate) sub = dayLabel(t.m, t.d) + ' · ' + sub;
   return `<div class="row tx" data-act="edit" data-id="${esc(t.id)}" data-m="${t.m}">${ict(ic)}<div class="grow"><div class="t">${esc(title)}</div><div class="sub t">${sub}</div></div><div class="amt ${cls}">${amt}</div></div>`;
 }
@@ -3699,16 +4677,17 @@ function story(act, label, face, isNew, extra) {
   return `<button class="story ${isNew ? 'new' : ''}" data-act="${act}" ${extra || ''}><span class="ring"><span class="face">${face}</span></span><span>${label}</span></button>`;
 }
 function vHome() {
-  const b = balances(), regs = regWallets(), goals = goalWallets();
-  const total = activeWallets().reduce((s, w) => s + (b[w.id] || 0), 0);
-  const goalSum = goals.reduce((s, w) => s + (b[w.id] || 0), 0);
+  const b = balances(), regs = regWallets().filter(w => !w.fam), goals = goalWallets();
+  const total = activeWallets().filter(w => !w.fam).reduce((s, w) => s + (b[w.id] || 0), 0);
+  const goalSum = goals.filter(w => !w.fam).reduce((s, w) => s + (b[w.id] || 0), 0);
+  const famSum = FAM ? FAMC.wl.filter(w => !w.arch).reduce((s, w) => s + (b[w.id] || 0), 0) : 0;
   const mk = curM(), ms = monthStats(mk), bud = budgetInfo(mk), gm = game(), L = ladder(gm);
   const recent = sortTx(allTx()).slice(0, 6);
   const pend = pendingRec(), tk = todayKey(), closed = G().cd.includes(tk);
   const isEve = eveHour() && new Date().getHours() >= eveHour();
-  const pm = mShift(mk, -1), sumMk = S.months[pm] ? pm : mk;
+  const pm = mShift(mk, -1), sumMk = hasMonth(pm) ? pm : mk;
   // истории
-  const stories = story('summary', 'Итоги', S.months[sumMk] ? smileySVG(monthScore(sumMk).grade, 40) : mascotSVG(40), !!S.months[pm] && !G().sum[pm], `data-m="${sumMk}"`)
+  const stories = story('summary', 'Итоги', hasMonth(sumMk) ? smileySVG(monthScore(sumMk).grade, 40) : mascotSVG(40), hasMonth(pm) && !G().sum[pm], `data-m="${sumMk}"`)
     + story('checkin', 'Квест', `<span class="game">${gic('bolt', '⚡', 30)}</span>`, !closed).replace('<span class="face">', '<span class="face game">')
     + story('tip', 'Совет', `<span class="acc">${gic('coin', '💡', 28)}</span>`, LS.get(LKEY + '_tip') !== tipWeek())
     + story('tutorial', 'Обучение', gic('book', '📚', 28), false);
@@ -3733,13 +4712,14 @@ function vHome() {
   <div class="stories">${stories}</div>
   <div class="hero2"><div class="hl"><span class="sub">Всего денег</span>${syncBadge()}</div><div class="big xl ${total < 0 ? 'neg' : ''}">${moneyBig(total)}</div></div>
   <div class="wchips">${regs.map(w => `<button class="wchip" data-act="wallet" data-id="${esc(w.id)}">${ict(w.ic, 'sm')}<span class="wc-n">${esc(w.n)}${w.dp && w.dp.r ? ' · ' + fmtRate(w.dp.r) + '%' : ''}</span><span class="wc-a ${b[w.id] < 0 ? 'neg' : ''}">${money(b[w.id])}</span></button>`).join('')}
-    ${goals.length ? `<button class="wchip" data-act="plans" data-k="goals">${ict('🐷', 'sm')}<span class="wc-n">Копилки</span><span class="wc-a">${money(goalSum)}</span></button>` : ''}</div>
+    ${goals.some(w => !w.fam) ? `<button class="wchip" data-act="plans" data-k="goals">${ict('🐷', 'sm')}<span class="wc-n">Копилки</span><span class="wc-a">${money(goalSum)}</span></button>` : ''}
+    ${FAM ? `<button class="wchip fam" data-act="family">${ict('👪', 'sm')}<span class="wc-n">${esc(FAM.name)}</span><span class="wc-a">${money(famSum)}</span></button>` : ''}</div>
   <div class="qa4" style="grid-template-columns:repeat(${acts.length},minmax(0,1fr))">${acts.map(([a, k, ic, l, pri]) => `<button class="qbtn ${pri ? 'pri' : ''}" data-act="${a}"${k ? ` data-k="${k}"` : ''}>${uic(ic, 20)}<span>${l}</span></button>`).join('')}</div>
   ${pend.length ? `<div class="card tap" data-act="plan"><div class="due">${ict('📅')}<div class="grow"><div class="t">${esc(recName(pend[0].r))} — ${money(pend[0].r.a)}</div><div class="sub">${pend[0].k < tk ? 'с ' + keyLabelL(pend[0].k) : 'по плану сегодня'}${pend.length > 1 ? ` · и ещё ${pend.length - 1}` : ''}</div></div><button class="btn sm" data-act="plan" style="margin:0">Отметить</button></div></div>` : ''}
   ${quest}
   ${goals.filter(w => w.g.t > 0).slice(0, 2).map(w => {
       const bal = b[w.id] || 0, gi = goalInfo(w, bal), sub = [w.n !== GOAL_KIND[w.g.kind] ? GOAL_KIND[w.g.kind] || 'Цель' : '', w.g.dl ? 'к ' + monthDat(w.g.dl) : ''].filter(Boolean).join(' · ');
-      return `<div class="card tap goalc" data-act="goal" data-id="${esc(w.id)}"><div class="gh">${ict(w.ic, 'sm')}<div class="grow"><div class="t"><b>${esc(w.n)}</b></div>${sub ? `<div class="sub">${sub}</div>` : ''}</div><span class="gp">${Math.round(gi.p * 100)}%</span></div>
+      return `<div class="card tap goalc" data-act="goal" data-id="${esc(w.id)}"><div class="gh">${ict(w.ic, 'sm')}<div class="grow"><div class="t"><b>${esc(w.n)}</b>${w.fam ? ' ' + icn('👪', 14) : ''}</div>${sub ? `<div class="sub">${sub}</div>` : ''}</div><span class="gp">${Math.round(gi.p * 100)}%</span></div>
         <div class="gtrack">${pxBar(gi.p)}<span class="gflag">${gi.done ? gic('trophy', '🏆', 18) : uic('flag', 18)}</span></div>
         <div class="gfoot"><span><b>${money(bal)}</b> из ${money(gi.t)}</span><span>${gi.done ? 'цель достигнута' : gi.perMonth != null ? 'по ' + money(gi.perMonth) + ' в месяц' : ''}</span></div></div>`;
     }).join('')}
@@ -3753,7 +4733,7 @@ function vHome() {
 }
 function vJournal() {
   const mk = jMonth, f = jFilter;
-  let list = (S.months[mk] || []).slice();
+  let list = monthTx(mk).slice();
   if (f.c) list = list.filter(t => t.c === f.c); else if (f.k !== 'all') list = list.filter(t => t.k === f.k);
   sortTx(list);
   const groups = []; let g = null;
@@ -3773,7 +4753,7 @@ function dayChart(mk) {
   const day = new Array(dim + 1).fill(0), limd = new Array(dim + 1).fill(0);
   const limIds = new Set(Object.keys(S.cfg.bud).filter(id => S.cfg.bud[id] > 0));
   const limit = [...limIds].reduce((s, id) => s + S.cfg.bud[id], 0), norm = limit ? limit / dim : 0;
-  for (const t of S.months[mk] || []) if (t.k === 'e') { day[t.d] += t.a; if (limIds.has(t.c)) limd[t.d] += t.a; }
+  for (const t of monthTx(mk)) if (t.k === 'e') { day[t.d] += t.a; if (limIds.has(t.c)) limd[t.d] += t.a; }
   const spent = day.slice(1, upto + 1).filter(v => v > 0).sort((a, b) => a - b);
   if (!spent.length) return '';
   const ref = Math.max(norm * 1.6, spent[Math.min(spent.length - 1, Math.floor(spent.length * 0.85))]);
@@ -3808,7 +4788,7 @@ function vReport() {
   const iRows = Object.entries(ms.byI).sort((a, b) => b[1] - a[1]);
   const cols = []; for (let i = 5; i >= 0; i--) { const m = mShift(mk, -i); const s = monthStats(m); cols.push({ m, inc: s.inc, exp: s.exp }); }
   const cmax = Math.max(1, ...cols.map(c => Math.max(c.inc, c.exp)));
-  const sc = (S.months[mk] || ms.exp || ms.inc) ? monthScore(mk) : null;
+  const sc = (hasMonth(mk) || ms.exp || ms.inc) ? monthScore(mk) : null;
   return `<div class="h1">Отчёт</div>${monthNav('r', mk)}
   ${sc ? `<div class="card tap" data-act="summary" data-m="${mk}"><div class="due">${smileySVG(sc.grade, 40)}<div class="grow"><div class="t">${isCur ? 'Предварительные итоги' : 'Итоги месяца'}: ${GRADES[sc.grade - 1].t}</div><div class="sub">${Math.round(sc.score * 100)} из 100 · подробнее</div></div><div class="chev">›</div></div></div>` : ''}
   <div class="card"><div class="tri"><div><div class="sub">Доходы</div><div class="amt inc">${money(ms.inc)}</div></div><div><div class="sub">Расходы</div><div class="amt">${money(ms.exp)}</div></div><div><div class="sub">Разница</div><div class="amt ${ms.inc - ms.exp < 0 ? 'neg' : ''}">${money(ms.inc - ms.exp, true)}</div></div></div>
@@ -3843,7 +4823,7 @@ function vBudgetInner() {
 }
 function vGoals() {
   const b = balances(), gs = goalWallets(), avg = avgMonthlyExp();
-  const hidden = S.cfg.wallets.filter(w => w.g && w.arch);
+  const hidden = allW().filter(w => w.g && w.arch);
   if (!gs.length) return `<div class="card"><b>Копилки и цели</b><div class="sub mt">Откладывайте на цель: отпуск, ремонт, подушку безопасности. Копилка — это отдельный кошелёк: деньги переводятся туда с карты или наличных, поэтому общая сумма денег не меняется.${avg ? `<br><br>Подсказка: подушка на 3 месяца для вас — около ${money(avg * 3)}.` : ''}</div></div>
     <button class="btn wide" data-act="goalnew">+ Новая копилка</button>${hidden.length ? `<div class="sub c mt">Скрытых копилок: ${hidden.length}</div>` : ''}`;
   return gs.map(w => {
@@ -3880,10 +4860,15 @@ function vPlans() {
 }
 function vMore() {
   const b = balances();
-  const act = regWallets(), arch = S.cfg.wallets.filter(w => w.arch && !w.g);
+  const act = regWallets().filter(w => !w.fam), arch = S.cfg.wallets.filter(w => w.arch && !w.g);
   const wrow = w => `<div class="row" data-act="wallet" data-id="${esc(w.id)}">${ict(w.ic)}<div class="grow"><div class="t">${esc(w.n)}</div>${w.dp ? `<div class="sub">${w.dp.k === 'sav' ? 'Накопительный счёт' : 'Вклад'}${w.dp.r ? ' · ' + fmtRate(w.dp.r) + '%' : ''}${w.dp.e && w.dp.k !== 'sav' ? ' · до ' + w.dp.e.split('-').reverse().join('.') : ''}</div>` : ''}</div><div class="amt">${money(b[w.id])}</div><div class="chev">›</div></div>`;
   const sw = on => `<span class="sw ${on ? 'on' : ''}"></span>`;
+  const famRow = CAN_SRV ? `<div class="cap">Семья</div><div class="card list"><div class="row" data-act="family">${ict('👪')}<div class="grow"><div class="t">Семейный бюджет</div><div class="sub">${FAM ? esc(FAM.name) + ' · ' + famActive().length + ' ' + plural(famActive().length, 'участник', 'участника', 'участников') : SRV.on ? 'Создать семью или вступить по коду' : 'Общие кошельки и копилки с близкими'}</div></div><div class="chev">›</div></div></div>` : '';
+  const store = SRV.on
+    ? `<div class="card"><div id="syncInfo">${syncText()}</div><div class="sub mt">Сервер журнала находится в России. Личные записи видите только вы${encMeta ? ', на сервере они лежат зашифрованными' : ''}. Облако Telegram — запасная копия.</div><button class="linkbtn danger" data-act="srvoff" style="padding:10px 0 2px">Отключить сервер и удалить мои данные с него</button></div>`
+    : `<div class="card"><div id="syncInfo">${syncText()}</div><div class="sub mt">${HAS_CLOUD ? 'Облако привязано к вашему аккаунту Telegram и этому боту: записи видны на телефоне и компьютере.' + (CAN_SRV ? '' : ' Своего сервера у бота нет, записи никуда больше не отправляются.') : 'Откройте приложение через бота в Telegram, чтобы записи сохранялись в облаке.'}</div>${CAN_SRV ? '<button class="btn wide ghost" data-act="srvon" style="margin-top:12px">Подключить сервер журнала</button><div class="sub small">Нужен для семейного бюджета. Только с вашего согласия.</div>' : ''}</div>`;
   return `<div class="h1">Ещё</div>
+  ${famRow}
   <div class="cap">Кошельки</div>
   <div class="card list">${act.map(wrow).join('')}<div class="row" data-act="addwallet">${ict('＋')}<div class="grow acc">Добавить кошелёк</div></div></div>
   ${arch.length ? `<div class="cap">Скрытые кошельки</div><div class="card list">${arch.map(wrow).join('')}</div>` : ''}
@@ -3910,7 +4895,7 @@ function vMore() {
     <div class="row" data-act="tips">${ict('💡')}<div class="grow">Советы</div><div class="sub">${TIPS.length}</div><div class="chev">›</div></div>
     <div class="row" data-act="news">${ict('✨')}<div class="grow">Что нового</div><div class="chev">›</div></div></div>
   <div class="cap">Где хранятся записи</div>
-  <div class="card"><div id="syncInfo">${syncText()}</div><div class="sub mt">${HAS_CLOUD ? 'Облако привязано к вашему аккаунту Telegram и этому боту: записи видны на телефоне и компьютере. Своего сервера у бота нет, записи никуда больше не отправляются.' : 'Откройте приложение через бота в Telegram, чтобы записи сохранялись в облаке.'}</div></div>
+  ${store}
   <button class="linkbtn danger" data-act="reset">Удалить все данные</button>
   <div class="foot">${APP_NAME} · версия ${VERSION}${ENV ? ' · ' + esc(ENV) : ''}</div>`;
 }
@@ -3928,14 +4913,14 @@ function vOnboarding() {
   <p class="sub">Можно оставить пустым и указать позже. Ставку и срок вклада, новые карты и кошельки — в разделе «Ещё».</p>
   <button class="btn wide" data-act="obstart">Начать</button>
   <button class="linkbtn" data-act="restore">Восстановить из резервной копии</button>
-  <p class="sub c small">${HAS_CLOUD ? 'Записи хранятся в облаке Telegram в вашем аккаунте. У бота нет своего сервера.' : 'Сейчас приложение открыто не в Telegram: записи сохранятся только в этом браузере.'}</p></div>`;
+  <p class="sub c small">${SRV.on ? 'Записи хранятся на сервере журнала и копией — в облаке Telegram.' : HAS_CLOUD ? 'Записи хранятся в облаке Telegram в вашем аккаунте.' + (CAN_SRV ? '' : ' У бота нет своего сервера.') : 'Сейчас приложение открыто не в Telegram: записи сохранятся только в этом браузере.'}</p></div>`;
 }
 function render() {
   if (S.cfg) setStyle(styleOf(S.cfg));
   const el = $('#screen');
   let html;
   if (phase === 'loading' && !S.cfg) html = '<div class="loading"><div class="spin"></div>Загружаю записи…</div>';
-  else if (phase === 'error' && !S.cfg) html = `<div class="loading">Не удалось связаться с облаком Telegram.<br>Проверьте интернет.<br><button class="btn wide" data-act="retry" style="max-width:260px;margin:16px auto 0">Повторить</button></div>`;
+  else if (phase === 'error' && !S.cfg) html = `<div class="loading">Не удалось связаться с ${SRV.on ? 'сервером журнала' : 'облаком Telegram'}.<br>${SRV.err === 'auth' ? 'Закройте журнал и откройте заново из бота.' : 'Проверьте интернет.'}<br><button class="btn wide" data-act="retry" style="max-width:260px;margin:16px auto 0">Повторить</button></div>`;
   else if (!S.cfg) html = vOnboarding();
   else {
     gameTick();
@@ -3952,11 +4937,13 @@ const shownPop = new Set();
 function maybePopups() {
   if (tutOpen || stack.length || locked || phase !== 'ready') return;
   if (HAS_CLOUD && !cloudLoaded) return;
+  if (SRV.on && !SRV.ready) return;
   if (!tutSeen && (!S.cfg || !S.cfg.tut)) { openTutorial(!S.cfg); return; }
   if (!S.cfg) return;
   if ((S.cfg.tut || 0) < TUT_VER && !shownPop.has('new')) { shownPop.add('new'); openWhatsNew(true); return; }
+  if (CAN_SRV && SRV.ask && !SRV.on && !shownPop.has('srv')) { shownPop.add('srv'); const c = famStartCode(); if (c) famStartDone = true; openConsent(c ? 'join' : 'intro', c ? () => openJoin(c) : null); return; }
   const pm = mShift(curM(), -1);
-  if (S.months[pm] && !G().sum[pm] && !shownPop.has('sum')) { shownPop.add('sum'); openSummary(pm); return; }
+  if (hasMonth(pm) && !G().sum[pm] && !shownPop.has('sum')) { shownPop.add('sum'); openSummary(pm); return; }
   const tk = todayKey();
   if (eveHour() && new Date().getHours() >= eveHour() && !G().cd.includes(tk) && LS.get(LKEY + '_eve') !== tk && !shownPop.has('eve')) {
     shownPop.add('eve'); LS.set(LKEY + '_eve', tk); openCheckin('evening'); return;
@@ -3972,7 +4959,10 @@ const ACT = {
   add: ds => openEntry(null, ds.k),
   qr: () => scanReceipt(),
   edit: ds => { const t = findTx(ds.m, ds.id); if (t) openEntry(t); },
-  wallet: ds => openWallet(ds.id),
+  wallet: ds => isFamW(ds.id) ? openFamWallet(ds.id) : openWallet(ds.id),
+  family: () => openFamily(),
+  srvon: () => openConsent('intro'),
+  srvoff: () => srvOffConfirm(),
   addwallet: () => openAddAsset(),
   obmode: ds => { obMode = ds.k; if (ds.k === 'adv') toast('Расширенный учёт появится в одной из следующих версий'); render(); },
   tours: () => { S.cfg.tour = {}; delete S.cfg.tourOff; markDirty('cfg'); toast('Подсказки снова покажутся в каждом разделе'); tourShown.clear(); maybeTour(true); },
@@ -4020,7 +5010,7 @@ const ACT = {
   backup: () => openBackup(),
   restore: () => openRestore(),
   reset: () => resetAll(),
-  retry: () => { phase = 'loading'; render(); syncFromCloud(); },
+  retry: () => { phase = 'loading'; render(); if (SRV.on) srvStart(); else syncFromCloud(); },
   obstart: () => {
     const a = parseMoney($('#ob_card').value), b = parseMoney($('#ob_cash').value), sv = parseMoney(($('#ob_sav') || {}).value || '');
     if (isNaN(a)) { $('#ob_card').classList.add('bad'); haptic('err'); return; }
@@ -4047,7 +5037,8 @@ document.addEventListener('click', e => {
 });
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState !== 'visible') return;
-  if (HAS_CLOUD && !cloudLoaded) syncFromCloud(); else if (dirty.size) flush();
+  if (SRV.on) { if (!SRV.ready) srvStart(); else if (dirty.size) flush(); }
+  else if (HAS_CLOUD && !cloudLoaded) syncFromCloud(); else if (dirty.size) flush();
   if (S.cfg && !locked) { render(); }
 });
 
@@ -4076,11 +5067,12 @@ function setupTG() {
   if (bioOn && !lockFlag) LS.set(LKEY + '_bio', '1');
   if (bioOn || encMeta) await requireUnlock(bioOn);
   await applyLocalRaw(raw);
-  phase = (S.cfg || !HAS_CLOUD) ? 'ready' : 'loading';
+  phase = (S.cfg || (!HAS_CLOUD && !SRV.on)) ? 'ready' : 'loading';
   hideLock();
   checkHome().then(() => { if (tab === 'more' && S.cfg) render(); });
   render();
-  if (HAS_CLOUD) syncFromCloud();
+  if (SRV.on) srvStart();
+  else if (HAS_CLOUD) { syncFromCloud().then(() => { if (CAN_SRV) srvProbe(); }); }
   else if (dirty.size) { dirty.clear(); saveLocal(); }
 })();
 </script>
