@@ -3604,9 +3604,10 @@ function decodeFile(buf) {
   catch (e) { return new TextDecoder('windows-1251').decode(buf); }
 }
 function parseCSV(text) {
-  const first = text.split(/\r?\n/, 1)[0] || '';
-  const cnt = ch => first.split(ch).length - 1;
-  const delim = [';', ',', '\t'].sort((a, b) => cnt(b) - cnt(a))[0];
+  // разделитель — по первым строкам целиком: у многих банков (ЮMoney и др.) сверху идёт шапка без таблицы
+  const head = text.split(/\r?\n/).slice(0, 30).join('\n');
+  const cnt = ch => head.split(ch).length - 1;
+  const delim = [';', '\t', ','].sort((a, b) => cnt(b) - cnt(a))[0];
   const rows = []; let row = [], cur = '', q = false;
   for (let i = 0; i < text.length; i++) {
     const c = text[i];
@@ -3619,13 +3620,19 @@ function parseCSV(text) {
   if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
   return rows.filter(r => r.some(x => x.trim() !== ''));
 }
+// строка заголовков: первая, где нашлись и дата, и сумма (шапку выписки над таблицей пропускаем)
+function findHeader(rows) {
+  for (let i = 0; i < Math.min(rows.length - 1, 25); i++) { const g = guessCols(rows[i]); if (g.date >= 0 && g.amount >= 0) return i; }
+  return 0;
+}
 function guessCols(h) {
-  const H = h.map(x => x.toLowerCase().trim());
+  const H = h.map(x => String(x || '').toLowerCase().trim());
   const find = (...res) => { for (const re of res) { const i = H.findIndex(x => re.test(x)); if (i >= 0) return i; } return -1; };
   return {
     date: find(/^дата операции/, /^дата/, /date/),
     amount: find(/^сумма операции$/, /^сумма операции/, /^сумма платежа/, /^сумма/, /amount/),
-    desc: find(/^описание/, /назначение/, /контрагент/, /получатель/, /комментар/, /description/),
+    desc: find(/^описание/, /^название/, /^наименование/, /назначение/, /контрагент/, /получатель/, /комментар/, /merchant/, /description/),
+    sign: find(/^\+\s*\/\s*-$/, /^знак/, /^приход.?\/?.?расход/, /^тип операции/, /^направление/, /^тип$/),
     cat: find(/^категория/, /category/),
     status: find(/^статус/, /status/),
     cur: find(/^валюта операции/, /^валюта/, /currency/),
@@ -3638,23 +3645,31 @@ function parseDateCell(s) {
   m = s.match(/(\d{2})\.(\d{2})\.(\d{2})(?!\d)/); if (m) return { m: mkey(2000 + +m[3], +m[2]), d: +m[1] };
   return null;
 }
+// отдельный столбец «+/-», «Приход/Расход», «Зачисление/Списание»: −1 расход, 1 доход, 0 — не понять
+function parseSignCell(s) {
+  s = String(s || '').trim().toLowerCase();
+  if (/^[-−–]$|расход|списан|debit|покупк|оплат/.test(s)) return -1;
+  if (/^\+$|приход|зачисл|пополн|credit|поступл/.test(s)) return 1;
+  return 0;
+}
 function parseAmountCell(s) {
   const v = parseFloat(String(s || '').replace(/[\s ₽]/g, '').replace(/[−–]/g, '-').replace(',', '.'));
   return isNaN(v) ? null : Math.round(v * 100);
 }
+// по-русски и латиницей: в выписках названия магазинов часто транслитом (PYATEROCHKA, YANDEX*GO)
 const CAT_RULES = [
-  ['food', /супермаркет|продукт|магнит|пят[её]роч|перекр[её]ст|ашан|вкусвилл|дикси|лента|окей|metro|spar|бристол|красное.*белое/i],
-  ['cafe', /ресторан|кафе|фастфуд|фаст-фуд|кофе|бургер|пицц|суши|доставка еды|столов|бар\b|kfc|вкусно/i],
-  ['car', /азс|топлив|бензин|автоуслуг|парковк|шиномонтаж|лукойл|роснефть|газпромнефть/i],
-  ['trans', /транспорт|такси|метро|автобус|каршеринг|ж\/д|ржд|авиабилет|самол/i],
-  ['health', /аптек|медицин|клиник|здоров|стоматолог|анализ/i],
-  ['phone', /связь|мобильн|интернет|телеком|мтс|билайн|мегафон|теле2|ростелеком/i],
+  ['food', /супермаркет|продукт|produkt|магнит|magnit|пят[её]роч|pyaterochka|perekrest|перекр[её]ст|ашан|auchan|вкусвилл|vkusvill|дикси|dixy|лента|lenta|окей|metro|spar|бристол|bristol|красное.*белое|krasnoe|yarche|ярче|samokat|самокат|fix ?price|светофор/i],
+  ['cafe', /ресторан|\brest\b|кафе|cafe|кофе|koffee|coffee|фастфуд|фаст-фуд|бургер|burger|пицц|pizza|суши|sushi|доставка еды|столов|stolovaya|\bбар\b|\bbar\b|kfc|rostics|ростикс|вкусно|vkusno|шаурм|shaurma|пекарн|pekarn|ponchik|пончик|beer|пиво|pivo|kampanello/i],
+  ['car', /азс|топлив|бензин|автоуслуг|парковк|parking|шиномонтаж|лукойл|lukoil|роснефть|rosneft|газпромнефть|gazprom/i],
+  ['trans', /транспорт|transport|такси|taxi|yandex\*go|\bgo\b.*yandex|метро|metro.*mos|автобус|каршеринг|ж\/д|ржд|cppk|цппк|авиабилет|самол|scooter|самокат.*аренд|whoosh|urent|тройка/i],
+  ['health', /аптек|apteka|aptechn|медицин|клиник|clinic|здоров|стоматолог|анализ/i],
+  ['phone', /связь|мобильн|интернет|телеком|мтс|\bmts\b|билайн|beeline|мегафон|megafon|теле2|\bt2\b|yota|йота|ростелеком/i],
   ['home', /жкх|коммунал|аренд|квартплат|электроэнерг|водоканал/i],
   ['clothes', /одежд|обувь/i],
-  ['fun', /развлеч|кино|театр|концерт|игр|музе/i],
+  ['fun', /развлеч|кино|театр|концерт|игр|games|langame|colizeum|steam|kupikod|музе/i],
   ['beauty', /красот|салон|парикмахер|косметик/i],
   ['edu', /образован|обучен|курс|книг/i],
-  ['subs', /подписк|онлайн-сервис|стриминг/i],
+  ['subs', /подписк|онлайн-сервис|стриминг|yandex\*plus|яндекс плюс|boosty|кинопоиск|okko|ivi/i],
   ['house', /дом и ремонт|ремонт|хозтовар|строймат|мебел|леруа|икеа/i],
   ['gifts', /подар|цвет/i],
   ['kids', /детск|игрушк/i],
@@ -3664,7 +3679,7 @@ function mapImportCat(k, bankCat, desc) {
   const s = (bankCat || '') + ' ' + (desc || '');
   if (k === 'i') {
     if (/зарплат|заработн|аванс/i.test(s)) return 'salary';
-    if (/кэшб[эе]к|cashback|возврат|бонус/i.test(s)) return 'refund';
+    if (/кэшб[эе]к|cashback|возврат|бонус|refund/i.test(s)) return 'refund';
     if (/процент/i.test(s)) return 'interest';
     return 'iother';
   }
@@ -3672,43 +3687,54 @@ function mapImportCat(k, bankCat, desc) {
   return catsOf('e').some(c => c.id === 'other') ? 'other' : (catsOf('e')[0] || {}).id;
 }
 function openImport() {
-  let rows = null, map = null, fileName = '';
-  const intro = () => `<div class="card"><b>Загрузите выписку из банка</b><div class="sub mt">Файл разбирается прямо в телефоне и никуда не отправляется. Подходит выгрузка в формате CSV: например, из Т-Банка (Операции → Выписка → CSV). Из Excel файл можно сохранить как CSV. PDF-выписки пока не поддерживаются.</div></div>
+  let rows = null, map = null, fileName = '', hdr = 0;
+  const intro = () => `<div class="card"><b>Загрузите выписку из банка</b><div class="sub mt">Файл разбирается прямо в телефоне и никуда не отправляется. Подходит выгрузка в формате CSV: например, из Т-Банка (Операции → Выписка → CSV) или ЮMoney (История → Выгрузить). Из Excel файл можно сохранить как CSV. PDF-выписки пока не поддерживаются.</div></div>
     <label class="btn wide">Выбрать файл<input type="file" accept=".csv,.txt,text/csv,text/plain" data-ref="file" hidden></label>`;
   const build = () => {
-    const H = rows[0], data = rows.slice(1), wid = sh.ref('w') ? sh.ref('w').value : defWallet();
-    const existing = new Set(allTx().map(t => `${t.k}|${txKey(t)}|${t.a}|${(t.n || '').slice(0, 60)}`));
+    const H = rows[hdr], data = rows.slice(hdr + 1), wid = sh.ref('w') ? sh.ref('w').value : defWallet();
+    const cashW = S.cfg.wallets.find(w => !w.arch && !w.g && w.id !== wid && (w.t === 'cash' || w.id === 'cash'));
+    // дубли ищем только среди того, что уже есть в журнале. Одинаковые строки внутри выписки — разные покупки
+    // (два кофе по 150 ₽ за день), поэтому считаем количество, а не просто наличие
+    const existing = new Map();
+    for (const t of allTx()) { const key = `${t.k}|${txKey(t)}|${t.a}|${(t.n || '').slice(0, 60)}`; existing.set(key, (existing.get(key) || 0) + 1); }
+    const seen = key => { const n = existing.get(key) || 0; if (n > 0) { existing.set(key, n - 1); return true; } return false; };
     const out = []; let skipped = 0, dup = 0;
     for (const r of data) {
       if (map.status >= 0 && /fail|отклон|отмен|declin/i.test(r[map.status] || '')) { skipped++; continue; }
       if (map.cur >= 0 && r[map.cur] && !/rub|rur|руб|₽/i.test(r[map.cur])) { skipped++; continue; }
-      const dt = parseDateCell(r[map.date]), am = parseAmountCell(r[map.amount]);
+      const dt = parseDateCell(r[map.date]); let am = parseAmountCell(r[map.amount]);
       if (!dt || !am) { skipped++; continue; }
       if (isoOf(dt.m, dt.d) > todayISO()) { skipped++; continue; }
-      const k = am < 0 ? 'e' : 'i', a = Math.abs(am);
+      if (map.sign >= 0) { const sg = parseSignCell(r[map.sign]); if (sg) am = Math.abs(am) * sg; }
+      let k = am < 0 ? 'e' : 'i'; const a = Math.abs(am);
       const desc = map.desc >= 0 ? String(r[map.desc] || '').trim().slice(0, 60) : '';
-      const key = `${k}|${dt.m + pad(dt.d)}|${a}|${desc}`;
-      if (existing.has(key)) { dup++; continue; }
-      existing.add(key);
+      // снятие наличных — не трата, а перевод в кошелёк «Наличные»
+      if (k === 'e' && cashW && /сняти[ея] наличн|atm.*withdraw|cash withdraw/i.test(desc)) {
+        if (seen(`t|${dt.m + pad(dt.d)}|${a}|${desc}`)) { dup++; continue; }
+        out.push({ id: uid(), k: 't', a, c: null, w: wid, w2: cashW.id, m: dt.m, d: dt.d, n: desc, x: null });
+        continue;
+      }
+      if (seen(`${k}|${dt.m + pad(dt.d)}|${a}|${desc}`)) { dup++; continue; }
       out.push({ id: uid(), k, a, c: mapImportCat(k, map.cat >= 0 ? r[map.cat] : '', desc), w: wid, w2: null, m: dt.m, d: dt.d, n: desc, x: null });
     }
     return { out, skipped, dup, H };
   };
   const preview = () => {
-    const H = rows[0];
+    const H = rows[hdr];
     const opt = (sel, allowNone) => (allowNone ? `<option value="-1"${sel < 0 ? ' selected' : ''}>— нет —</option>` : '') + H.map((h, i) => `<option value="${i}"${i === sel ? ' selected' : ''}>${esc(h || 'Столбец ' + (i + 1))}</option>`).join('');
     const res = build();
-    const ex = res.out.filter(t => t.k === 'e'), inc = res.out.filter(t => t.k === 'i');
+    const ex = res.out.filter(t => t.k === 'e'), inc = res.out.filter(t => t.k === 'i'), tr = res.out.filter(t => t.k === 't');
     const keys = res.out.map(t => t.m + pad(t.d)).sort();
-    return `<div class="card"><b>${esc(fileName)}</b><div class="sub mt">${res.out.length ? `Будет добавлено ${res.out.length} ${plural(res.out.length, 'операция', 'операции', 'операций')}${keys.length ? ` за ${keyLabelL(keys[0])} — ${keyLabelL(keys[keys.length - 1])}` : ''}: ${ex.length} ${plural(ex.length, 'расход', 'расхода', 'расходов')} на ${money(ex.reduce((s, t) => s + t.a, 0))}, ${inc.length} ${plural(inc.length, 'доход', 'дохода', 'доходов')} на ${money(inc.reduce((s, t) => s + t.a, 0))}.` : 'Не нашёл операций. Проверьте столбцы ниже.'}${res.dup ? ` Уже есть в журнале: ${res.dup} — пропущу.` : ''}${res.skipped ? ` Пропущено строк: ${res.skipped} (отклонённые, в валюте или без суммы).` : ''}</div></div>
+    return `<div class="card"><b>${esc(fileName)}</b><div class="sub mt">${res.out.length ? `Будет добавлено ${res.out.length} ${plural(res.out.length, 'операция', 'операции', 'операций')}${keys.length ? ` за ${keyLabelL(keys[0])} — ${keyLabelL(keys[keys.length - 1])}` : ''}: ${ex.length} ${plural(ex.length, 'расход', 'расхода', 'расходов')} на ${money(ex.reduce((s, t) => s + t.a, 0))}, ${inc.length} ${plural(inc.length, 'доход', 'дохода', 'доходов')} на ${money(inc.reduce((s, t) => s + t.a, 0))}${tr.length ? `, ${tr.length} ${plural(tr.length, 'снятие', 'снятия', 'снятий')} наличных в кошелёк «${esc(wal(tr[0].w2).n)}»` : ''}.` : res.dup ? 'Все операции из этого файла уже есть в журнале.' : 'Не нашёл операций. Проверьте столбцы ниже.'}${res.dup && res.out.length ? ` Уже есть в журнале: ${res.dup} — пропущу.` : ''}${res.skipped ? ` Пропущено строк: ${res.skipped} (отклонённые, в валюте или без суммы).` : ''}</div></div>
       <div class="cap">Столбцы</div>
       <div class="card"><div class="fld"><label>Дата</label><select class="sel" data-ref="cdate">${opt(map.date)}</select></div>
         <div class="fld"><label>Сумма (минус — расход)</label><select class="sel" data-ref="camount">${opt(map.amount)}</select></div>
+        <div class="fld"><label>Знак, если он в отдельном столбце (+/−, приход/расход)</label><select class="sel" data-ref="csign">${opt(map.sign, true)}</select></div>
         <div class="fld"><label>Описание</label><select class="sel" data-ref="cdesc">${opt(map.desc, true)}</select></div>
         <div class="fld" style="margin:0"><label>Категория банка</label><select class="sel" data-ref="ccat">${opt(map.cat, true)}</select></div></div>
       <div class="cap">В какой кошелёк</div>
       <div class="card"><select class="sel" data-ref="w">${regWallets().map(w => `<option value="${esc(w.id)}">${esc(w.ic)} ${esc(w.n)}</option>`).join('')}</select></div>
-      ${res.out.length ? `<div class="cap">Первые операции</div><div class="card"><table class="imp-table">${res.out.slice(0, 6).map(t => `<tr><td>${pad(t.d)}.${t.m.slice(4)}</td><td>${icn(cat(t.c).ic)} ${esc(t.n || cat(t.c).n)}</td><td class="r ${t.k === 'i' ? 'inc' : ''}">${t.k === 'i' ? '+' : '−'}${money(t.a)}</td></tr>`).join('')}</table><div class="sub mt">Категории подобраны автоматически — их можно поправить в журнале.</div></div>` : ''}
+      ${res.out.length ? `<div class="cap">Первые операции</div><div class="card"><table class="imp-table">${res.out.slice(0, 6).map(t => `<tr><td>${pad(t.d)}.${t.m.slice(4)}</td><td>${t.k === 't' ? icn('💵') : icn(cat(t.c).ic)} ${esc(t.n || cat(t.c).n)}</td><td class="r ${t.k === 'i' ? 'inc' : ''}">${t.k === 'i' ? '+' : t.k === 't' ? '⇄ ' : '−'}${money(t.a)}</td></tr>`).join('')}</table><div class="sub mt">Категории подобраны автоматически — их можно поправить в журнале.</div></div>` : ''}
       <button class="btn wide" data-s="go"${res.out.length ? '' : ' disabled'}>Добавить ${res.out.length} в журнал</button>`;
   };
   const sh = openSheet({
@@ -3730,13 +3756,15 @@ function openImport() {
         fileName = f.name;
         try { rows = parseCSV(decodeFile(await f.arrayBuffer())); } catch (err) { rows = null; }
         if (!rows || rows.length < 2) { toast('Не удалось прочитать файл'); return; }
-        map = guessCols(rows[0]);
-        if (map.date < 0) map.date = 0; if (map.amount < 0) map.amount = Math.min(1, rows[0].length - 1);
+        hdr = findHeader(rows);
+        map = guessCols(rows[hdr]);
+        if (map.date < 0) map.date = 0; if (map.amount < 0) map.amount = Math.min(1, rows[hdr].length - 1);
         sh.set(preview());
       } else if (e.target.matches('select') && rows) {
         const r = e.target.dataset.ref;
         if (r === 'cdate') map.date = +e.target.value; else if (r === 'camount') map.amount = +e.target.value;
         else if (r === 'cdesc') map.desc = +e.target.value; else if (r === 'ccat') map.cat = +e.target.value;
+        else if (r === 'csign') map.sign = +e.target.value;
         const w = sh.ref('w').value; sh.set(preview()); sh.ref('w').value = w;
       }
     },
